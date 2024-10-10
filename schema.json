@@ -1,0 +1,230 @@
+{
+    "asyncapi": "2.0.0",
+    "info": {
+        "title": "Sample API",
+        "version": "0.0.1",
+        "description": "description"
+    },
+    "servers": {
+        "production": {
+            "url": "localhost:{port}",
+            "protocol": "mqtt",
+            "description": "Test broker",
+            "variables": {
+                "port": {
+                    "description": "TODO",
+                    "default": "1883",
+                    "enum": [
+                        "1883"
+                    ]
+                }
+            }
+        }
+    },
+    "defaultContentType": "application/json",
+    "channels": {
+        "P1": {
+            "description": "no parameters, empty payload",
+            "publish": {
+                "message": {
+                    "name": "P1-name",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    }
+                }
+            }
+        },
+        "P2": {
+            "description": "no parameters, some payload",
+            "publish": {
+                "message": {
+                    "name": "P2-name",
+                    "payload": {
+                        "$ref": "#/components/schemas/some_payload"
+                    }
+                }
+            }
+        },
+        "P3/{p}": {
+            "description": "single parameter, no payload",
+            "parameters": {
+                "p": {
+                    "$ref": "#/components/parameters/p"
+                }
+            },
+            "publish": {
+                "message": {
+                    "name": "P3-name",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    }
+                }
+            }
+        },
+        "P4/{p}/P44": {
+            "description": "single parameter inbetween, no payload",
+            "parameters": {
+                "p": {
+                    "$ref": "#/components/parameters/p"
+                }
+            },
+            "publish": {
+                "message": {
+                    "name": "P4-name",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    }
+                }
+            }
+        },
+        "P5": {
+            "description": "message as $ref",
+            "publish": {
+                "message": {
+                    "$ref": "#/components/messages/some_message"
+                }
+            }
+        },
+        "P6/{pp}": {
+            "description": "single parameter, no refs",
+            "parameters": {
+                "pp": {
+                    "description": "description of pp",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            },
+            "publish": {
+                "message": {
+                    "name": "P6-name",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {}
+                    }
+                }
+            }
+        },
+        "S1": {
+            "description": "no parameters, empty payload",
+            "subscribe": {
+                "message": {
+                    "name": "S1-name",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    }
+                }
+            }
+        },
+        "S2": {
+            "description": "no parameters, some payload",
+            "subscribe": {
+                "message": {
+                    "name": "S2-name",
+                    "payload": {
+                        "$ref": "#/components/schemas/some_payload"
+                    }
+                }
+            }
+        },
+        "S3/{p}": {
+            "description": "single parameter, no payload",
+            "parameters": {
+                "p": {
+                    "$ref": "#/components/parameters/p"
+                }
+            },
+            "subscribe": {
+                "message": {
+                    "name": "S3-name",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    }
+                }
+            }
+        },
+        "S4/{p}/S44": {
+            "description": "single parameter inbetween, no payload",
+            "parameters": {
+                "p": {
+                    "$ref": "#/components/parameters/p"
+                }
+            },
+            "subscribe": {
+                "message": {
+                    "name": "S4-name",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    }
+                }
+            }
+        },
+        "S5": {
+            "description": "message as $ref",
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/some_message"
+                }
+            }
+        },
+        "S6/{pp}": {
+            "description": "single parameter, no refs",
+            "parameters": {
+                "pp": {
+                    "description": "description of pp",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            },
+            "subscribe": {
+                "message": {
+                    "name": "S6-name",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {}
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "p": {
+                "description": "description of p",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "empty_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+            },
+            "some_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "some_prop": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "some_prop"
+                ]
+            }
+        },
+        "messages": {
+            "some_message": {
+                "name": "P5-name",
+                "payload": {
+                    "$ref": "#/components/schemas/empty_payload"
+                }
+            }
+        }
+    }
+}
