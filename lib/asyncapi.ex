@@ -1,101 +1,103 @@
+# TODO: https://hexdocs.pm/ex_json_schema/readme.html#validation-error-formats
+
 defmodule AsyncApi do
   import Enum
-
   alias ExJsonSchema.Validator
 
+  defstruct [:schema, :subscriptions, :operations]
+
+  def find_operation(topic, operations) do
+    maybe_operation = operations |> Map.values() |> find(&Regex.match?(&1.regex, topic))
+
+    case maybe_operation do
+      nil -> {:error, :no_matching_operation}
+      operation -> {:ok, operation}
+    end
+  end
+
+  def check_for_missing_or_unexpected_parameters(parameter_values, operation) do
+    expected = Map.keys(operation.parameter_schemas)
+    actual = Map.keys(parameter_values)
+
+    case {expected -- actual, actual -- expected} do
+      {[], []} -> :ok
+      {[_ | _] = missing, _} -> {:error, {:missing_parameters, missing}}
+      {[], unexpected} -> {:error, {:unexpected_parameters, unexpected}}
+    end
+  end
+
+  def validate_parameters(parameter_values, operation, schema) do
+    parameter_validation_errors =
+      for {name, value} <- parameter_values,
+          v = Validator.validate_fragment(schema, operation.parameter_schemas[name], value),
+          :ok != v do
+        "parameter: '#{name}' - #{inspect(v)}"
+      end
+
+    if parameter_validation_errors == [] do
+      :ok
+    else
+      {:error, parameter_validation_errors}
+    end
+  end
+
+  def validate_payload(payload, operation, schema) do
+    Validator.validate_fragment(schema, operation.payload_schema, payload)
+  end
+
   def load(schema_path) do
-    schema_path |> File.read!() |> Jason.decode!() |> ExJsonSchema.Schema.resolve()
+    schema = schema_path |> File.read!() |> Jason.decode!() |> ExJsonSchema.Schema.resolve()
+
+    operations =
+      for {operation_id, operation} <- schema.schema["operations"], into: %{} do
+        channel = operation["channel"] |> resolve_schema(schema) |> load_channel(schema)
+        {operation_id, Map.merge(channel, %{id: operation_id, action: operation["action"]})}
+      end
+
+    subscriptions =
+      operations
+      |> Map.values()
+      |> filter(&(&1.action == "receive"))
+      |> map(&Regex.replace(~r/\{([^}]*)\}/, &1.address, "+"))
+
+    %__MODULE__{schema: schema, subscriptions: subscriptions, operations: operations}
   end
 
-  def validate_message(schema, channel_regexs, %{payload: payload} = message)
-      when is_binary(payload) do
-    case Jason.decode(payload) do
-      {:ok, payload} -> validate_message(schema, channel_regexs, %{message | payload: payload})
-      {:error, _} = error -> error
-    end
-  end
+  defp load_channel(channel, schema) do
+    # each channel must have exactly one message
+    [{_, message}] = to_list(channel["messages"])
 
-  def validate_message(schema, channel_regexs, message) do
-    case find(channel_regexs, &Regex.match?(&1.re, message.topic)) do
-      %{key: channel_key, re: re} ->
-        channel = schema.schema["channels"][channel_key]
+    payload_schema =
+      message
+      |> resolve_schema(schema)
+      |> Map.get("payload")
+      |> resolve_schema(schema)
 
-        parameter_values = Regex.named_captures(re, message.topic)
-
-        parameter_validations =
-          for {name, value} <- parameter_values do
-            parameter_schema = resolve_schema(schema, channel["parameters"][name], ["schema"])
-            validation = Validator.validate_fragment(schema, parameter_schema, value)
-            {"parameter: '#{name}'", validation}
+    parameter_schemas =
+      for {parameter_name, parameter} <- Map.get(channel, "parameters", []), into: %{} do
+        schema =
+          case resolve_schema(parameter, schema)["enum"] do
+            nil -> %{"type" => "string"}
+            enum -> %{"type" => "string", "enum" => enum}
           end
 
-        message_schema = resolve_schema(schema, channel[message.direction]["message"])
-        payload_schema = resolve_schema(schema, message_schema["payload"])
+        {parameter_name, schema}
+      end
 
-        if payload_schema do
-          payload_validation =
-            Validator.validate_fragment(schema, payload_schema, message.payload)
+    regex = Regex.replace(~r/\{([^}]*)\}/, channel["address"], "(?<\\1>[a-zA-Z0-9_-]+)")
 
-          validation_errors =
-            (parameter_validations ++ [{"payload", payload_validation}])
-            |> reject(fn {_, validation_result} -> validation_result == :ok end)
-            |> Map.new()
-
-          if validation_errors == %{} do
-            {
-              :ok,
-              %MqttAsyncapi.Message{
-                name: message_schema["name"],
-                parameters: parameter_values,
-                payload: message.payload,
-                direction: message.direction
-              }
-            }
-          else
-            {:error, validation_errors}
-          end
-        else
-          {:error, :action_unsupported_for_topic}
-        end
-
-      nil ->
-        {:error, :unknown}
-    end
+    %{
+      address: channel["address"],
+      payload_schema: payload_schema,
+      parameter_schemas: parameter_schemas,
+      regex: Regex.compile!("^#{regex}$")
+    }
   end
 
-  def get_channel_regexs(channels) do
-    for {channel_key, _} <- channels do
-      re = Regex.replace(~r/\{([^}]*)\}/, channel_key, "(?<\\1>[a-zA-Z0-9_-]+)")
-      %{key: channel_key, re: Regex.compile!("^#{re}$")}
-    end
-  end
-
-  def get_message_names_to_channel(schema, direction) do
-    for {channel_key, channel} <- schema["channels"],
-        name = channel[direction]["message"]["name"],
-        into: %{} do
-      {name, channel_key}
-    end
-  end
-
-  def get_subscriptions(schema, direction) do
-    for {channel_key, channel} <- schema["channels"],
-        _ = channel[direction] do
-      Regex.replace(~r/\{([^}]*)\}/, channel_key, "+")
-    end
-  end
-
-  def get_action(:send, :application), do: "subscribe"
-  def get_action(:receive, :application), do: "publish"
-  def get_action(:send, :client), do: "publish"
-  def get_action(:receive, :client), do: "subscribe"
-
-  # TODO sollte in lib vorhanden sein
-  def resolve_schema(schema, schema_or_ref, path \\ []) do
-    case {schema_or_ref, path} do
-      {%{"$ref" => ref}, _} -> ExJsonSchema.Schema.get_fragment!(schema, ref ++ path)
-      {schema, []} -> schema
-      {schema, path} -> get_in(schema, path)
+  defp resolve_schema(schema_or_ref, schema) do
+    case schema_or_ref do
+      %{"$ref" => ref} -> ExJsonSchema.Schema.get_fragment!(schema, ref)
+      schema -> schema
     end
   end
 end

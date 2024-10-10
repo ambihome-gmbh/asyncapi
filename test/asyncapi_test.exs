@@ -1,209 +1,79 @@
-defmodule AsyncapiTest do
+defmodule AsyncApiTest do
   use ExUnit.Case
 
   import AsyncApi
   alias MqttAsyncapi.Message
 
   setup do
-    [schema: AsyncApi.load("schema.json")]
+    [asyncapi: load("schema.json")]
   end
 
-  test "get_message_names_to_channel", %{schema: schema} do
-    assert %{
-             "P1-name" => "P1",
-             "P2-name" => "P2",
-             "P3-name" => "P3/{p}",
-             "P4-name" => "P4/{p}/P44",
-             "P6-name" => "P6/{pp}"
-           } = get_message_names_to_channel(schema.schema, "publish")
-
-    assert %{
-             "S1-name" => "S1",
-             "S2-name" => "S2",
-             "S3-name" => "S3/{p}",
-             "S4-name" => "S4/{p}/S44",
-             "S6-name" => "S6/{pp}"
-           } = get_message_names_to_channel(schema.schema, "subscribe")
+  test "subscriptions", %{asyncapi: asyncapi} do
+    assert ["P1", "P2", "P3/+", "P4/+/P44", "P5", "P6/+"] == asyncapi.subscriptions
   end
 
-  test "get_subscriptions", %{schema: schema} do
-    assert ["P1", "P2", "P3/+", "P4/+/P44", "P5", "P6/+"] ==
-             get_subscriptions(schema.schema, "publish")
+  @m_1 %Message{parameters: %{}, payload: %{}, operation_id: "P1"}
+  @m_2 %Message{parameters: %{}, payload: %{"some_prop" => "foo"}, operation_id: "P2"}
+  @m_3 %Message{parameters: %{"p" => "p1"}, payload: %{}, operation_id: "P3"}
+  @m_4 %Message{parameters: %{"p" => "p1"}, payload: %{}, operation_id: "P4"}
+  @m_5 %Message{parameters: %{}, payload: %{}, operation_id: "P5"}
+  @m_6 %Message{parameters: %{"pp" => "test"}, payload: %{}, operation_id: "P6"}
 
-    assert ["S1", "S2", "S3/+", "S4/+/S44", "S5", "S6/+"] ==
-             get_subscriptions(schema.schema, "subscribe")
+  @mqtt_1 %{topic: "P1", payload: "{}"}
+  @mqtt_2 %{topic: "P2", payload: ~s/{"some_prop":"foo"}/}
+  @mqtt_3 %{topic: "P3/p1", payload: "{}"}
+  @mqtt_4 %{topic: "P4/p1/P44", payload: "{}"}
+  @mqtt_5 %{topic: "P5", payload: "{}"}
+  @mqtt_6 %{topic: "P6/test", payload: "{}"}
+
+  test "from_mqtt_message, valid", %{asyncapi: asyncapi} do
+    assert {:ok, @m_1} == Message.from_mqtt_message(@mqtt_1, asyncapi)
+    assert {:ok, @m_2} == Message.from_mqtt_message(@mqtt_2, asyncapi)
+    assert {:ok, @m_3} == Message.from_mqtt_message(@mqtt_3, asyncapi)
+    assert {:ok, @m_4} == Message.from_mqtt_message(@mqtt_4, asyncapi)
+    assert {:ok, @m_5} == Message.from_mqtt_message(@mqtt_5, asyncapi)
+    assert {:ok, @m_6} == Message.from_mqtt_message(@mqtt_6, asyncapi)
   end
 
-  test "validate_message", %{schema: schema} do
-    channel_regexs = get_channel_regexs(schema.schema["channels"])
-
-    assert {:ok,
-            %Message{
-              parameters: %{},
-              payload: %{},
-              name: "P1-name",
-              direction: "publish"
-            }} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P1",
-               direction: "publish",
-               payload: %{}
-             })
-
-    assert {:ok,
-            %Message{
-              parameters: %{},
-              payload: %{"some_prop" => "foo"},
-              name: "P2-name",
-              direction: "publish"
-            }} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P2",
-               direction: "publish",
-               payload: %{"some_prop" => "foo"}
-             })
-
-    assert {:ok,
-            %Message{
-              parameters: %{"p" => "test"},
-              payload: %{},
-              name: "P3-name",
-              direction: "publish"
-            }} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P3/test",
-               direction: "publish",
-               payload: %{}
-             })
-
-    assert {:ok,
-            %Message{
-              parameters: %{"p" => "test"},
-              payload: %{},
-              name: "P4-name",
-              direction: "publish"
-            }} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P4/test/P44",
-               direction: "publish",
-               payload: %{}
-             })
-
-    assert {:ok,
-            %Message{
-              parameters: %{},
-              payload: %{},
-              name: "P5-name",
-              direction: "publish"
-            }} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P5",
-               direction: "publish",
-               payload: %{}
-             })
-
-    assert {:ok,
-            %Message{
-              parameters: %{"pp" => "test"},
-              payload: %{},
-              name: "P6-name",
-              direction: "publish"
-            }} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P6/test",
-               direction: "publish",
-               payload: %{}
-             })
-
-    assert {:error, :unknown} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "nonexisting/topic",
-               direction: "publish",
-               payload: %{}
-             })
-
-    assert {:error, :action_unsupported_for_topic} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P1",
-               direction: "subscribe",
-               payload: %{}
-             })
-
-    assert {:error,
-            %{"payload" => {:error, [{"Required property some_prop was not present.", "#"}]}}} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P2",
-               direction: "publish",
-               payload: %{}
-             })
-
-    assert {:error,
-            %{
-              "payload" =>
-                {:error, [{"Schema does not allow additional properties.", "#/additional"}]}
-            }} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P1",
-               direction: "publish",
-               payload: %{additional: :properties}
-             })
-
-    assert {:error, %Jason.DecodeError{}} =
-             validate_message(schema, channel_regexs, %{
-               topic: "P1",
-               direction: "publish",
-               payload: "Type mismatch"
-             })
-
-    assert {:error,
-            %{
-              "payload" =>
-                {:error, [{"Type mismatch. Expected String but got Integer.", "#/some_prop"}]}
-            }} ==
-             validate_message(schema, channel_regexs, %{
-               topic: "P2",
-               direction: "publish",
-               payload: %{"some_prop" => 4711}
-             })
+  test "to_mqtt_message, valid", %{asyncapi: asyncapi} do
+    assert @mqtt_1 == Message.to_mqtt_message!(@m_1, asyncapi)
+    assert @mqtt_2 == Message.to_mqtt_message!(@m_2, asyncapi)
+    assert @mqtt_3 == Message.to_mqtt_message!(@m_3, asyncapi)
+    assert @mqtt_4 == Message.to_mqtt_message!(@m_4, asyncapi)
+    assert @mqtt_5 == Message.to_mqtt_message!(@m_5, asyncapi)
+    assert @mqtt_6 == Message.to_mqtt_message!(@m_6, asyncapi)
   end
 
-  test "get mqtt message", %{schema: schema} do
-    names = get_message_names_to_channel(schema.schema, "publish")
+  test "from_mqtt_message, invalid", %{asyncapi: asyncapi} do
+    assert {:error, :no_matching_operation} ==
+             Message.from_mqtt_message(%{topic: "nonexisting", payload: "{}"}, asyncapi)
 
-    assert %{payload: "{}", topic: "P1"} ==
-             MqttAsyncapi.Message.to_mqtt_message(
-               %MqttAsyncapi.Message{
-                 payload: %{},
-                 name: "P1-name",
-                 parameters: %{},
-                 direction: "publish"
-               },
-               schema,
-               names
+    assert {:error, [{"Required property some_prop was not present.", "#"}]} ==
+             Message.from_mqtt_message(%{topic: "P2", payload: "{}"}, asyncapi)
+
+    assert {:error, [{"Type mismatch. Expected String but got Integer.", "#/some_prop"}]} ==
+             Message.from_mqtt_message(%{topic: "P2", payload: ~s/{"some_prop": 1}/}, asyncapi)
+
+    assert {:error, [{"Schema does not allow additional properties.", "#/additional"}]} ==
+             Message.from_mqtt_message(%{topic: "P1", payload: ~s/{"additional": ""}/}, asyncapi)
+
+    assert {:error, ["parameter: 'p' - {:error, [{\"Value is not allowed in enum.\", \"#\"}]}"]} ==
+             Message.from_mqtt_message(%{topic: "P3/x", payload: ~s/{}/}, asyncapi)
+  end
+
+  test "to_mqtt_message, invalid", %{asyncapi: asyncapi} do
+    assert assert_raise RuntimeError, ~s/{:error, {:missing_parameters, ["p"]}}/, fn ->
+             Message.to_mqtt_message!(
+               %Message{parameters: %{}, payload: %{}, operation_id: "P3"},
+               asyncapi
              )
+           end
 
-    assert %{payload: "{}", topic: "P3/test"} ==
-             MqttAsyncapi.Message.to_mqtt_message(
-               %MqttAsyncapi.Message{
-                 payload: %{},
-                 name: "P3-name",
-                 parameters: %{"p" => "test"},
-                 direction: "publish"
-               },
-               schema,
-               names
+    assert assert_raise RuntimeError, ~s/{:error, {:unexpected_parameters, [\"x\"]}}/, fn ->
+             Message.to_mqtt_message!(
+               %Message{parameters: %{"p" => "p1", "x" => "x"}, payload: %{}, operation_id: "P3"},
+               asyncapi
              )
-
-    assert %{payload: ~s/{"some_prop":"foo"}/, topic: "P2"} ==
-             MqttAsyncapi.Message.to_mqtt_message(
-               %MqttAsyncapi.Message{
-                 parameters: %{},
-                 payload: %{"some_prop" => "foo"},
-                 name: "P2-name",
-                 direction: "publish"
-               },
-               schema,
-               names
-             )
+           end
   end
 end
