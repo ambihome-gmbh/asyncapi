@@ -8,7 +8,7 @@
   "defaultContentType": "application/json",
   "servers": {
     "production": {
-      "host": "test.mosquitto.org",
+      "host": "127.0.0.1",
       "protocol": "mqtt",
       "description": "Test broker",
       "variables": {
@@ -205,80 +205,6 @@
         "pp": {
           "description": "description of pp"
         }
-      }
-    }
-  },
-  "operations": {
-    "P1": {
-      "action": "receive",
-      "channel": {
-        "$ref": "#/channels/P1"
-      }
-    },
-    "P2": {
-      "action": "receive",
-      "channel": {
-        "$ref": "#/channels/P2"
-      }
-    },
-    "P3": {
-      "action": "receive",
-      "channel": {
-        "$ref": "#/channels/P3"
-      }
-    },
-    "P4": {
-      "action": "receive",
-      "channel": {
-        "$ref": "#/channels/P4"
-      }
-    },
-    "P5": {
-      "action": "receive",
-      "channel": {
-        "$ref": "#/channels/P5"
-      }
-    },
-    "P6": {
-      "action": "receive",
-      "channel": {
-        "$ref": "#/channels/P6"
-      }
-    },
-    "S1": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/S1"
-      }
-    },
-    "S2": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/S2"
-      }
-    },
-    "S3": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/S3"
-      }
-    },
-    "S4": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/S4"
-      }
-    },
-    "S5": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/S5"
-      }
-    },
-    "S6": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/S6"
       }
     }
   },

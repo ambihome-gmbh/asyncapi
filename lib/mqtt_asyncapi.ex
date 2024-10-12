@@ -23,7 +23,8 @@ defmodule MqttAsyncapi do
       end
 
       @impl true
-      def handle_info(_term, state) do
+      def handle_info(info, state) do
+        dbg({:unhandled, :handle_info, info})
         {:noreply, state}
       end
 
@@ -37,7 +38,7 @@ defmodule MqttAsyncapi do
     GenServer.start_link(
       __MODULE__,
       [{:user_module, user_module}, {:asyncapi_schema_path, schema_path} | opts],
-      name: __MODULE__
+      name: user_module
     )
   end
 
@@ -48,21 +49,14 @@ defmodule MqttAsyncapi do
 
     asyncapi = AsyncApi.load(asyncapi_schema_path)
 
-    server = asyncapi.schema.schema["servers"]["production"]
+    opts = [{:host, asyncapi.server.host}, {:port, asyncapi.server.port} | opts]
 
-    host = to_charlist(server["host"])
-    port = String.to_integer(get_in(server, ["variables", "port", "default"]))
-
-    opts = [{:host, host}, {:port, port} | opts]
-
-    dbg(opts)
-
-    Logger.debug("[MqttAsyncapi] connecting to #{opts[:host]}:#{opts[:port]}")
+    Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, pid} = :emqtt.start_link(opts)
     {:ok, _props} = :emqtt.connect(pid)
 
-    Logger.debug("[MqttAsyncapi] connected")
+    Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, user_state} = user_module.init(opts)
 
@@ -73,26 +67,21 @@ defmodule MqttAsyncapi do
       asyncapi: asyncapi
     }
 
-    each(asyncapi.subscriptions, &subscribe!(state.mqtt.pid, &1, 0))
+    each(asyncapi.subscriptions, &subscribe!(state.mqtt.pid, &1, 0, state))
 
     {:ok, state}
   end
 
   @impl GenServer
   def handle_info({:publish, mqtt_message}, state) do
-    Logger.debug("[MqttAsyncapi] recv #{inspect(mqtt_message)}")
+    Logger.debug("[#{inspect(state.user_module)}] recv #{inspect(mqtt_message)}")
 
     new_user_state =
       case Message.from_mqtt_message(mqtt_message, state.asyncapi) do
         {:ok, message} ->
-          case state.user_module.handle_message(message, state.user_state) do
-            {:noreply, new_user_state} ->
-              new_user_state
-
-            {:reply, responses, new_user_state} ->
-              each(responses, &publish(&1, state))
-              new_user_state
-          end
+          message
+          |> state.user_module.handle_message(state.user_state)
+          |> process_reply(state)
 
         {:error, reason} ->
           dbg(reason)
@@ -103,21 +92,30 @@ defmodule MqttAsyncapi do
   end
 
   def handle_info({:disconnected, :shutdown, :ssl_closed}, state) do
-    Logger.warning("[MqttAsyncapi] disconnected: ssl_closed")
+    Logger.warning("[#{inspect(state.user_module)}] disconnected: ssl_closed")
     {:noreply, state}
   end
 
   def handle_info(message, state) do
-    Logger.warning("[MqttAsyncapi] unhandled: #{inspect(message)}")
-    {:noreply, state}
+    new_user_state =
+      message
+      |> state.user_module.handle_info(state.user_state)
+      |> process_reply(state)
+
+    {:noreply, %{state | user_state: new_user_state}}
   end
 
   # ------
 
+  def process_reply({:noreply, new_user_state}, _state), do: new_user_state
+
+  def process_reply({:reply, responses, new_user_state}, state) do
+    each(responses, &publish(&1, state))
+    new_user_state
+  end
+
   defp publish(%Message{} = message, state) do
     mqtt_message = Message.to_mqtt_message!(message, state.asyncapi)
-
-    dbg(mqtt_message)
 
     publish_(state.mqtt.pid, mqtt_message.payload, mqtt_message.topic)
   end
@@ -126,14 +124,14 @@ defmodule MqttAsyncapi do
     :emqtt.publish(pid, topic, message, qos)
   end
 
-  defp subscribe!(pid, topic, qos) do
+  defp subscribe!(pid, topic, qos, state) do
     case :emqtt.subscribe(pid, {topic, qos}) do
       {:ok, _props, [reason]} when reason in [0x00, 0x01, 0x02] ->
-        Logger.debug("[MqttAsyncapi] subscribed: #{topic}")
+        Logger.debug("[#{inspect(state.user_module)}] subscribed: #{topic}")
         :ok
 
       {:ok, _props, reasons} ->
-        raise("[MqttAsyncapi] subscribe to #{topic} failed: #{inspect(reasons)}")
+        raise("[#{inspect(state.user_module)}] subscribe to #{topic} failed: #{inspect(reasons)}")
     end
   end
 end

@@ -1,5 +1,5 @@
 defmodule SampleService do
-  use MqttAsyncapi, schema_path: "schema.json"
+  use MqttAsyncapi, schema_path: "priv/schema/schema.json"
 
   alias MqttAsyncapi.Message
 
@@ -18,17 +18,11 @@ defmodule SampleService do
 
   def handle_message(%Message{operation_id: "P2"} = message, state) do
     some_prop = message.payload["some_prop"]
-    dbg("got P2, some_prop: #{some_prop}")
     {:reply, [%Message{operation_id: "S2", payload: %{"some_prop" => some_prop}}], state}
   end
 
   def handle_message(%Message{} = message, state) do
-    dbg({:unhandled, message})
+    dbg({:unhandled, :handle_message, message})
     {:noreply, state}
   end
-
-  # @impl true
-  # def handle_info(_term, state) do
-  #   {:noreply, state}
-  # end
 end

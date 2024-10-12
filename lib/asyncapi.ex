@@ -4,7 +4,7 @@ defmodule AsyncApi do
   import Enum
   alias ExJsonSchema.Validator
 
-  defstruct [:schema, :subscriptions, :operations]
+  defstruct [:schema, :subscriptions, :operations, :server]
 
   def find_operation(topic, operations) do
     maybe_operation = operations |> Map.values() |> find(&Regex.match?(&1.regex, topic))
@@ -60,18 +60,24 @@ defmodule AsyncApi do
       |> filter(&(&1.action == "receive"))
       |> map(&Regex.replace(~r/\{([^}]*)\}/, &1.address, "+"))
 
-    %__MODULE__{schema: schema, subscriptions: subscriptions, operations: operations}
+    server = resolve_schema(schema.schema["servers"]["production"], schema)
+    "mqtt" = server["protocol"]
+    host = to_charlist(server["host"])
+    port = String.to_integer(get_in(server, ["variables", "port", "default"]))
+
+    %__MODULE__{
+      server: %{host: host, port: port},
+      schema: schema,
+      subscriptions: subscriptions,
+      operations: operations
+    }
   end
 
   defp load_channel(channel, schema) do
     # each channel must have exactly one message
     [{_, message}] = to_list(channel["messages"])
 
-    payload_schema =
-      message
-      |> resolve_schema(schema)
-      |> Map.get("payload")
-      |> resolve_schema(schema)
+    payload_schema = message |> resolve_schema(schema) |> Map.get("payload")
 
     parameter_schemas =
       for {parameter_name, parameter} <- Map.get(channel, "parameters", []), into: %{} do
@@ -94,10 +100,12 @@ defmodule AsyncApi do
     }
   end
 
-  defp resolve_schema(schema_or_ref, schema) do
-    case schema_or_ref do
+  # NOTE: while ex_json_schema will automatically resolve refs when validating,
+  #   we need this to directly access some parts of the schema
+  defp resolve_schema(fragment_or_ref, schema) do
+    case fragment_or_ref do
       %{"$ref" => ref} -> ExJsonSchema.Schema.get_fragment!(schema, ref)
-      schema -> schema
+      fragment -> fragment
     end
   end
 end
