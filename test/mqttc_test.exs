@@ -13,14 +13,14 @@ defmodule MQTTcTest do
   end
 
   def start_services() do
-    {:ok, _} = start_supervised(SampleServiceA)
-    {:ok, sample_service_b_pid} = start_supervised(SampleServiceB)
+    {:ok, _} = start_supervised(Simple.ServiceA)
+    {:ok, sample_service_b_pid} = start_supervised(Simple.ServiceB)
     sample_service_b_pid
   end
 
   def roundtrip(pid) do
     send(pid, {"run-test-sequence", "test-data"})
-    assert_receive({"test-sequence-done", "test-data"}, 10, "failed")
+    assert_receive({"test-sequence-done", "test-data"}, 10)
   end
 
   # @tag :skip

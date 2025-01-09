@@ -36,6 +36,7 @@ defmodule MqttAsyncapi do
   def start_link(user_module, opts) do
     schema_path = user_module.get_schema_path()
 
+    # TODO? name aus user mitgeben? jetzt immer __MODULE__
     GenServer.start_link(
       __MODULE__,
       [{:user_module, user_module}, {:asyncapi_schema_path, schema_path} | opts],
@@ -98,7 +99,6 @@ defmodule MqttAsyncapi do
   end
 
   def handle_info(message, state) do
-    # dbg({:info, message})
     new_user_state =
       message
       |> state.user_module.handle_info(state.user_state)

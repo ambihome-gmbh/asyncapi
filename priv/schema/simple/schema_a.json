@@ -8,80 +8,80 @@
   "defaultContentType": "application/json",
   "servers": {
     "production": {
-      "$ref": "common_schema.json#/servers/production"
+      "$ref": "simple/common_schema.json#/servers/production"
     }
   },
   "operations": {
     "P1": {
       "action": "receive",
       "channel": {
-        "$ref": "common_schema.json#/channels/P1"
+        "$ref": "simple/common_schema.json#/channels/P1"
       }
     },
     "P2": {
       "action": "receive",
       "channel": {
-        "$ref": "common_schema.json#/channels/P2"
+        "$ref": "simple/common_schema.json#/channels/P2"
       }
     },
     "P3": {
       "action": "receive",
       "channel": {
-        "$ref": "common_schema.json#/channels/P3"
+        "$ref": "simple/common_schema.json#/channels/P3"
       }
     },
     "P4": {
       "action": "receive",
       "channel": {
-        "$ref": "common_schema.json#/channels/P4"
+        "$ref": "simple/common_schema.json#/channels/P4"
       }
     },
     "P5": {
       "action": "receive",
       "channel": {
-        "$ref": "common_schema.json#/channels/P5"
+        "$ref": "simple/common_schema.json#/channels/P5"
       }
     },
     "P6": {
       "action": "receive",
       "channel": {
-        "$ref": "common_schema.json#/channels/P6"
+        "$ref": "simple/common_schema.json#/channels/P6"
       }
     },
     "S1": {
       "action": "send",
       "channel": {
-        "$ref": "common_schema.json#/channels/S1"
+        "$ref": "simple/common_schema.json#/channels/S1"
       }
     },
     "S2": {
       "action": "send",
       "channel": {
-        "$ref": "common_schema.json#/channels/S2"
+        "$ref": "simple/common_schema.json#/channels/S2"
       }
     },
     "S3": {
       "action": "send",
       "channel": {
-        "$ref": "common_schema.json#/channels/S3"
+        "$ref": "simple/common_schema.json#/channels/S3"
       }
     },
     "S4": {
       "action": "send",
       "channel": {
-        "$ref": "common_schema.json#/channels/S4"
+        "$ref": "simple/common_schema.json#/channels/S4"
       }
     },
     "S5": {
       "action": "send",
       "channel": {
-        "$ref": "common_schema.json#/channels/S5"
+        "$ref": "simple/common_schema.json#/channels/S5"
       }
     },
     "S6": {
       "action": "send",
       "channel": {
-        "$ref": "common_schema.json#/channels/S6"
+        "$ref": "simple/common_schema.json#/channels/S6"
       }
     }
   }

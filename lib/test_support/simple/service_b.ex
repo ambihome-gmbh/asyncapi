@@ -1,4 +1,4 @@
-defmodule SampleServiceB do
+defmodule Simple.ServiceB do
   use MqttAsyncapi, schema_path: "priv/schema/simple/schema_b.json"
 
   alias MqttAsyncapi.Message
@@ -22,6 +22,7 @@ defmodule SampleServiceB do
   end
 
   @impl true
+  # {"run-test-sequence", "test-data"}
   def handle_info({"run-test-sequence", data}, state) do
     {:reply, [%Message{operation_id: "P2", payload: %{"some_prop" => data}}], state}
   end
