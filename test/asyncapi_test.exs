@@ -5,7 +5,7 @@ defmodule AsyncApiTest do
   alias MqttAsyncapi.Message
 
   setup do
-    [asyncapi: load("priv/schema/schema.json")]
+    [asyncapi: load("priv/schema/simple/schema_a.json")]
   end
 
   test "server", %{asyncapi: asyncapi} do

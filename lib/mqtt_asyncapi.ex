@@ -15,6 +15,7 @@ defmodule MqttAsyncapi do
   defmacro __using__(opts) do
     quote do
       @behaviour MqttAsyncapi
+      require Logger
 
       def get_schema_path(), do: unquote(Keyword.get(opts, :schema_path))
 
@@ -24,7 +25,7 @@ defmodule MqttAsyncapi do
 
       @impl true
       def handle_info(info, state) do
-        dbg({:unhandled, :handle_info, info})
+        Logger.warning("unhandled: handle_info: #{inspect info}")
         {:noreply, state}
       end
 

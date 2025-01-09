@@ -13,9 +13,9 @@ defmodule MQTTcTest do
   end
 
   def start_services() do
-    {:ok, _} = start_supervised(SampleService)
-    {:ok, other_sample_service_pid} = start_supervised(OtherSampleService)
-    other_sample_service_pid
+    {:ok, _} = start_supervised(SampleServiceA)
+    {:ok, sample_service_b_pid} = start_supervised(SampleServiceB)
+    sample_service_b_pid
   end
 
   def roundtrip(pid) do
@@ -23,7 +23,7 @@ defmodule MQTTcTest do
     assert_receive({"test-sequence-done", "test-data"}, 10, "failed")
   end
 
-  @tag :skip
+  # @tag :skip
   test "roundtrip" do
     pid = start_services()
     roundtrip(pid)
