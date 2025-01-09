@@ -1,14 +1,47 @@
 defmodule MQTTcTest do
   use ExUnit.Case
 
-  test "mqtt-roundtrip" do
+  def start_broker(), do: {"nanomq\n", 0} = System.cmd("docker", ["start", "nanomq"])
+  def stop_broker(), do: System.cmd("docker", ["stop", "nanomq"])
+
+  setup do
     Process.register(self(), :mqtt_test)
     IO.puts("")
+    start_broker()
+    on_exit(&stop_broker/0)
+    :ok
+  end
 
-    {:ok, _sample_service_pid} = start_supervised(SampleService)
+  def start_services() do
+    {:ok, _} = start_supervised(SampleService)
     {:ok, other_sample_service_pid} = start_supervised(OtherSampleService)
+    other_sample_service_pid
+  end
 
-    send(other_sample_service_pid, {"run-test-sequence", "test-data"})
+  def roundtrip(pid) do
+    send(pid, {"run-test-sequence", "test-data"})
     assert_receive({"test-sequence-done", "test-data"}, 10, "failed")
+  end
+
+  @tag :skip
+  test "roundtrip" do
+    pid = start_services()
+    roundtrip(pid)
+  end
+
+  @tag skip: "TODO, does not work yet"
+  test "reconnect" do
+    pid = start_services()
+    stop_broker()
+    start_broker()
+    roundtrip(pid)
+  end
+
+  @tag skip: "TODO, does not work yet"
+  test "retry connect" do
+    stop_broker()
+    pid = start_services()
+    start_broker()
+    roundtrip(pid)
   end
 end

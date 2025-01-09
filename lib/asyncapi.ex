@@ -7,9 +7,10 @@ defmodule AsyncApi do
   defstruct [:schema, :subscriptions, :operations, :server]
 
   def find_operation(topic, operations) do
-    maybe_operation = operations |> Map.values() |> find(&Regex.match?(&1.regex, topic))
-
-    case maybe_operation do
+    operations
+    |> Map.values()
+    |> find(&Regex.match?(&1.regex, topic))
+    |> case do
       nil -> {:error, :no_matching_operation}
       operation -> {:ok, operation}
     end
@@ -63,7 +64,7 @@ defmodule AsyncApi do
     server = resolve_schema(schema.schema["servers"]["production"], schema)
     "mqtt" = server["protocol"]
     host = to_charlist(server["host"])
-    port = String.to_integer(get_in(server, ["variables", "port", "default"]))
+    port = server |> get_in(["variables", "port", "default"]) |> String.to_integer()
 
     %__MODULE__{
       server: %{host: host, port: port},
@@ -74,7 +75,7 @@ defmodule AsyncApi do
   end
 
   defp load_channel(channel, schema) do
-    # each channel must have exactly one message
+    # NOTE: asyncapi allows multiple message, but we support only exactly one
     [{_, message}] = to_list(channel["messages"])
 
     payload_schema = message |> resolve_schema(schema) |> Map.get("payload")

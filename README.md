@@ -2,10 +2,10 @@
 
 ## Test
 
-Assumes that a broker is running at `localhost:1883` with anonymous login enabled.
-
-For example run nanomq using docker:
+Run this before the mqtt tests 
 
 ```
-docker run -d -p 1883:1883 emqx/nanomq:latest
+docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 ```
+
+(nanomq running in a container named nanomq is expected by the tests.)

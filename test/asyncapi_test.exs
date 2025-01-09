@@ -9,7 +9,7 @@ defmodule AsyncApiTest do
   end
 
   test "server", %{asyncapi: asyncapi} do
-    assert %{port: 1883} = asyncapi.server
+    assert %{port: 1883, host: ~c"127.0.0.1"} = asyncapi.server
   end
 
   test "subscriptions", %{asyncapi: asyncapi} do

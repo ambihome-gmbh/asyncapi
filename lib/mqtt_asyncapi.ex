@@ -97,6 +97,7 @@ defmodule MqttAsyncapi do
   end
 
   def handle_info(message, state) do
+    # dbg({:info, message})
     new_user_state =
       message
       |> state.user_module.handle_info(state.user_state)
