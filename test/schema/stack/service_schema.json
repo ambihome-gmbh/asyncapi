@@ -1,0 +1,34 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "Stack API - service perspective",
+    "version": "0.0.1",
+    "description": "API for a stateful stack with push and pop operations"
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "production": {
+      "$ref": "stack/common_schema.json#/servers/production"
+    }
+  },
+  "operations": {
+    "push": {
+      "action": "receive",
+      "channel": {
+        "$ref": "stack/common_schema.json#/channels/push"
+      }
+    },
+    "pop": {
+      "action": "receive",
+      "channel": {
+        "$ref": "stack/common_schema.json#/channels/pop"
+      }
+    },
+    "pop_response": {
+      "action": "send",
+      "channel": {
+        "$ref": "stack/common_schema.json#/channels/pop_response"
+      }
+    }
+  }
+}

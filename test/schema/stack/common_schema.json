@@ -3,7 +3,7 @@
   "info": {
     "title": "Stack API",
     "version": "0.0.1",
-    "description": "API for a stateful stack with push, pop, and post operations"
+    "description": "API for a stateful stack with push and pop operations"
   },
   "defaultContentType": "application/json",
   "servers": {
@@ -49,19 +49,6 @@
       },
       "description": "Channel for popping values from the stack"
     },
-    "top": {
-      "address": "stack/top",
-      "title": "Top channel",
-      "messages": {
-        "top-message": {
-          "name": "TopMessage",
-          "payload": {
-            "$ref": "#/components/schemas/empty_payload"
-          }
-        }
-      },
-      "description": "Channel for getting the top value of the stack"
-    },
     "pop_response": {
       "address": "stack/pop/response",
       "title": "Pop Response channel",
@@ -69,24 +56,11 @@
         "pop-response-message": {
           "name": "PopResponseMessage",
           "payload": {
-            "$ref": "#/components/schemas/value_payload"
+            "$ref": "#/components/schemas/pop_response_payload"
           }
         }
       },
       "description": "Channel for receiving responses after popping values from the stack"
-    },
-    "top_response": {
-      "address": "stack/top/response",
-      "title": "Top Response channel",
-      "messages": {
-        "top-response-message": {
-          "name": "TopResponseMessage",
-          "payload": {
-            "$ref": "#/components/schemas/value_payload"
-          }
-        }
-      },
-      "description": "Channel for receiving responses after getting the top value of the stack"
     }
   },
   "components": {
@@ -96,6 +70,20 @@
         "additionalProperties": false,
         "properties": {}
       },
+      "pop_response_payload": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
       "push_payload": {
         "type": "object",
         "properties": {
@@ -103,16 +91,9 @@
             "type": "integer"
           }
         },
-        "required": ["value"]
-      },
-      "value_payload": {
-        "type": "object",
-        "properties": {
-          "value": {
-            "type": "integer"
-          }
-        },
-        "required": ["value"]
+        "required": [
+          "value"
+        ]
       }
     }
   }

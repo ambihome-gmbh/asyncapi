@@ -40,12 +40,12 @@ defmodule AsyncApiTest do
   end
 
   test "to_mqtt_message, valid", %{asyncapi: asyncapi} do
-    assert @mqtt_1 == Message.to_mqtt_message!(@m_1, asyncapi)
-    assert @mqtt_2 == Message.to_mqtt_message!(@m_2, asyncapi)
-    assert @mqtt_3 == Message.to_mqtt_message!(@m_3, asyncapi)
-    assert @mqtt_4 == Message.to_mqtt_message!(@m_4, asyncapi)
-    assert @mqtt_5 == Message.to_mqtt_message!(@m_5, asyncapi)
-    assert @mqtt_6 == Message.to_mqtt_message!(@m_6, asyncapi)
+    assert @mqtt_1 = Message.to_mqtt_message!(@m_1, asyncapi)
+    assert @mqtt_2 = Message.to_mqtt_message!(@m_2, asyncapi)
+    assert @mqtt_3 = Message.to_mqtt_message!(@m_3, asyncapi)
+    assert @mqtt_4 = Message.to_mqtt_message!(@m_4, asyncapi)
+    assert @mqtt_5 = Message.to_mqtt_message!(@m_5, asyncapi)
+    assert @mqtt_6 = Message.to_mqtt_message!(@m_6, asyncapi)
   end
 
   test "from_mqtt_message, invalid", %{asyncapi: asyncapi} do

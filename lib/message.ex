@@ -4,7 +4,9 @@ defmodule MqttAsyncapi.Message do
   @type t :: %__MODULE__{}
   defstruct operation_id: nil,
             parameters: %{},
-            payload: %{}
+            payload: %{},
+            retain: false,
+            qos: 0
 
   def from_mqtt_message(mqtt_message, asyncapi) do
     %{schema: schema, operations: operations} = asyncapi
@@ -36,7 +38,9 @@ defmodule MqttAsyncapi.Message do
          :ok <- AsyncApi.validate_payload(payload, operation, schema) do
       %{
         topic: interpolate_parameters(operation.address, parameters),
-        payload: Jason.encode!(message.payload)
+        payload: Jason.encode!(message.payload),
+        qos: message.qos,
+        retain: message.retain
       }
     else
       error -> raise(inspect(error))

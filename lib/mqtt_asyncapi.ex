@@ -25,13 +25,15 @@ defmodule MqttAsyncapi do
 
       @impl true
       def handle_info(info, state) do
-        Logger.warning("unhandled: handle_info: #{inspect info}")
+        Logger.warning("unhandled: handle_info: #{inspect(info)}")
         {:noreply, state}
       end
 
       defoverridable handle_info: 2
     end
   end
+
+  # --- API
 
   def start_link(user_module, opts) do
     schema_path = user_module.get_schema_path()
@@ -44,6 +46,15 @@ defmodule MqttAsyncapi do
     )
   end
 
+  def send(operation_id, payload, state) do
+    publish(
+      %Message{operation_id: operation_id, payload: payload},
+      %{asyncapi: state.asyncapi, mqtt: state.mqtt}
+    )
+  end
+
+  # ---
+
   @impl GenServer
   def init(opts) do
     {user_module, opts} = Keyword.pop(opts, :user_module)
@@ -55,15 +66,15 @@ defmodule MqttAsyncapi do
 
     Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
 
-    {:ok, pid} = :emqtt.start_link(opts)
-    {:ok, _props} = :emqtt.connect(pid)
+    {:ok, mqtt_pid} = :emqtt.start_link(opts)
+    {:ok, _props} = :emqtt.connect(mqtt_pid)
 
     Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, user_state} = user_module.init(opts)
 
     state = %{
-      mqtt: %{pid: pid, opts: opts},
+      mqtt: %{pid: mqtt_pid, opts: opts},
       user_module: user_module,
       user_state: user_state,
       asyncapi: asyncapi
@@ -109,9 +120,9 @@ defmodule MqttAsyncapi do
 
   # ------
 
-  def process_reply({:noreply, new_user_state}, _state), do: new_user_state
+  defp process_reply({:noreply, new_user_state}, _state), do: new_user_state
 
-  def process_reply({:reply, responses, new_user_state}, state) do
+  defp process_reply({:reply, responses, new_user_state}, state) do
     each(responses, &publish(&1, state))
     new_user_state
   end
@@ -119,11 +130,12 @@ defmodule MqttAsyncapi do
   defp publish(%Message{} = message, state) do
     mqtt_message = Message.to_mqtt_message!(message, state.asyncapi)
 
-    publish_(state.mqtt.pid, mqtt_message.payload, mqtt_message.topic)
+    publish_(state.mqtt.pid, mqtt_message)
   end
 
-  defp publish_(pid, message, topic, qos \\ 0) do
-    :emqtt.publish(pid, topic, message, qos)
+  defp publish_(pid, mqtt_message) do
+    # TODO mqtt_message.retain?
+    :emqtt.publish(pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
   end
 
   defp subscribe!(pid, topic, qos, state) do

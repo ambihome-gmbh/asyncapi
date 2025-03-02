@@ -1,4 +1,8 @@
-defmodule StackTest do
+defmodule DummyUser do
+  def init(_), do: {:ok, %{}}
+end
+
+defmodule Stack2Test do
   use ExUnit.Case
 
   alias MqttAsyncapi.Message
@@ -7,34 +11,58 @@ defmodule StackTest do
   def stop_broker(), do: System.cmd("docker", ["stop", "nanomq"])
 
   setup do
-    {:ok, _} = start_supervised({Stack.ServiceA, []})
-    {:ok, _} = start_supervised({Stack.ServiceB, pid: self()})
     start_broker()
     on_exit(&stop_broker/0)
-    :ok
+
+    {:ok, state} =
+      MqttAsyncapi.init(
+        user_module: DummyUser,
+        asyncapi_schema_path: "test/schema/stack/user_schema.json"
+      )
+
+    {:ok, state: state}
   end
 
-  test "push and pop operations" do
-    send(Stack.ServiceB, {:trigger, "push", 10})
-    send(Stack.ServiceB, {:trigger, "pop"})
+  test "push pop", context do
+    {:ok, _} = start_supervised({Stack.StackService, []})
 
-    assert_receive {:pop_response, 10}
+    MqttAsyncapi.send("push", %{"value" => 4712}, context.state)
+    MqttAsyncapi.send("pop", %{}, context.state)
+
+    :timer.sleep(100)
+
+    assert_receive({:publish, mqtt_message})
+
+    assert {
+             :ok,
+             %MqttAsyncapi.Message{
+               operation_id: "pop_response",
+               payload: %{"value" => 4712}
+             }
+           } = Message.from_mqtt_message(mqtt_message, context.state.asyncapi)
   end
 
-  test "push and top operations" do
-    send(Stack.ServiceB, {:trigger, "push", 20})
-    send(Stack.ServiceB, {:trigger, "top"})
+  test "pop from empty", context do
+    {:ok, _} = start_supervised({Stack.StackService, []})
 
-    assert_receive {:top_response, 20}
+    MqttAsyncapi.send("pop", %{}, context.state)
+
+    :timer.sleep(100)
+
+    assert_receive({:publish, mqtt_message})
+
+    assert {
+             :ok,
+             %MqttAsyncapi.Message{
+               operation_id: "pop_response",
+               payload: %{"value" => nil}
+             }
+           } = Message.from_mqtt_message(mqtt_message, context.state.asyncapi)
   end
 
-  test "pop from empty stack" do
-    send(Stack.ServiceB, {:trigger, "pop"})
-    refute_receive {:pop_response, _}
-  end
-
-  test "top from empty stack" do
-    send(Stack.ServiceB, {:trigger, "top"})
-    refute_receive {:top_response, _}
+  test "attempt to push non-integer", context do
+    assert assert_raise RuntimeError, ~r/{:error, \[\{"Type mismatch\./, fn ->
+             MqttAsyncapi.send("push", %{"value" => nil}, context.state)
+           end
   end
 end

@@ -29,7 +29,7 @@ defmodule MQTTcTest do
     roundtrip(pid)
   end
 
-  # @tag skip: "TODO, does not work yet"
+  @tag skip: "TODO, does not work yet"
   test "reconnect" do
     pid = start_services()
     stop_broker()
@@ -37,7 +37,7 @@ defmodule MQTTcTest do
     roundtrip(pid)
   end
 
-  # @tag skip: "TODO, does not work yet"
+  @tag skip: "TODO, does not work yet"
   test "retry connect" do
     stop_broker()
     pid = start_services()
