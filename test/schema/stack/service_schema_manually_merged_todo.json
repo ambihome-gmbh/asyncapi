@@ -1,0 +1,204 @@
+{
+    "asyncapi": "3.0.0",
+    "info": {
+        "title": "Stack API",
+        "version": "0.0.1",
+        "description": "API for a stateful stack with push and pop operations"
+    },
+    "defaultContentType": "application/json",
+    "servers": {
+        "production": {
+            "host": "127.0.0.1",
+            "protocol": "mqtt",
+            "description": "Test broker",
+            "variables": {
+                "port": {
+                    "description": "MQTT port",
+                    "default": "1883",
+                    "enum": [
+                        "1883"
+                    ]
+                }
+            }
+        }
+    },
+    "channels": {
+        "push": {
+            "address": "stack/push",
+            "title": "Push channel",
+            "messages": {
+                "push-message": {
+                    "name": "PushMessage",
+                    "payload": {
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "value"
+                        ]
+                    },
+                    "examples": [
+                        {
+              "name": "push: 42",
+                            "payload": {
+                                "value": 42
+                            }
+                        }
+                    ]
+                }
+            },
+            "description": "Channel for pushing values onto the stack"
+        },
+        "pop": {
+            "address": "stack/pop",
+            "title": "Pop channel",
+            "messages": {
+                "pop-message": {
+                    "name": "PopMessage",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {}
+                    },
+          "examples": [
+            {
+              "name": "pop",
+              "payload": {}
+            }
+          ]
+                }
+            },
+            "description": "Channel for popping values from the stack"
+        },
+        "pop_response": {
+            "address": "stack/pop/response",
+            "title": "Pop Response channel",
+            "messages": {
+                "pop-response-message": {
+                    "name": "PopResponseMessage",
+                    "payload": {
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "value"
+                        ]
+                    },
+                    "examples": [
+                        {
+              "name": "pop-response: 42",
+                            "payload": {
+                                "value": 42
+                            }
+                        },
+                        {
+              "name": "pop-respone: empty",
+                            "payload": {
+                                "value": null
+                            }
+                        }
+                    ]
+                }
+            },
+            "description": "Channel for receiving responses after popping values from the stack"
+        }
+    },
+    "operations": {
+        "push": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/push"
+            }
+        },
+        "pop": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/pop"
+            },
+            "reply": {
+                "channel": {
+                    "$ref": "#/channels/pop_response"
+                }
+            }
+        },
+        "pop_response": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/pop_response"
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "empty_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+            },
+            "pop_response_payload": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "value"
+                ],
+                "examples": [
+                    {
+                        "value": 42
+                    }
+                ]
+            },
+            "push_payload": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "value"
+                ]
+            }
+        }
+  },
+  "x-testcases": [
+    {
+      "name": "pop from empty",
+      "sequence": [
+        {
+          "from": "user",
+          "to": "service",
+          "message": "pop"
+        },
+        {
+          "from": "service",
+          "to": "user",
+          "message": "pop-respone: empty"
+        }
+      ]
+    },
+    {
+      "name": "push and pop",
+      "sequence": [
+        "user->service: push: 42",
+        "user->service: pop",
+        "service->user: pop-response: 42"
+      ]
+    }
+  ]
+}

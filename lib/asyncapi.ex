@@ -97,7 +97,8 @@ defmodule AsyncApi do
       address: channel["address"],
       payload_schema: payload_schema,
       parameter_schemas: parameter_schemas,
-      regex: Regex.compile!("^#{regex}$")
+      regex: Regex.compile!("^#{regex}$"),
+      examples: message["examples"]
     }
   end
 

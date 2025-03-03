@@ -30,6 +30,7 @@ defmodule MqttAsyncapi.Message do
 
   def to_mqtt_message!(%__MODULE__{} = message, asyncapi) do
     %{schema: schema, operations: operations} = asyncapi
+
     %{operation_id: operation_id, parameters: parameters, payload: payload} = message
 
     with {:ok, operation} <- Map.fetch(operations, operation_id),

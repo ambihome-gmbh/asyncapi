@@ -31,7 +31,15 @@
           "name": "PushMessage",
           "payload": {
             "$ref": "#/components/schemas/push_payload"
-          }
+          },
+          "examples": [
+            {
+              "name": "push: 42",
+              "payload": {
+                "value": 42
+              }
+            }
+          ]
         }
       },
       "description": "Channel for pushing values onto the stack"
@@ -44,7 +52,13 @@
           "name": "PopMessage",
           "payload": {
             "$ref": "#/components/schemas/empty_payload"
-          }
+          },
+          "examples": [
+            {
+              "name": "pop",
+              "payload": {}
+            }
+          ]
         }
       },
       "description": "Channel for popping values from the stack"
@@ -57,7 +71,21 @@
           "name": "PopResponseMessage",
           "payload": {
             "$ref": "#/components/schemas/pop_response_payload"
-          }
+          },
+          "examples": [
+            {
+              "name": "pop-response: 42",
+              "payload": {
+                "value": 42
+              }
+            },
+            {
+              "name": "pop-response: empty",
+              "payload": {
+                "value": null
+              }
+            }
+          ]
         }
       },
       "description": "Channel for receiving responses after popping values from the stack"
@@ -96,5 +124,30 @@
         ]
       }
     }
-  }
+  },
+  "x-testcases": [
+    {
+      "name": "pop from empty",
+      "sequence": [
+        {
+          "from": "user",
+          "to": "service",
+          "message": "pop"
+        },
+        {
+          "from": "service",
+          "to": "user",
+          "message": "pop-response: empty"
+        }
+      ]
+    },
+    {
+      "name": "push and pop",
+      "sequence": [
+        "user->service: push(42)",
+        "user->service: pop",
+        "service->user: pop-response: 42"
+      ]
+    }
+  ]
 }
