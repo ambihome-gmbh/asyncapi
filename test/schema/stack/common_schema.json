@@ -144,7 +144,7 @@
     {
       "name": "push and pop",
       "sequence": [
-        "user->service: push(42)",
+        "user->service: push: 42",
         "user->service: pop",
         "service->user: pop-response: 42"
       ]
