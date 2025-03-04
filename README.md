@@ -47,7 +47,9 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] Payloads -> Structs (Asyncapi sepratieren von MqttAsyncapi module)
 - [ ] @BM kann man auf UserDummy module verzichten
 - [ ] weniger parameter, insb ambid
-- [ ] erste ID `0` (implementation detail) muss in schema auftauchen? Abhilfe mit addressed oder so
+- [ ] paramter vs message-examples - paramter gehoeren zu channel, nicht zur message, kann also nicht in message example!!??
+- [ ] erste ID `0` (implementation detail) muss in schema auftauchen? 
+  - dachte man koennte das benutzen: https://www.asyncapi.com/docs/reference/specification/v3.0.0#runtimeExpression
 
 
 ## Notes
