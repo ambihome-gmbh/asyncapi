@@ -1,3 +1,18 @@
+defmodule DummyUser do
+  def init(_), do: {:ok, %{}}
+end
+
+defmodule Helper do
+  def get_examples(api) do
+    for {_, operation} <- api.operations, example <- operation.examples, into: %{} do
+      {
+        example["name"],
+        %{payload: example["payload"], action: operation.action, op_id: operation.id}
+      }
+    end
+  end
+end
+
 defmodule AutoTest do
   use ExUnit.Case
 
@@ -52,48 +67,47 @@ defmodule AutoTest do
     )
   end
 
-  @tag :buildtc
-  test "build testcases" do
-    # asyncapi = load("test/schema/stack/service_schema_manually_merged_todo.json")
-    service_api = load("test/schema/stack/service_schema.json")
-    user_api = load("test/schema/stack/user_schema.json")
-    # dbg(service_api.operations)
-    # dbg(user_api.operations)
+  # asyncapi = load("test/schema/stack/service_schema_manually_merged_todo.json")
+  service_api = load("test/schema/stack/service_schema.json")
+  user_api = load("test/schema/stack/user_schema.json")
+  # dbg(service_api.operations)
+  # dbg(user_api.operations)
 
-    testcases =
-      Jason.decode!(
-        """
-        [
-          {
-            "name": "pop from empty",
-            "sequence": [
-              "user->service:: pop",
-              "service->user:: pop-response: empty"
-            ]
-          },
-          {
-            "name": "push and pop",
-            "sequence": [
-              "user->service:: push: 42",
-              "user->service:: pop",
-              "service->user:: pop-response: 42"
-            ]
-          }
-        ]
-        """,
-        keys: :atoms
-      )
+  testcases =
+    Jason.decode!(
+      """
+      [
+        {
+          "name": "pop from empty",
+          "sequence": [
+            "user->service:: pop",
+            "service->user:: pop-response: empty"
+          ]
+        },
+        {
+          "name": "push and pop",
+          "sequence": [
+            "user->service:: push: 42",
+            "user->service:: pop",
+            "service->user:: pop-response: 42"
+          ]
+        }
+      ]
+      """,
+      keys: :atoms
+    )
 
-    examples = %{
-      "service" => get_examples(service_api),
-      "user" => get_examples(user_api)
-    }
+  examples = %{
+    "service" => Helper.get_examples(service_api),
+    "user" => Helper.get_examples(user_api)
+  }
 
-    # dbg(examples)
+  # dbg(examples)
 
-    for testcase <- testcases do
-      dbg(testcase.name)
+  for testcase <- testcases do
+    dbg(testcase.name)
 
+    validated_steps =
       for step <- testcase.sequence do
         [from, to, example_name] = String.split(step, ~r/->|::/)
         example_name = String.trim(example_name)
@@ -103,20 +117,30 @@ defmodule AutoTest do
         %{action: "send", payload: payload, op_id: from_op_id} = examples[from][example_name]
         %{action: "receive", payload: ^payload, op_id: to_op_id} = examples[to][example_name]
 
-        # dbg({payload, from_op_id, to_op_id})
+        cond do
+          from == "user" -> {:send, from_op_id, payload}
+          to == "user" -> {:receive, to_op_id, payload}
+          true -> raise "no \"user\" actor involved in testcase"
+        end
+      end
 
-        if from == "user" do
-          IO.puts(
-            ~s/MqttAsyncapi.send("#{from_op_id}", #{inspect(payload)}, context.state); :timer.sleep(100)/
-          )
+    test "POC: " <> testcase.name, context do
+      for step <- unquote(Macro.escape(validated_steps)) do
+        case step do
+          {:send, op_id, payload} ->
+            MqttAsyncapi.send(op_id, payload, context.state)
+
+          {:receive, op_id, payload} ->
+            assert_receive_mqtt_message(
+              %MqttAsyncapi.Message{
+                operation_id: op_id,
+                payload: payload
+              },
+              context.state.asyncapi
+            )
         end
 
-        if to == "user" do
-          IO.puts(~s/assert_receive_mqtt_message(%MqttAsyncapi.Message{
-            operation_id: "#{to_op_id}",
-            payload: #{inspect(payload)}
-          }, context.state.asyncapi)/)
-        end
+        Process.sleep(100)
       end
     end
 
@@ -130,14 +154,5 @@ defmodule AutoTest do
   def assert_receive_mqtt_message(expected_asyncapi_message, api) do
     assert_receive({:publish, mqtt_message})
     assert {:ok, expected_asyncapi_message} == Message.from_mqtt_message(mqtt_message, api)
-  end
-
-  def get_examples(api) do
-    for {_, operation} <- api.operations, example <- operation.examples, into: %{} do
-      {
-        example["name"],
-        %{payload: example["payload"], action: operation.action, op_id: operation.id}
-      }
-    end
   end
 end
