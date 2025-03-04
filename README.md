@@ -43,6 +43,12 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
     - messages are existing message names
     
     this could be enforced with sth like: https://stoplight.io/open-source/spectral
+- [ ] TestAsyncapi via Registry statt broker (Registry.select)
+- [ ] Payloads -> Structs (Asyncapi sepratieren von MqttAsyncapi module)
+- [ ] @BM kann man auf UserDummy module verzichten
+- [ ] weniger parameter, insb ambid
+- [ ] erste ID `0` (implementation detail) muss in schema auftauchen? Abhilfe mit addressed oder so
+
 
 ## Notes
 
