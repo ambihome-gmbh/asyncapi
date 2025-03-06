@@ -9,6 +9,7 @@ defmodule MqttAsyncapi.Message do
             qos: 0
 
   def from_mqtt_message(mqtt_message, asyncapi) do
+    # dbg(mqtt_message)
     %{schema: schema, operations: operations} = asyncapi
     %{topic: topic, payload: payload} = mqtt_message
 

@@ -4,26 +4,31 @@ defmodule AutoNewTest do
 
   alias MqttAsyncapi.Message
 
-  def start_broker(), do: {"nanomq\n", 0} = System.cmd("docker", ["start", "nanomq"])
-  def stop_broker(), do: System.cmd("docker", ["stop", "nanomq"])
+  # TODO -> protocol's test-helper module
+  # def start_broker(), do: {"nanomq\n", 0} = System.cmd("docker", ["start", "nanomq"])
+  # def stop_broker(), do: System.cmd("docker", ["stop", "nanomq"])
 
   @asyncapi AsyncApi.load("test/schema/complex/user_schema.json")
   @testcases @asyncapi.schema.schema["x-testcases"]
 
   setup do
-    start_broker()
-    on_exit(&stop_broker/0)
+    # TODO -> protocol's test-helper module
+    # start_broker()
+    # on_exit(&stop_broker/0)
+
+    # TODO -> protocol's test-helper module
+    start_supervised({Registry, keys: :duplicate, name: DummyBroker.Registry})
 
     service_module = Module.concat(@asyncapi.schema.schema["info"]["x-service-module"])
     opts = [host: @asyncapi.server.host, port: @asyncapi.server.port]
-    {:ok, mqtt_pid} = MqttAsyncapi.mqtt_connect(@asyncapi.subscriptions, opts)
+    {:ok, protocol_state} = Protocol.Dummy.connect(@asyncapi.subscriptions, opts)
     {:ok, _} = start_supervised({service_module, []})
 
     {
       :ok,
       state: %{
         asyncapi: @asyncapi,
-        mqtt: %{pid: mqtt_pid, opts: opts}
+        protocol: protocol_state
       }
     }
   end
@@ -45,7 +50,7 @@ defmodule AutoNewTest do
         case step do
           %{to: "service"} ->
             MqttAsyncapi.sendp(step.operation, payload, parameters, context.state)
-            Process.sleep(100)
+            # Process.sleep(100)
             acc
 
           %{from: "service"} ->

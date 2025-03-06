@@ -1,3 +1,39 @@
+defmodule Protocol.MQTT do
+  def connect(subscriptions, opts) do
+    {:ok, mqtt_pid} = :emqtt.start_link(opts)
+    {:ok, _props} = :emqtt.connect(mqtt_pid)
+    Enum.each(subscriptions, &subscribe!(mqtt_pid, &1, 0))
+    {:ok, %{pid: mqtt_pid, opts: opts, module: __MODULE__}}
+  end
+
+  def publish(protocol_state, mqtt_message) do
+    # TODO mqtt_message.retain?
+    :emqtt.publish(protocol_state.pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
+  end
+
+  defp subscribe!(pid, topic, qos, user_module \\ "TODO") do
+    case :emqtt.subscribe(pid, {topic, qos}) do
+      {:ok, _props, [reason]} when reason in [0x00, 0x01, 0x02] ->
+        # Logger.debug("[#{inspect(user_module)}] subscribed: #{topic}")
+        :ok
+
+      {:ok, _props, reasons} ->
+        raise("[#{inspect(user_module)}] subscribe to #{topic} failed: #{inspect(reasons)}")
+    end
+  end
+end
+
+defmodule Protocol.Dummy do
+  def connect(subscriptions, _opts \\ nil) do
+    Enum.each(subscriptions, &DummyBroker.subscribe(&1))
+    {:ok, %{module: __MODULE__}}
+  end
+
+  def publish(_protocol_state, mqtt_message) do
+    DummyBroker.publish(mqtt_message.topic, mqtt_message.payload)
+  end
+end
+
 defmodule MqttAsyncapi do
   import Enum
   alias MqttAsyncapi.Message
@@ -18,6 +54,7 @@ defmodule MqttAsyncapi do
       require Logger
 
       def get_schema_path(), do: unquote(Keyword.get(opts, :schema_path))
+      def get_protocol(), do: unquote(Keyword.get(opts, :protocol, "Dummy"))
 
       def child_spec(opts) do
         %{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}
@@ -37,11 +74,17 @@ defmodule MqttAsyncapi do
 
   def start_link(user_module, opts) do
     schema_path = user_module.get_schema_path()
+    protocol = user_module.get_protocol()
 
     # TODO? name aus user mitgeben? jetzt immer __MODULE__
     GenServer.start_link(
       __MODULE__,
-      [{:user_module, user_module}, {:asyncapi_schema_path, schema_path} | opts],
+      [
+        {:user_module, user_module},
+        {:asyncapi_schema_path, schema_path},
+        {:protocol, Module.concat(["Protocol", protocol])}
+        | opts
+      ],
       name: user_module
     )
   end
@@ -49,14 +92,14 @@ defmodule MqttAsyncapi do
   def send(operation_id, payload, state) do
     publish(
       %Message{operation_id: operation_id, payload: payload},
-      %{asyncapi: state.asyncapi, mqtt: state.mqtt}
+      state
     )
   end
 
   def sendp(operation_id, payload, parameters, state) do
     publish(
       %Message{operation_id: operation_id, payload: payload, parameters: parameters},
-      %{asyncapi: state.asyncapi, mqtt: state.mqtt}
+      state
     )
   end
 
@@ -66,36 +109,30 @@ defmodule MqttAsyncapi do
   def init(opts) do
     {user_module, opts} = Keyword.pop(opts, :user_module)
     {asyncapi_schema_path, opts} = Keyword.pop(opts, :asyncapi_schema_path)
+    {protocol, opts} = Keyword.pop(opts, :protocol)
 
     asyncapi = AsyncApi.load(asyncapi_schema_path)
 
     opts = [{:host, asyncapi.server.host}, {:port, asyncapi.server.port} | opts]
 
-    Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
+    # TODO -> protocol wrapper
+    # Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
 
-    {:ok, mqtt_pid} = mqtt_connect(asyncapi.subscriptions, opts)
+    {:ok, protocol_state} = apply(protocol, :connect, [asyncapi.subscriptions, opts])
 
-    Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
+    # TODO -> protocol wrapper
+    # Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, user_state} = user_module.init(opts)
 
     state = %{
-      mqtt: %{pid: mqtt_pid, opts: opts},
+      protocol: protocol_state,
       user_module: user_module,
       user_state: user_state,
       asyncapi: asyncapi
     }
 
-    # each(asyncapi.subscriptions, &subscribe!(state.mqtt.pid, &1, 0, state))
-
     {:ok, state}
-  end
-
-  def mqtt_connect(subscriptions, opts) do
-    {:ok, mqtt_pid} = :emqtt.start_link(opts)
-    {:ok, _props} = :emqtt.connect(mqtt_pid)
-    each(subscriptions, &subscribe!(mqtt_pid, &1, 0))
-    {:ok, mqtt_pid}
   end
 
   @impl GenServer
@@ -142,23 +179,6 @@ defmodule MqttAsyncapi do
 
   defp publish(%Message{} = message, state) do
     mqtt_message = Message.to_mqtt_message!(message, state.asyncapi)
-
-    publish_(state.mqtt.pid, mqtt_message)
-  end
-
-  defp publish_(pid, mqtt_message) do
-    # TODO mqtt_message.retain?
-    :emqtt.publish(pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
-  end
-
-  defp subscribe!(pid, topic, qos, user_module \\ "TODO") do
-    case :emqtt.subscribe(pid, {topic, qos}) do
-      {:ok, _props, [reason]} when reason in [0x00, 0x01, 0x02] ->
-        Logger.debug("[#{inspect(user_module)}] subscribed: #{topic}")
-        :ok
-
-      {:ok, _props, reasons} ->
-        raise("[#{inspect(user_module)}] subscribe to #{topic} failed: #{inspect(reasons)}")
-    end
+    apply(state.protocol.module, :publish, [state.protocol, mqtt_message])
   end
 end

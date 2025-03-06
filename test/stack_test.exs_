@@ -12,17 +12,18 @@ defmodule Stack2Test do
 
     asyncapi = AsyncApi.load("test/schema/stack/user_schema.json")
     opts = [host: asyncapi.server.host, port: asyncapi.server.port]
-    {:ok, mqtt_pid} = MqttAsyncapi.mqtt_connect(asyncapi.subscriptions, opts)
+    {:ok, protocol_state} = Protocol.MQTT.connect(asyncapi.subscriptions, opts)
 
     {
       :ok,
       state: %{
         asyncapi: asyncapi,
-        mqtt: %{pid: mqtt_pid, opts: opts}
+        protocol: protocol_state
       }
     }
   end
 
+  @tag :stack
   test "push pop", context do
     {:ok, _} = start_supervised({Stack.StackService, []})
 

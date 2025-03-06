@@ -1,14 +1,14 @@
 defmodule DummyBroker do
   import Enum
 
-  def publish(published_topic) do
-    topic_segments = String.split(published_topic, "/")
+  def publish(topic, payload) do
+    topic_segments = String.split(topic, "/")
     match_spec = build_match_spec(topic_segments)
     recipients = Registry.select(DummyBroker.Registry, match_spec)
 
     recipients
     |> uniq
-    |> each(&send(&1, {:publish, published_topic}))
+    |> each(&send(&1, {:publish, %{topic: topic, payload: payload}}))
   end
 
   def subscribe(topic) do
@@ -40,6 +40,4 @@ defmodule DummyBroker do
   end
 
   defp var(i), do: String.to_atom("$#{i}")
-
-
 end
