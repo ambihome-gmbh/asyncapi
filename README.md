@@ -23,26 +23,18 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 
 ## TODO
 
-- [x] sample services for tests should not be in `lib` but in `test/support`, see https://til.hashrocket.com/posts/3y6morjjs7-add-elixir-files-to-your-compiled-list 
 - [x] make mqtt-client robust
 - [x] create a more involved sample service with state, implementing a stack
-- [ ] bundle files, so that we can use tools that can not use multiple files, sth like this should do it 
-    ```
-    # merges but does **not** resolte file-refs!?
-    asyncapi bundle service_schema.json common_schema.json --output merged.json
-
-    # evtl hiermit:
-    https://github.com/APIDevTools/json-schema-ref-parser
-    ```
+- [x] bundle files, so that we can use tools that can not use multiple files, sth like this should do it 
 - [x] understand traits
 - [x] TestAsyncapi via Registry statt broker (Registry.select)
 - [x] Payloads -> Structs 
-  - [ ] Structs auch benutzen in Asyncapi und examples
+- [ ] Structs benutzen in Asyncapi und examples
 - [ ] examples in eigene projects
 - [x] @BM kann man auf UserDummy module verzichten -> ja
 - [x] erste ID `0` (implementation detail) muss in schema auftauchen? 
 - [ ] Logging
-- [ ] handle nil in sequence parsed (needed in "pop from empty")
+- [ ] handle nil in sequence parser (needed in "pop from empty")
 
 
 

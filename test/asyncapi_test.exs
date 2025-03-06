@@ -5,7 +5,7 @@ defmodule AsyncApiTest do
   alias Asyncapi.Message
 
   setup do
-    [asyncapi: load("test/schema/simple/schema_a.json")]
+    [asyncapi: load("test/schema/schema.json")]
   end
 
   test "server", %{asyncapi: asyncapi} do
