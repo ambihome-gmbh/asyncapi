@@ -1,0 +1,23 @@
+{
+  "asyncapi": "3.0.0",
+  "operations": {
+    "push": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/push"
+      }
+    },
+    "pop": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/pop"
+      }
+    },
+    "pop_response": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/pop_response"
+      }
+    }
+  }
+}

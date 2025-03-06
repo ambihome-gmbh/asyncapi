@@ -1,0 +1,217 @@
+{
+    "asyncapi": "3.0.0",
+    "info": {
+        "title": "MultiStack API",
+        "version": "0.0.1",
+        "description": "API for stacks with push and pop operations"
+    },
+    "x-testcases": [
+        {
+            "name": "create, push, pop - ok",
+            "sequence": [
+                "user->service: create/{name: 'SomeName'}",
+                "service->user: create_response/{name: 'SomeName', id: stack_id}",
+                "user->service: push[stack_id: $stack_id]/{value: 42}",
+                "user->service: pop[stack_id: $stack_id]",
+                "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
+            ]
+        }
+    ],
+    "defaultContentType": "application/json",
+    "servers": {
+        "production": {
+            "host": "127.0.0.1",
+            "protocol": "mqtt",
+            "description": "Test broker",
+            "variables": {
+                "port": {
+                    "description": "MQTT port",
+                    "default": "1883",
+                    "enum": [
+                        "1883"
+                    ]
+                }
+            }
+        }
+    },
+    "channels": {
+        "create": {
+            "address": "stack/create",
+            "title": "Create channel",
+            "messages": {
+                "create-message": {
+                    "name": "CreateMessage",
+                    "payload": {
+                        "$ref": "#/components/schemas/create_payload"
+                    },
+                    "examples": [
+                        {
+                            "name": "create: SomeName",
+                            "payload": {
+                                "name": "SomeName"
+                            }
+                        }
+                    ]
+                }
+            },
+            "description": "Channel for pushing values onto the stack"
+        },
+        "create_response": {
+            "address": "stack/create_response",
+            "messages": {
+                "create-message": {
+                    "payload": {
+                        "$ref": "#/components/schemas/create_response_payload"
+                    }
+                }
+            }
+        },
+        "push": {
+            "address": "stack/push/{stack_id}",
+            "parameters": {
+                "stack_id": {
+                    "$ref": "#/components/parameters/stack_id"
+                }
+            },
+            "title": "Push channel",
+            "messages": {
+                "push-message": {
+                    "name": "PushMessage",
+                    "payload": {
+                        "$ref": "#/components/schemas/push_payload"
+                    },
+                    "examples": [
+                        {
+                            "name": "push: 42",
+                            "payload": {
+                                "value": 42
+                            }
+                        }
+                    ]
+                }
+            },
+            "description": "Channel for pushing values onto the stack"
+        },
+        "pop": {
+            "address": "stack/pop/{stack_id}",
+            "parameters": {
+                "stack_id": {
+                    "$ref": "#/components/parameters/stack_id"
+                }
+            },
+            "title": "Pop channel",
+            "messages": {
+                "pop-message": {
+                    "name": "PopMessage",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    },
+                    "examples": [
+                        {
+                            "name": "pop",
+                            "payload": {}
+                        }
+                    ]
+                }
+            },
+            "description": "Channel for popping values from the stack"
+        },
+        "pop_response": {
+            "address": "stack/pop/response/{stack_id}",
+            "parameters": {
+                "stack_id": {
+                    "$ref": "#/components/parameters/stack_id"
+                }
+            },
+            "title": "Pop Response channel",
+            "messages": {
+                "pop-response-message": {
+                    "name": "PopResponseMessage",
+                    "payload": {
+                        "$ref": "#/components/schemas/pop_response_payload"
+                    },
+                    "examples": [
+                        {
+                            "name": "pop-response: 42",
+                            "payload": {
+                                "value": 42
+                            }
+                        },
+                        {
+                            "name": "pop-response: empty",
+                            "payload": {
+                                "value": null
+                            }
+                        }
+                    ]
+                }
+            },
+            "description": "Channel for receiving responses after popping values from the stack"
+        }
+    },
+    "components": {
+        "schemas": {
+            "empty_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+            },
+            "pop_response_payload": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "value"
+                ]
+            },
+            "create_response_payload": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "create_payload": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "push_payload": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "value"
+                ]
+            }
+        },
+        "parameters": {
+            "stack_id": {
+                "description": "ID of the stack"
+            }
+        }
+    }
+}

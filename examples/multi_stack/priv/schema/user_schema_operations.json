@@ -1,0 +1,35 @@
+{
+  "asyncapi": "3.0.0",
+  "operations": {
+    "create": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/create"
+      }
+    },
+    "push": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/push"
+      }
+    },
+    "pop": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/pop"
+      }
+    },
+    "pop_response": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/pop_response"
+      }
+    },
+    "create_response": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/create_response"
+      }
+    }
+  }
+}

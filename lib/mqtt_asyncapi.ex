@@ -99,7 +99,7 @@ defmodule MqttAsyncapi do
 
   @impl GenServer
   def handle_info({:publish, mqtt_message}, state) do
-    Logger.debug("[#{inspect(state.user_module)}] recv #{inspect(mqtt_message)}")
+    # Logger.debug("[#{inspect(state.user_module)}] recv #{inspect(mqtt_message)}")
 
     new_user_state =
       case Message.from_mqtt_message(mqtt_message, state.asyncapi) do

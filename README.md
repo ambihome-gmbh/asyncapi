@@ -41,6 +41,9 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] examples in eigene projects
 - [x] @BM kann man auf UserDummy module verzichten -> ja
 - [x] erste ID `0` (implementation detail) muss in schema auftauchen? 
+- [ ] Logging
+- [ ] handle nil in sequence parsed (needed in "pop from empty")
+
 
 
 ## Notes

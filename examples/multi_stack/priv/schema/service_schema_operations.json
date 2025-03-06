@@ -1,0 +1,45 @@
+{
+    "asyncapi": "3.0.0",
+    "operations": {
+        "create": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/create"
+            },
+            "reply": {
+                "channel": {
+                    "$ref": "#/channels/create_response"
+                }
+            }
+        },
+        "push": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/push"
+            }
+        },
+        "pop": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/pop"
+            },
+            "reply": {
+                "channel": {
+                    "$ref": "#/channels/pop_response"
+                }
+            }
+        },
+        "pop_response": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/pop_response"
+            }
+        },
+        "create_response": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/create_response"
+            }
+        }
+    }
+}
