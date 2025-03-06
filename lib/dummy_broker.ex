@@ -1,33 +1,38 @@
 defmodule DummyBroker do
   import Enum
 
+  def subscribe(topic) do
+    Registry.register(DummyBroker.Registry, topic_to_tuple(topic), nil)
+  end
+
   def publish(topic, payload) do
-    topic_segments = String.split(topic, "/")
-    match_spec = build_match_spec(topic_segments)
-    recipients = Registry.select(DummyBroker.Registry, match_spec)
+    recipients = Registry.select(DummyBroker.Registry, build_match_spec(topic))
 
     recipients
     |> uniq
     |> each(&send(&1, {:publish, %{topic: topic, payload: payload}}))
   end
 
-  def subscribe(topic) do
-    Registry.register(DummyBroker.Registry, topic_to_tuple(topic), nil)
-  end
-
-  defp build_match_spec(topic_segments) do
+  @pid_var_id 1
+  defp build_match_spec(topic) do
+    topic_segments = String.split(topic, "/")
     arity = length(topic_segments)
-    tuple_of_vars = 1..arity |> map(&var/1) |> List.to_tuple()
-    head = {tuple_of_vars, var(99), :_}
 
-    # For each segment, the guard ensures the variable equals the published segment or :any.
+    head =
+      {
+        (@pid_var_id + 1)..(arity + @pid_var_id) |> map(&var/1) |> List.to_tuple(),
+        var(@pid_var_id),
+        :_
+      }
+
     guards =
-      for {seg, i} <- with_index(topic_segments, 1) do
+      for {seg, i} <- with_index(topic_segments, @pid_var_id + 1) do
         {:orelse, {:==, var(i), seg}, {:==, var(i), :any}}
       end
 
-    [{head, guards, [var(99)]}]
+    [{head, guards, [var(@pid_var_id)]}]
   end
+
 
   defp topic_to_tuple(topic) do
     topic
