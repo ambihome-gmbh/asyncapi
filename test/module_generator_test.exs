@@ -1,7 +1,7 @@
 defmodule ModuleTest do
   use ExUnit.Case
 
-  test "wip" do
+  test "payload modules are generated" do
     assert %SampleApi.SomePayload{
              prop_with_no_default: nil,
              some_int_prop: 4711,

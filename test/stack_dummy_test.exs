@@ -22,7 +22,6 @@ defmodule StackDummyTest do
     }
   end
 
-  @tag :stack
   test "push pop", context do
     {:ok, _} = start_supervised({Stack.StackService, []})
 

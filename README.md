@@ -35,7 +35,7 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
     https://github.com/APIDevTools/json-schema-ref-parser
     ```
 - [x] understand traits
-- [ ] TestAsyncapi via Registry statt broker (Registry.select)
+- [x] TestAsyncapi via Registry statt broker (Registry.select)
 - [x] Payloads -> Structs 
   - [ ] Asyncapi sepratieren von MqttAsyncapi module
 - [x] @BM kann man auf UserDummy module verzichten -> ja
@@ -44,8 +44,6 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 
 
 ## Notes
-
-- we can name exmples when using https://www.asyncapi.com/docs/reference/specification/v3.0.0#messageExampleObject
 
 
 ## References

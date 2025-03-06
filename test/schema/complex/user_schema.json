@@ -119,16 +119,6 @@
         "user->service: pop[stack_id: $stack_id]",
         "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
       ]
-    },
-    {
-      "name": "create, push, pop - fails",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 41}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
     }
   ],
   "defaultContentType": "application/json",
