@@ -1,5 +1,7 @@
 defmodule Complex.ComplexService do
-  use MqttAsyncapi, schema_path: "test/schema/complex/service_schema.json"
+  use MqttAsyncapi,
+    schema_path: "test/schema/complex/service_schema.json",
+    broker: unquote(Application.compile_env(:asyncapi, :broker))
 
   alias MqttAsyncapi.Message
 

@@ -1,11 +1,4 @@
-# TODO - config
-used_schemas = [
-  "test/schema/simple/common_schema.json",
-  "test/schema/stack/common_schema.json",
-  "test/schema/complex/service_schema.json"
-]
-
-for schema_path <- used_schemas do
+for schema_path <- Application.compile_env(:asyncapi, :schemas) do
   schema = schema_path |> File.read!() |> Jason.decode!()
 
   api_title = Recase.to_pascal(schema["info"]["title"])

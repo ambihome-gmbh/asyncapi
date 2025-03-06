@@ -1,6 +1,21 @@
 defmodule DummyBroker do
   import Enum
 
+  def child_spec(init_arg) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [init_arg]}
+    }
+  end
+
+  def start_link() do
+    Registry.start_link(keys: :duplicate, name: DummyBroker.Registry)
+  end
+
+  def start_link(_) do
+    start_link()
+  end
+
   def subscribe(topic) do
     Registry.register(DummyBroker.Registry, topic_to_tuple(topic), nil)
   end
@@ -32,7 +47,6 @@ defmodule DummyBroker do
 
     [{head, guards, [var(@pid_var_id)]}]
   end
-
 
   defp topic_to_tuple(topic) do
     topic

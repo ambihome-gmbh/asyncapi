@@ -1,5 +1,7 @@
 defmodule Simple.ServiceB do
-  use MqttAsyncapi, schema_path: "test/schema/simple/schema_b.json"
+  use MqttAsyncapi,
+    schema_path: "test/schema/simple/schema_b.json",
+    broker: Asyncapi.Broker.Dummy
 
   alias MqttAsyncapi.Message
 

@@ -1,5 +1,7 @@
 defmodule Stack.StackService do
-  use MqttAsyncapi, schema_path: "test/schema/stack/service_schema.json"
+  use MqttAsyncapi,
+    schema_path: "test/schema/stack/service_schema.json",
+    broker: Asyncapi.Broker.Dummy
 
   alias MqttAsyncapi.Message
 

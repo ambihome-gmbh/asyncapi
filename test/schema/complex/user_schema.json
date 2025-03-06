@@ -4,114 +4,11 @@
     "title": "Stack API",
     "version": "0.0.1",
     "description": "API for a stateful stack with push and pop operations",
-    "x-service-module": [
-      "Complex",
-      "ComplexService"
-    ]
+    "x-service-module": ["Complex", "ComplexService"]
   },
   "x-testcases": [
     {
       "name": "create, push, pop - ok",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 1",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 2",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 3",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 4",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 5",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 6",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 7",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 8",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 9",
-      "sequence": [
-        "user->service: create/{name: 'SomeName'}",
-        "service->user: create_response/{name: 'SomeName', id: stack_id}",
-        "user->service: push[stack_id: $stack_id]/{value: 42}",
-        "user->service: pop[stack_id: $stack_id]",
-        "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
-      ]
-    },
-    {
-      "name": "create, push, pop - ok 10",
       "sequence": [
         "user->service: create/{name: 'SomeName'}",
         "service->user: create_response/{name: 'SomeName', id: stack_id}",
@@ -131,9 +28,7 @@
         "port": {
           "description": "MQTT port",
           "default": "1883",
-          "enum": [
-            "1883"
-          ]
+          "enum": ["1883"]
         }
       }
     }
@@ -264,15 +159,10 @@
         "type": "object",
         "properties": {
           "value": {
-            "type": [
-              "integer",
-              "null"
-            ]
+            "type": ["integer", "null"]
           }
         },
-        "required": [
-          "value"
-        ]
+        "required": ["value"]
       },
       "create_response_payload": {
         "type": "object",
@@ -284,10 +174,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "name"
-        ]
+        "required": ["id", "name"]
       },
       "create_payload": {
         "type": "object",
@@ -296,9 +183,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name"
-        ]
+        "required": ["name"]
       },
       "push_payload": {
         "type": "object",
@@ -307,9 +192,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "value"
-        ]
+        "required": ["value"]
       }
     },
     "parameters": {
