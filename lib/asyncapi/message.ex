@@ -1,4 +1,4 @@
-defmodule MqttAsyncapi.Message do
+defmodule Asyncapi.Message do
   import Enum
 
   @type t :: %__MODULE__{}
@@ -13,11 +13,11 @@ defmodule MqttAsyncapi.Message do
     %{schema: schema, operations: operations} = asyncapi
     %{topic: topic, payload: payload} = mqtt_message
 
-    with {:ok, operation} <- AsyncApi.find_operation(topic, operations),
+    with {:ok, operation} <- Asyncapi.find_operation(topic, operations),
          parameters = Regex.named_captures(operation.regex, topic),
-         :ok <- AsyncApi.validate_parameters(parameters, operation, schema),
+         :ok <- Asyncapi.validate_parameters(parameters, operation, schema),
          {:ok, payload} <- Jason.decode(payload),
-         :ok <- AsyncApi.validate_payload(payload, operation, schema) do
+         :ok <- Asyncapi.validate_payload(payload, operation, schema) do
       {
         :ok,
         %__MODULE__{
@@ -34,9 +34,9 @@ defmodule MqttAsyncapi.Message do
     %{operation_id: operation_id, parameters: parameters, payload: payload} = message
 
     with {:ok, operation} <- fetch_operation(operations, operation_id),
-         :ok <- AsyncApi.check_for_missing_or_unexpected_parameters(parameters, operation),
-         :ok <- AsyncApi.validate_parameters(parameters, operation, schema),
-         :ok <- AsyncApi.validate_payload(payload, operation, schema) do
+         :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(parameters, operation),
+         :ok <- Asyncapi.validate_parameters(parameters, operation, schema),
+         :ok <- Asyncapi.validate_payload(payload, operation, schema) do
       %{
         topic: interpolate_parameters(operation.address, parameters),
         payload: Jason.encode!(message.payload),

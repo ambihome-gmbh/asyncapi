@@ -18,7 +18,7 @@ case config_env() do
              "test/schema/#{path}" |> File.read!() |> Jason.decode!()
            end
 
-    config :asyncapi, broker: Asyncapi.Broker.MQTT
+    config :asyncapi, broker: Asyncapi.Broker.Dummy
 
   _ ->
     config :ex_json_schema,

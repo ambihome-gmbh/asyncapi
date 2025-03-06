@@ -1,6 +1,6 @@
 defmodule MqttAsyncapi do
   import Enum
-  alias MqttAsyncapi.Message
+  alias Asyncapi.Message
 
   require Logger
   use GenServer
@@ -75,20 +75,20 @@ defmodule MqttAsyncapi do
     {asyncapi_schema_path, opts} = Keyword.pop(opts, :asyncapi_schema_path)
     {broker, opts} = Keyword.pop(opts, :broker)
 
-    asyncapi = AsyncApi.load(asyncapi_schema_path)
+    asyncapi = Asyncapi.load(asyncapi_schema_path)
 
-    # TODO -> protocol wrapper
+    # TODO -> broker wrapper
     # Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
 
-    {:ok, protocol_state} = broker.connect(asyncapi)
+    {:ok, broker_state} = broker.connect(asyncapi)
 
-    # TODO -> protocol wrapper
+    # TODO -> broker wrapper
     # Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, user_state} = user_module.init(opts)
 
     state = %{
-      protocol: protocol_state,
+      broker: broker_state,
       user_module: user_module,
       user_state: user_state,
       asyncapi: asyncapi
@@ -142,6 +142,6 @@ defmodule MqttAsyncapi do
   defp publish(%Message{} = message, state) do
     # TODO in broker implementation
     mqtt_message = Message.to_mqtt_message!(message, state.asyncapi)
-    apply(state.protocol.module, :publish, [state.protocol, mqtt_message])
+    state.broker.module.publish(state.broker, mqtt_message)
   end
 end

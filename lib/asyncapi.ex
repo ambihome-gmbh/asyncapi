@@ -1,6 +1,6 @@
 # TODO: https://hexdocs.pm/ex_json_schema/readme.html#validation-error-formats
 
-defmodule AsyncApi do
+defmodule Asyncapi do
   import Enum
   alias ExJsonSchema.Validator
 

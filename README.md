@@ -37,9 +37,9 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [x] understand traits
 - [x] TestAsyncapi via Registry statt broker (Registry.select)
 - [x] Payloads -> Structs 
-  - [ ] Asyncapi sepratieren von MqttAsyncapi module
+  - [ ] Structs auch benutzen in Asyncapi und examples
+- [ ] examples in eigene projects
 - [x] @BM kann man auf UserDummy module verzichten -> ja
-- [ ] weniger parameter, insb ambid?
 - [x] erste ID `0` (implementation detail) muss in schema auftauchen? 
 
 

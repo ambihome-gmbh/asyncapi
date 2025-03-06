@@ -3,7 +3,7 @@ defmodule Complex.ComplexService do
     schema_path: "test/schema/complex/service_schema.json",
     broker: unquote(Application.compile_env(:asyncapi, :broker))
 
-  alias MqttAsyncapi.Message
+  alias Asyncapi.Message
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)

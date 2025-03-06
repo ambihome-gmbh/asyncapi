@@ -1,32 +1,26 @@
 defmodule Stack2Test do
   use ExUnit.Case
 
-  alias MqttAsyncapi.Message
-
-  def start_broker(), do: {"nanomq\n", 0} = System.cmd("docker", ["start", "nanomq"])
-  def stop_broker(), do: System.cmd("docker", ["stop", "nanomq"])
+  alias Asyncapi.Message
 
   setup do
-    start_broker()
-    on_exit(&stop_broker/0)
+    TestHelper.start_broker()
 
-    asyncapi = AsyncApi.load("test/schema/stack/user_schema.json")
-    opts = [host: asyncapi.server.host, port: asyncapi.server.port]
-    {:ok, protocol_state} = Protocol.MQTT.connect(asyncapi.subscriptions, opts)
+    asyncapi = Asyncapi.load("test/schema/stack/user_schema.json")
+    {:ok, broker_state} = Stack.StackService.get_broker().connect(asyncapi)
+    {:ok, _} = start_supervised({Stack.StackService, []})
 
     {
       :ok,
       state: %{
         asyncapi: asyncapi,
-        protocol: protocol_state
+        broker: broker_state
       }
     }
   end
 
   @tag :stack
   test "push pop", context do
-    {:ok, _} = start_supervised({Stack.StackService, []})
-
     MqttAsyncapi.send("push", %{"value" => 4712}, context.state)
     MqttAsyncapi.send("pop", %{}, context.state)
 
@@ -36,7 +30,7 @@ defmodule Stack2Test do
 
     assert {
              :ok,
-             %MqttAsyncapi.Message{
+             %Asyncapi.Message{
                operation_id: "pop_response",
                payload: %{"value" => 4712}
              }
@@ -44,8 +38,6 @@ defmodule Stack2Test do
   end
 
   test "pop from empty", context do
-    {:ok, _} = start_supervised({Stack.StackService, []})
-
     MqttAsyncapi.send("pop", %{}, context.state)
 
     :timer.sleep(100)
@@ -54,7 +46,7 @@ defmodule Stack2Test do
 
     assert {
              :ok,
-             %MqttAsyncapi.Message{
+             %Asyncapi.Message{
                operation_id: "pop_response",
                payload: %{"value" => nil}
              }

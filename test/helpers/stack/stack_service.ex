@@ -1,9 +1,9 @@
 defmodule Stack.StackService do
   use MqttAsyncapi,
     schema_path: "test/schema/stack/service_schema.json",
-    broker: Asyncapi.Broker.Dummy
+    broker: unquote(Application.compile_env(:asyncapi, :broker))
 
-  alias MqttAsyncapi.Message
+  alias Asyncapi.Message
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)

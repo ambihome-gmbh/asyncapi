@@ -3,7 +3,7 @@ defmodule Asyncapi.TestHelper do
   import Enum
 
   defmacro generate_tests(service, schema) do
-    asyncapi = AsyncApi.load(schema)
+    asyncapi = Asyncapi.load(schema)
     testcases = asyncapi.schema.schema["x-testcases"]
 
     quote unquote: false,
@@ -14,9 +14,9 @@ defmodule Asyncapi.TestHelper do
           ] do
       setup do
         asyncapi = unquote(Macro.escape(asyncapi))
-        {:ok, protocol_state} = unquote(service).get_broker().connect(asyncapi)
+        {:ok, broker_state} = unquote(service).get_broker().connect(asyncapi)
         {:ok, _} = start_supervised(unquote(service))
-        {:ok, state: %{asyncapi: asyncapi, protocol: protocol_state}}
+        {:ok, state: %{asyncapi: asyncapi, broker: broker_state}}
       end
 
       for testcase <- testcases do
@@ -40,7 +40,7 @@ defmodule Asyncapi.TestHelper do
                 assert_receive({:publish, mqtt_message})
 
                 assert {:ok, asyncapi_message} =
-                         MqttAsyncapi.Message.from_mqtt_message(
+                         Asyncapi.Message.from_mqtt_message(
                            mqtt_message,
                            context.state.asyncapi
                          )
@@ -90,4 +90,6 @@ defmodule Asyncapi.TestHelper do
 
     {Map.new(map_), bindings}
   end
+
+
 end

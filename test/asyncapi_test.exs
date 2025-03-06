@@ -1,8 +1,8 @@
 defmodule AsyncApiTest do
   use ExUnit.Case
 
-  import AsyncApi
-  alias MqttAsyncapi.Message
+  import Asyncapi
+  alias Asyncapi.Message
 
   setup do
     [asyncapi: load("test/schema/simple/schema_a.json")]

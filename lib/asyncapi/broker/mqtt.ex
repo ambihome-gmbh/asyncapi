@@ -7,9 +7,9 @@ defmodule Asyncapi.Broker.MQTT do
     {:ok, %{pid: mqtt_pid, opts: opts, module: __MODULE__}}
   end
 
-  def publish(protocol_state, mqtt_message) do
+  def publish(broker_state, mqtt_message) do
     # TODO mqtt_message.retain?
-    :emqtt.publish(protocol_state.pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
+    :emqtt.publish(broker_state.pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
     :ok
   end
 

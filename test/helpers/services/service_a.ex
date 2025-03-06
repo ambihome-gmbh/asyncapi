@@ -1,9 +1,9 @@
 defmodule Simple.ServiceA do
   use MqttAsyncapi,
     schema_path: "test/schema/simple/schema_a.json",
-    broker: Asyncapi.Broker.Dummy
+    broker: unquote(Application.compile_env(:asyncapi, :broker))
 
-  alias MqttAsyncapi.Message
+  alias Asyncapi.Message
 
   def start_link(opts) do
     MqttAsyncapi.start_link(__MODULE__, opts)
