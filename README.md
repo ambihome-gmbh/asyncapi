@@ -26,7 +26,6 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [x] sample services for tests should not be in `lib` but in `test/support`, see https://til.hashrocket.com/posts/3y6morjjs7-add-elixir-files-to-your-compiled-list 
 - [x] make mqtt-client robust
 - [x] create a more involved sample service with state, implementing a stack
-- [ ] for the stack-service create tests that use payload examples from the asyncapi-schema as test data, behaviour should match that of `description` in the schema (if there is no better place to put that)
 - [ ] bundle files, so that we can use tools that can not use multiple files, sth like this should do it 
     ```
     # merges but does **not** resolte file-refs!?
@@ -35,21 +34,13 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
     # evtl hiermit:
     https://github.com/APIDevTools/json-schema-ref-parser
     ```
-- [ ] understand traits
-- [ ] understand https://www.asyncapi.com/docs/reference/specification/v3.0.0#correlationIdObject
-- [ ] testcases rely on 
-    - message names being unique
-    - sender and receiver are both either "service" or "user"
-    - messages are existing message names
-    
-    this could be enforced with sth like: https://stoplight.io/open-source/spectral
+- [x] understand traits
 - [ ] TestAsyncapi via Registry statt broker (Registry.select)
-- [ ] Payloads -> Structs (Asyncapi sepratieren von MqttAsyncapi module)
-- [ ] @BM kann man auf UserDummy module verzichten
-- [ ] weniger parameter, insb ambid
-- [ ] paramter vs message-examples - paramter gehoeren zu channel, nicht zur message, kann also nicht in message example!!??
-- [ ] erste ID `0` (implementation detail) muss in schema auftauchen? 
-  - dachte man koennte das benutzen: https://www.asyncapi.com/docs/reference/specification/v3.0.0#runtimeExpression
+- [x] Payloads -> Structs 
+  - [ ] Asyncapi sepratieren von MqttAsyncapi module
+- [x] @BM kann man auf UserDummy module verzichten -> ja
+- [ ] weniger parameter, insb ambid?
+- [x] erste ID `0` (implementation detail) muss in schema auftauchen? 
 
 
 ## Notes

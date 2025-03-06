@@ -30,10 +30,9 @@ defmodule MqttAsyncapi.Message do
 
   def to_mqtt_message!(%__MODULE__{} = message, asyncapi) do
     %{schema: schema, operations: operations} = asyncapi
-
     %{operation_id: operation_id, parameters: parameters, payload: payload} = message
 
-    with {:ok, operation} <- Map.fetch(operations, operation_id),
+    with {:ok, operation} <- fetch_operation(operations, operation_id),
          :ok <- AsyncApi.check_for_missing_or_unexpected_parameters(parameters, operation),
          :ok <- AsyncApi.validate_parameters(parameters, operation, schema),
          :ok <- AsyncApi.validate_payload(payload, operation, schema) do
@@ -45,6 +44,13 @@ defmodule MqttAsyncapi.Message do
       }
     else
       error -> raise(inspect(error))
+    end
+  end
+
+  defp fetch_operation(operations, operation_id) do
+    case Map.fetch(operations, operation_id) do
+      :error -> {:error, :operation_not_found, operation_id}
+      ok -> ok
     end
   end
 

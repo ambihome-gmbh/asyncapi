@@ -3,7 +3,8 @@
   "info": {
     "title": "Sample API",
     "version": "0.0.1",
-    "description": "description"
+    "description": "description",
+    "x-modulename": "SampleApi"
   },
   "defaultContentType": "application/json",
   "servers": {
@@ -230,6 +231,14 @@
         "additionalProperties": false,
         "properties": {
           "some_prop": {
+            "type": "string",
+            "default": "some_default_value"
+          },
+          "some_int_prop": {
+            "type": "integer",
+            "default": 4711
+          },
+          "prop_with_no_default": {
             "type": "string"
           }
         },

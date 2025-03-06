@@ -1,7 +1,3 @@
-defmodule DummyUser do
-  def init(_), do: {:ok, %{}}
-end
-
 defmodule Stack2Test do
   use ExUnit.Case
 
@@ -14,13 +10,17 @@ defmodule Stack2Test do
     start_broker()
     on_exit(&stop_broker/0)
 
-    {:ok, state} =
-      MqttAsyncapi.init(
-        user_module: DummyUser,
-        asyncapi_schema_path: "test/schema/stack/user_schema.json"
-      )
+    asyncapi = AsyncApi.load("test/schema/stack/user_schema.json")
+    opts = [host: asyncapi.server.host, port: asyncapi.server.port]
+    {:ok, mqtt_pid} = MqttAsyncapi.mqtt_connect(asyncapi.subscriptions, opts)
 
-    {:ok, state: state}
+    {
+      :ok,
+      state: %{
+        asyncapi: asyncapi,
+        mqtt: %{pid: mqtt_pid, opts: opts}
+      }
+    }
   end
 
   test "push pop", context do

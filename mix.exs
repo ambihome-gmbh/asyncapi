@@ -23,8 +23,11 @@ defmodule Asyncapi.MixProject do
 
   defp deps do
     [
+      {:uniq, "~> 0.6"},
       {:jason, "~> 1.4"},
       {:ex_json_schema, "~> 0.10.2"},
+      {:nimble_parsec, "~> 1.0"},
+      {:recase, "~> 0.5"},
       {:emqtt,
        git: "https://github.com/emqx/emqtt.git",
        tag: "1.13.1",

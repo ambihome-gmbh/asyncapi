@@ -2,6 +2,7 @@
   "asyncapi": "3.0.0",
   "info": {
     "title": "Stack API",
+    "x-modulename": "StackApi",
     "version": "0.0.1",
     "description": "API for a stateful stack with push and pop operations"
   },

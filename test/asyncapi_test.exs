@@ -8,6 +8,10 @@ defmodule AsyncApiTest do
     [asyncapi: load("test/schema/simple/schema_a.json")]
   end
 
+  test "temp", %{asyncapi: _asyncapi} do
+
+  end
+
   test "server", %{asyncapi: asyncapi} do
     assert %{port: 1883, host: ~c"127.0.0.1"} = asyncapi.server
   end

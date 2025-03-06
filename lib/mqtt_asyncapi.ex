@@ -53,6 +53,13 @@ defmodule MqttAsyncapi do
     )
   end
 
+  def sendp(operation_id, payload, parameters, state) do
+    publish(
+      %Message{operation_id: operation_id, payload: payload, parameters: parameters},
+      %{asyncapi: state.asyncapi, mqtt: state.mqtt}
+    )
+  end
+
   # ---
 
   @impl GenServer
@@ -66,8 +73,7 @@ defmodule MqttAsyncapi do
 
     Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
 
-    {:ok, mqtt_pid} = :emqtt.start_link(opts)
-    {:ok, _props} = :emqtt.connect(mqtt_pid)
+    {:ok, mqtt_pid} = mqtt_connect(asyncapi.subscriptions, opts)
 
     Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
@@ -80,9 +86,16 @@ defmodule MqttAsyncapi do
       asyncapi: asyncapi
     }
 
-    each(asyncapi.subscriptions, &subscribe!(state.mqtt.pid, &1, 0, state))
+    # each(asyncapi.subscriptions, &subscribe!(state.mqtt.pid, &1, 0, state))
 
     {:ok, state}
+  end
+
+  def mqtt_connect(subscriptions, opts) do
+    {:ok, mqtt_pid} = :emqtt.start_link(opts)
+    {:ok, _props} = :emqtt.connect(mqtt_pid)
+    each(subscriptions, &subscribe!(mqtt_pid, &1, 0))
+    {:ok, mqtt_pid}
   end
 
   @impl GenServer
@@ -138,14 +151,14 @@ defmodule MqttAsyncapi do
     :emqtt.publish(pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
   end
 
-  defp subscribe!(pid, topic, qos, state) do
+  defp subscribe!(pid, topic, qos, user_module \\ "TODO") do
     case :emqtt.subscribe(pid, {topic, qos}) do
       {:ok, _props, [reason]} when reason in [0x00, 0x01, 0x02] ->
-        Logger.debug("[#{inspect(state.user_module)}] subscribed: #{topic}")
+        Logger.debug("[#{inspect(user_module)}] subscribed: #{topic}")
         :ok
 
       {:ok, _props, reasons} ->
-        raise("[#{inspect(state.user_module)}] subscribe to #{topic} failed: #{inspect(reasons)}")
+        raise("[#{inspect(user_module)}] subscribe to #{topic} failed: #{inspect(reasons)}")
     end
   end
 end
