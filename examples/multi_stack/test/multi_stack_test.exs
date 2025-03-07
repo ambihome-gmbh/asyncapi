@@ -9,9 +9,11 @@ defmodule MultiStackTest do
     :ok
   end
 
-  # TODO BM
+  # TO-DO-4
+  # Asyncapi.TestHelper.generate_tests(MultiStackService, :multistack_user)
+  # -> dann in generate_tests
   # schema_path = Application.compile_env(:asyncapi, :schemas) |> Keyword.get(:multistack_user)
-  # Asyncapi.TestHelper.generate_tests(MultiStackService, schema_path)
+  # (achtung: pfade runtime/compiletime)
 
   Asyncapi.TestHelper.generate_tests(MultiStackService, "priv/schema/user_schema.json")
 

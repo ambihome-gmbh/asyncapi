@@ -14,7 +14,6 @@
             "description": "Test broker",
             "variables": {
                 "port": {
-                    "description": "TODO",
                     "default": "1883",
                     "enum": [
                         "1883"

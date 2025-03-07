@@ -45,6 +45,7 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] handling of invalid messages from outside, cant just raise ->TO-DO-1
 - [ ] bessere trennung MqttAsyncAPI, broker impl ->TO-DO-3
 - [ ] retained messages
+- [ ] generate_tests nicht mit hardcoded pfad aufrufen -> TO-DO-4
 
 
 

@@ -48,7 +48,7 @@ defmodule MultiStackService do
   def handle_message(%Message{operation_id: "pop"} = message, state) do
     %{parameters: %{"stack_id" => stack_id}} = message
 
-    # TODO crashes if no stack with stack_id
+    # NOTE: crashes if no stack with stack_id
     {value, new_stack} =
       case state.stacks[stack_id].data do
         [top | rest] -> {top, rest}

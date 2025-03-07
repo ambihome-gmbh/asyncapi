@@ -23,7 +23,6 @@ defmodule Asyncapi.TestHelper do
       for testcase <- testcases do
         parsed_sequence = Enum.map(testcase["sequence"], &Asyncapi.Parser.parse_step/1)
 
-        @tag :auto
         test testcase["name"], context do
           sequence = unquote(Macro.escape(parsed_sequence))
 
@@ -34,7 +33,6 @@ defmodule Asyncapi.TestHelper do
             case step do
               %{to: "service"} ->
                 MqttAsyncapi.sendp(step.operation, payload, parameters, context.state)
-                # TODO sleep wenn richtiger broker genutzt!?
                 acc
 
               %{from: "service"} ->

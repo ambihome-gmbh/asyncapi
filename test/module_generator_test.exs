@@ -3,7 +3,6 @@ defmodule ModuleGeneratorTest do
 
   alias SampleApi.Payload
 
-  @tag :mg
   test "module datas" do
     assert [
              {Payload.P1, [], []},

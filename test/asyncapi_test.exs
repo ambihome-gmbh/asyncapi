@@ -56,7 +56,6 @@ defmodule AsyncApiTest do
     payload: %{"p_isrequired" => "foo", "p" => nil, "p_hasdefault" => 4711}
   }
 
-  @tag :wip
   test "from_mqtt_message, valid", %{asyncapi: asyncapi} do
     assert {:ok, @m_1} = Message.from_mqtt_message(@mqtt_1, asyncapi)
     assert {:ok, @m_2} = Message.from_mqtt_message(@mqtt_2, asyncapi)
