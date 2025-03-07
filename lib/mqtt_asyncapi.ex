@@ -40,7 +40,6 @@ defmodule MqttAsyncapi do
     schema_path = user_module.get_schema_path()
     broker = user_module.get_broker()
 
-    # TODO? name aus user mitgeben? jetzt immer __MODULE__
     GenServer.start_link(
       __MODULE__,
       [
@@ -77,12 +76,12 @@ defmodule MqttAsyncapi do
 
     asyncapi = Asyncapi.load(asyncapi_schema_path)
 
-    # TODO -> broker wrapper
+    # TO-DO-2 -> broker wrapper
     # Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, broker_state} = broker.connect(asyncapi)
 
-    # TODO -> broker wrapper
+    # TO-DO-2 -> broker wrapper
     # Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, user_state} = user_module.init(opts)
@@ -100,6 +99,7 @@ defmodule MqttAsyncapi do
   @impl GenServer
   def handle_info({:publish, mqtt_message}, state) do
     mqtt_message_decoded = Message.decode_mqtt_message(mqtt_message)
+    # TO-DO-2
     # Logger.debug("[#{inspect(state.user_module)}] recv #{inspect(mqtt_message_decoded)}")
 
     new_user_state =
@@ -141,7 +141,7 @@ defmodule MqttAsyncapi do
   end
 
   defp publish(%Message{} = message, state) do
-    # TODO in broker implementation
+    # TO-DO-3
     mqtt_message = Message.to_mqtt_message!(message, state.asyncapi)
     mqtt_message_encoded = Message.encode_mqtt_message(mqtt_message)
     state.broker.module.publish(state.broker, mqtt_message_encoded)

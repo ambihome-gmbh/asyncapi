@@ -8,14 +8,14 @@ defmodule Asyncapi.Broker.MQTT do
   end
 
   def publish(broker_state, mqtt_message) do
-    # TODO mqtt_message.retain?
     :emqtt.publish(broker_state.pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
     :ok
   end
 
-  defp subscribe!(pid, topic, qos, user_module \\ "TODO") do
+  defp subscribe!(pid, topic, qos, user_module \\ "TO-DO") do
     case :emqtt.subscribe(pid, {topic, qos}) do
       {:ok, _props, [reason]} when reason in [0x00, 0x01, 0x02] ->
+        # TO-DO-2
         # Logger.debug("[#{inspect(user_module)}] subscribed: #{topic}")
         :ok
 

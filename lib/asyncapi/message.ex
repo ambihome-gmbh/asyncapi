@@ -25,7 +25,7 @@ defmodule Asyncapi.Message do
         }
       }
     else
-      # TODO handling of invalid messages from outside, cant just raise
+      # TO-DO-1
       error -> error
     end
   end

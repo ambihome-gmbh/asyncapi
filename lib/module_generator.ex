@@ -1,4 +1,4 @@
-# TODO BM muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben, muss automatisch bundlen
+
 
 
 defmodule ModuleGenerator do

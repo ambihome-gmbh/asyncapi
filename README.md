@@ -29,18 +29,29 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [x] understand traits
 - [x] TestAsyncapi via Registry statt broker (Registry.select)
 - [x] Payloads -> Structs 
-- [ ] Structs benutzen in Asyncapi und examples
-- [ ] examples in eigene projects
+- [x] Structs benutzen in Asyncapi und examples
+- [x] examples in eigene projects
 - [x] @BM kann man auf UserDummy module verzichten -> ja
 - [x] erste ID `0` (implementation detail) muss in schema auftauchen? 
-- [ ] Logging
-- [ ] handle nil in sequence parser (needed in "pop from empty")
+- [ ] Logging -> TO-DO-2
+- [x] handle nil in sequence parser (needed in "pop from empty")
+- [ ] jsv lib evaluieren (@BM)
+- [ ] https://hexdocs.pm/ex_json_schema/readme.html#validation-error-formats
+- [ ] module-generator
+  - ? auch fuer parameter?
+  - muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben
+  - muss automatisch bundlen
+  - ! kann dann nicht in dep sein!
+- [ ] handling of invalid messages from outside, cant just raise ->TO-DO-1
+- [ ] bessere trennung MqttAsyncAPI, broker impl ->TO-DO-3
+- [ ] retained messages
 
 
 
 ## Notes
 
 ### JSONSchema
+
 
 - `required` und `default` zusammen auf einer prop sinnlos, da mit struct `@enforce_keys` default in struct egal, muss immer gegeben werden
 - `"additionalProperties": true` sinnlos mit struct
