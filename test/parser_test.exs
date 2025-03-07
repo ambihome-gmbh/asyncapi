@@ -8,20 +8,21 @@ defmodule ParserTest do
              parse_step("from->to: operation")
 
     assert %{
-             parameters: %{"p1" => {:reference, "r"}, "p2" => {:literal, 1}},
+             parameters: %{p1: {:reference, "r"}, p2: {:literal, 1}},
              to: "t",
              from: "f",
              payload: %{
-               "bnd" => {:binding, "bind"},
-               "flt" => {:literal, 1.2},
-               "int" => {:literal, 1},
-               "ref" => {:reference, "ref"},
-               "str" => {:literal, "tst"}
+               bnd: {:binding, "bind"},
+               flt: {:literal, 1.2},
+               int: {:literal, 1},
+               ref: {:reference, "ref"},
+               str: {:literal, "tst"},
+               nul: {:literal, nil}
              },
              operation: "op"
            } ==
              parse_step(
-               "f->t: op[p1: $r, p2: 1]/{int: 1, str: 'tst', ref: $ref, flt: 1.2, bnd: bind}"
+               "f->t: op[p1: $r, p2: 1]/{int: 1, str: 'tst', ref: $ref, flt: 1.2, bnd: bind, nul: nil}"
              )
   end
 end

@@ -40,6 +40,11 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 
 ## Notes
 
+### JSONSchema
+
+- `required` und `default` zusammen auf einer prop sinnlos, da mit struct `@enforce_keys` default in struct egal, muss immer gegeben werden
+- `"additionalProperties": true` sinnlos mit struct
+- es wird nicht gechecked, ob die parameter die in channel/address genutzt werden auch definiert sind!
 
 ## References
 

@@ -34,7 +34,7 @@ defmodule Asyncapi.TestHelper do
             case step do
               %{to: "service"} ->
                 MqttAsyncapi.sendp(step.operation, payload, parameters, context.state)
-                # Process.sleep(100)
+                # TODO sleep wenn richtiger broker genutzt!?
                 acc
 
               %{from: "service"} ->
@@ -42,7 +42,7 @@ defmodule Asyncapi.TestHelper do
 
                 assert {:ok, asyncapi_message} =
                          Asyncapi.Message.from_mqtt_message(
-                           mqtt_message,
+                           Asyncapi.Message.decode_mqtt_message(mqtt_message),
                            context.state.asyncapi
                          )
 

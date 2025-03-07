@@ -30,20 +30,28 @@ defmodule Asyncapi do
   def validate_parameters(parameter_values, operation, schema) do
     parameter_validation_errors =
       for {name, value} <- parameter_values,
-          v = Validator.validate_fragment(schema, operation.parameter_schemas[name], value),
-          :ok != v do
-        "parameter: '#{name}' - #{inspect(v)}"
+          validation_result = validate_parameter(name, value, operation, schema),
+          :ok != validation_result do
+        "parameter: '#{name}' - #{inspect(validation_result)}"
       end
 
     if parameter_validation_errors == [] do
       :ok
     else
-      {:error, parameter_validation_errors}
+      {:error, :parameter_validation_error, parameter_validation_errors}
     end
   end
 
+  defp validate_parameter(name, value, operation, schema) do
+    parameter_schema = operation.parameter_schemas[name]
+    Validator.validate_fragment(schema, parameter_schema, value)
+  end
+
   def validate_payload(payload, operation, schema) do
-    Validator.validate_fragment(schema, operation.payload_schema, payload)
+    case Validator.validate_fragment(schema, operation.payload_schema, payload) do
+      :ok -> :ok
+      {:error, msg} -> {:error, :payload_validation_error, msg}
+    end
   end
 
   def load(schema_path) do
@@ -78,6 +86,12 @@ defmodule Asyncapi do
     # NOTE: asyncapi allows multiple message, but we support only exactly one
     [{_, message}] = to_list(channel["messages"])
 
+    module_name_parts = [
+      Recase.to_pascal(schema.schema["info"]["title"]),
+      "Payload",
+      Recase.to_pascal(message["name"])
+    ]
+
     payload_schema = message |> resolve_schema(schema) |> Map.get("payload")
 
     parameter_schemas =
@@ -94,6 +108,7 @@ defmodule Asyncapi do
     regex = Regex.replace(~r/\{([^}]*)\}/, channel["address"], "(?<\\1>[a-zA-Z0-9_-]+)")
 
     %{
+      payload_module_name: Module.concat(module_name_parts),
       address: channel["address"],
       payload_schema: payload_schema,
       parameter_schemas: parameter_schemas,

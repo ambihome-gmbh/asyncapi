@@ -99,10 +99,11 @@ defmodule MqttAsyncapi do
 
   @impl GenServer
   def handle_info({:publish, mqtt_message}, state) do
-    # Logger.debug("[#{inspect(state.user_module)}] recv #{inspect(mqtt_message)}")
+    mqtt_message_decoded = Message.decode_mqtt_message(mqtt_message)
+    # Logger.debug("[#{inspect(state.user_module)}] recv #{inspect(mqtt_message_decoded)}")
 
     new_user_state =
-      case Message.from_mqtt_message(mqtt_message, state.asyncapi) do
+      case Message.from_mqtt_message(mqtt_message_decoded, state.asyncapi) do
         {:ok, message} ->
           message
           |> state.user_module.handle_message(state.user_state)
@@ -142,6 +143,7 @@ defmodule MqttAsyncapi do
   defp publish(%Message{} = message, state) do
     # TODO in broker implementation
     mqtt_message = Message.to_mqtt_message!(message, state.asyncapi)
-    state.broker.module.publish(state.broker, mqtt_message)
+    mqtt_message_encoded = Message.encode_mqtt_message(mqtt_message)
+    state.broker.module.publish(state.broker, mqtt_message_encoded)
   end
 end

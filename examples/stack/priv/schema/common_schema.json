@@ -18,7 +18,7 @@
       "name": "pop from empty",
       "sequence": [
         "user->service: pop",
-        "service->user: pop_response/{value: 0}"
+        "service->user: pop_response/{value: nil}"
       ]
     }
   ],
@@ -45,7 +45,7 @@
       "title": "Push channel",
       "messages": {
         "push-message": {
-          "name": "PushMessage",
+          "name": "Push",
           "payload": {
             "$ref": "#/components/schemas/push_payload"
           },
@@ -66,7 +66,7 @@
       "title": "Pop channel",
       "messages": {
         "pop-message": {
-          "name": "PopMessage",
+          "name": "Pop",
           "payload": {
             "$ref": "#/components/schemas/empty_payload"
           },
@@ -85,7 +85,7 @@
       "title": "Pop Response channel",
       "messages": {
         "pop-response-message": {
-          "name": "PopResponseMessage",
+          "name": "PopResponse",
           "payload": {
             "$ref": "#/components/schemas/pop_response_payload"
           },

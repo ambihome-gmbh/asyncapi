@@ -21,3 +21,6 @@ stack-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+
+priv/schema/bundled/**

@@ -27,22 +27,24 @@ defmodule Asyncapi.Parser.Sequence do
   defp kv_pair() do
     key = ident()
 
-    integer_value =
+    integer_literal =
       integer(min: 1)
       |> unwrap_and_tag(:literal)
 
-    string_value =
+    string_literal =
       ignore(string("'"))
       |> utf8_string([not: ?'], min: 1)
       |> ignore(string("'"))
       |> unwrap_and_tag(:literal)
 
-    float_value =
+    float_literal =
       integer(min: 1)
       |> string(".")
       |> integer(min: 1)
       |> post_traverse({:get_float, []})
       |> unwrap_and_tag(:literal)
+
+    nil_literal = string("nil") |> replace(nil) |> unwrap_and_tag(:literal)
 
     reference =
       ignore(string("$"))
@@ -53,7 +55,8 @@ defmodule Asyncapi.Parser.Sequence do
       ident()
       |> unwrap_and_tag(:binding)
 
-    value = choice([string_value, float_value, reference, integer_value, binding])
+    value =
+      choice([string_literal, float_literal, integer_literal, nil_literal, reference, binding])
 
     key
     |> concat(ignore(sep(":")))
@@ -134,7 +137,11 @@ defmodule Asyncapi.Parser do
   end
 
   defp resolve_kv(kv_pair_list) do
-    Enum.reduce(kv_pair_list, %{}, fn {:kv_pair, [k, v]}, acc -> Map.put(acc, k, v) end)
+    Enum.reduce(
+      kv_pair_list,
+      %{},
+      fn {:kv_pair, [k, v]}, acc -> Map.put(acc, String.to_atom(k), v) end
+    )
   end
 
   defparsec(:step, Asyncapi.Parser.Sequence.step())

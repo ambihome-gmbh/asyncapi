@@ -1,0 +1,29 @@
+{
+    "asyncapi": "3.0.0",
+    "operations": {
+        "P1": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/P1"
+            }
+        },
+        "P2": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/P2"
+            }
+        },
+        "P3": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/P3"
+            }
+        },
+        "P4": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/P4"
+            }
+        }
+    }
+}

@@ -42,7 +42,7 @@
                 "create-message": {
                     "name": "CreateMessage",
                     "payload": {
-                        "$ref": "#/components/schemas/create_payload"
+                        "$ref": "#/components/schemas/create"
                     },
                     "examples": [
                         {
@@ -61,7 +61,7 @@
             "messages": {
                 "create-message": {
                     "payload": {
-                        "$ref": "#/components/schemas/create_response_payload"
+                        "$ref": "#/components/schemas/create_response"
                     }
                 }
             }
@@ -78,7 +78,7 @@
                 "push-message": {
                     "name": "PushMessage",
                     "payload": {
-                        "$ref": "#/components/schemas/push_payload"
+                        "$ref": "#/components/schemas/push"
                     },
                     "examples": [
                         {
@@ -104,7 +104,7 @@
                 "pop-message": {
                     "name": "PopMessage",
                     "payload": {
-                        "$ref": "#/components/schemas/empty_payload"
+                        "$ref": "#/components/schemas/empty"
                     },
                     "examples": [
                         {
@@ -128,7 +128,7 @@
                 "pop-response-message": {
                     "name": "PopResponseMessage",
                     "payload": {
-                        "$ref": "#/components/schemas/pop_response_payload"
+                        "$ref": "#/components/schemas/pop_response"
                     },
                     "examples": [
                         {
@@ -151,12 +151,12 @@
     },
     "components": {
         "schemas": {
-            "empty_payload": {
+            "empty": {
                 "type": "object",
                 "additionalProperties": false,
                 "properties": {}
             },
-            "pop_response_payload": {
+            "pop_response": {
                 "type": "object",
                 "properties": {
                     "value": {
@@ -170,7 +170,7 @@
                     "value"
                 ]
             },
-            "create_response_payload": {
+            "create_response": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -185,7 +185,7 @@
                     "name"
                 ]
             },
-            "create_payload": {
+            "create": {
                 "type": "object",
                 "properties": {
                     "name": {
@@ -196,7 +196,7 @@
                     "name"
                 ]
             },
-            "push_payload": {
+            "push": {
                 "type": "object",
                 "properties": {
                     "value": {

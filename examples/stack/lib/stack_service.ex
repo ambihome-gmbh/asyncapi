@@ -18,8 +18,7 @@ defmodule StackService do
 
   @impl true
   def handle_message(%Message{operation_id: "push"} = message, state) do
-    # TODO BM: payload keys -> atoms? ... message.payload.value
-    %{payload: %{"value" => value}} = message
+    %{payload: %{value: value}} = message
     {:noreply, %{state | stack: [value | state.stack]}}
   end
 
@@ -33,7 +32,7 @@ defmodule StackService do
 
     response = %Message{
       operation_id: "pop_response",
-      payload: %{"value" => value}
+      payload: %{value: value}
     }
 
     {:reply, [response], %{state | stack: new_stack}}

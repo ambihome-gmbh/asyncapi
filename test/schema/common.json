@@ -1,0 +1,137 @@
+{
+    "asyncapi": "3.0.0",
+    "info": {
+        "title": "Sample API",
+        "version": "0.0.1",
+        "description": "description",
+        "x-modulename": "SampleApi"
+    },
+    "defaultContentType": "application/json",
+    "servers": {
+        "production": {
+            "host": "127.0.0.1",
+            "protocol": "mqtt",
+            "description": "Test broker",
+            "variables": {
+                "port": {
+                    "description": "TODO",
+                    "default": "1883",
+                    "enum": [
+                        "1883"
+                    ]
+                }
+            }
+        }
+    },
+    "channels": {
+        "P1": {
+            "address": "P1",
+            "title": "P1-channel",
+            "messages": {
+                "some-message": {
+                    "name": "P1",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    }
+                }
+            },
+            "description": "no parameters, empty payload"
+        },
+        "P2": {
+            "address": "P2",
+            "title": "P2-channel",
+            "messages": {
+                "some-message": {
+                    "name": "P2",
+                    "payload": {
+                        "$ref": "#/components/schemas/some_payload"
+                    }
+                }
+            },
+            "description": "no parameters, some payload"
+        },
+        "P3": {
+            "address": "P3/{p1}",
+            "title": "P3-channel",
+            "messages": {
+                "some-message": {
+                    "name": "P3",
+                    "payload": {
+                        "$ref": "#/components/schemas/empty_payload"
+                    }
+                }
+            },
+            "description": "single parameter, no payload",
+            "parameters": {
+                "p1": {
+                    "$ref": "#/components/parameters/p1"
+                }
+            }
+        },
+        "P4": {
+            "address": "P4/{p1}/P44/{p2}",
+            "title": "P4-channel",
+            "messages": {
+                "some-message": {
+                    "name": "P4",
+                    "payload": {
+                        "$ref": "#/components/schemas/some_payload"
+                    }
+                }
+            },
+            "description": "two parameters, payload",
+            "parameters": {
+                "p1": {
+                    "$ref": "#/components/parameters/p1"
+                },
+                "p2": {
+                    "$ref": "#/components/parameters/p2"
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "p1": {
+                "description": "description of p1",
+                "enum": [
+                    "pv1",
+                    "pv2",
+                    "pv3"
+                ]
+            },
+            "p2": {
+                "description": "description of p2"
+            }
+        },
+        "schemas": {
+            "empty_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+            },
+            "some_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "p_hasdefault": {
+                        "type": "integer",
+                        "default": 4711
+                    },
+                    "p_isrequired": {
+                        "type": "string"
+                    },
+                    "p": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "p_isrequired"
+                ]
+            }
+        }
+    }
+}

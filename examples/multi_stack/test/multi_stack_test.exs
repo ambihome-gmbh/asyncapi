@@ -2,6 +2,8 @@ defmodule MultiStackTest do
   use ExUnit.Case
   require Asyncapi.TestHelper
 
+  alias MultiStackApi.Payload
+
   setup do
     Asyncapi.TestHelper.start_broker()
     :ok
@@ -14,7 +16,6 @@ defmodule MultiStackTest do
   Asyncapi.TestHelper.generate_tests(MultiStackService, "priv/schema/user_schema.json")
 
   test "payload modules are generated" do
-    assert %MultiStackApi.PopResponsePayload{value: 42} ==
-             %MultiStackApi.PopResponsePayload{value: 42}
+    assert %Payload.PopResponse{value: 42} == %Payload.PopResponse{value: 42}
   end
 end

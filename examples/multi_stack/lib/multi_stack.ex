@@ -6,6 +6,7 @@ defmodule MultiStackService do
     broker: unquote(Application.compile_env(:asyncapi, :broker))
 
   alias Asyncapi.Message
+  alias MultiStackApi.Payload
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -24,7 +25,7 @@ defmodule MultiStackService do
 
     response = %Message{
       operation_id: "create_response",
-      payload: %{"name" => name, "id" => stack_id}
+      payload: %Payload.CreateResponse{name: name, id: stack_id}
     }
 
     reply(
@@ -35,7 +36,10 @@ defmodule MultiStackService do
 
   @impl true
   def handle_message(%Message{operation_id: "push"} = message, state) do
-    %{payload: %{"value" => value}, parameters: %{"stack_id" => stack_id}} = message
+    %{
+      payload: %Payload.Push{value: value},
+      parameters: %{"stack_id" => stack_id}
+    } = message
 
     noreply(%{state | stacks: update_in(state.stacks, [stack_id, :data], &[value | &1])})
   end
@@ -53,7 +57,7 @@ defmodule MultiStackService do
 
     response = %Message{
       operation_id: "pop_response",
-      payload: %{"value" => value},
+      payload: %Payload.PopResponse{value: value},
       parameters: %{"stack_id" => stack_id}
     }
 

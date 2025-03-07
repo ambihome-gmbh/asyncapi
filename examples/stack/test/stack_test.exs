@@ -7,5 +7,5 @@ defmodule StackTest do
     :ok
   end
 
-  Asyncapi.TestHelper.generate_tests(StackService, "priv/schema/user_schema.json")
+  Asyncapi.TestHelper.generate_tests(StackService, "priv/schema/bundled/user_schema.json")
 end
