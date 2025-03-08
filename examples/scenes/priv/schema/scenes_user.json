@@ -1,0 +1,76 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "Scenes API",
+    "version": "0.2",
+    "description": "Coboservices Scene API description - user perspective"
+  },
+  "operations": {
+    "scn_add": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/SCN_CMD_ADD"
+      }
+    },
+    "scn_call": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/SCN_CMD_CALL"
+      }
+    },
+    "scn_delete": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/SCN_CMD_DELETE"
+      }
+    },
+    "scn_get_all_info": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/SCN_CMD_GET_ALL_INFO"
+      }
+    },
+    "scn_get_info": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/SCN_CMD_GET_INFO"
+      }
+    },
+    "scn_learn": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/SCN_CMD_LEARN"
+      }
+    },
+    "scn_undo": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/SCN_CMD_UNDO_SCENE"
+      }
+    },
+    "scn_update": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/SCN_CMD_UPDATE"
+      }
+    },
+    "scn_info_state": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/SCN_INFO_STATE"
+      }
+    },
+    "scn_info_deleted": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/SCN_INFO_DELETED"
+      }
+    },
+    "scn_error": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/SCN_ERROR"
+      }
+    }
+  }
+}

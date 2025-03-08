@@ -1,3 +1,6 @@
 cd priv/schema
-asyncapi bundle user_schema_operations.json common_schema.json -o bundled/user_schema.json  
-asyncapi bundle service_schema_operations.json common_schema.json -o bundled/service_schema.json
+asyncapi bundle user.json common.json -o bundled/user_schema.json  
+asyncapi bundle service.json common.json -o bundled/service_schema.json
+
+asyncapi validate bundled/user_schema.json
+asyncapi validate bundled/service_schema.json

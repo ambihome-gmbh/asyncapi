@@ -4,11 +4,11 @@ defmodule ParserTest do
   import Asyncapi.Parser
 
   test "step" do
-    assert %{parameters: %{}, to: "to", from: "from", payload: %{}, operation: "operation"} ==
+    assert %{params: %{}, to: "to", from: "from", payload: %{}, operation: "operation"} ==
              parse_step("from->to: operation")
 
     assert %{
-             parameters: %{p1: {:reference, "r"}, p2: {:literal, 1}},
+             params: %{p1: {:reference, "r"}, p2: {:literal, 1}},
              to: "t",
              from: "f",
              payload: %{
@@ -17,12 +17,14 @@ defmodule ParserTest do
                int: {:literal, 1},
                ref: {:reference, "ref"},
                str: {:literal, "tst"},
-               nul: {:literal, nil}
+               emp: {:literal, ""},
+               nul: {:literal, nil},
+               lst: {:list, [{:literal, 1}, {:literal, "a"}]}
              },
              operation: "op"
            } ==
              parse_step(
-               "f->t: op[p1: $r, p2: 1]/{int: 1, str: 'tst', ref: $ref, flt: 1.2, bnd: bind, nul: nil}"
+               "f->t: op[p1: $r, p2: 1]/{int: 1, str: 'tst', emp: '', ref: $ref, flt: 1.2, bnd: bind, nul: nil, lst: [1, 'a']}"
              )
   end
 end

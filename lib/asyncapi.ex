@@ -48,7 +48,7 @@ defmodule Asyncapi do
   def validate_payload(payload, operation, schema) do
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
       :ok -> :ok
-      {:error, msg} -> {:error, :payload_validation_error, msg}
+      {:error, msg} -> {:error, :payload_validation_error, msg, payload}
     end
   end
 
@@ -56,9 +56,9 @@ defmodule Asyncapi do
     schema = schema_path |> File.read!() |> Jason.decode!() |> ExJsonSchema.Schema.resolve()
 
     operations =
-      for {operation_id, operation} <- schema.schema["operations"], into: %{} do
+      for {op_id, operation} <- schema.schema["operations"], into: %{} do
         channel = operation["channel"] |> resolve_schema(schema) |> load_channel(schema)
-        {operation_id, Map.merge(channel, %{id: operation_id, action: operation["action"]})}
+        {op_id, Map.merge(channel, %{id: op_id, action: operation["action"]})}
       end
 
     subscriptions =

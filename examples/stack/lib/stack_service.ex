@@ -1,4 +1,5 @@
 defmodule StackService do
+  # TO-DO-4
   schema_path = Application.compile_env(:asyncapi, :schemas) |> Keyword.get(:stack_service)
 
   use MqttAsyncapi,
@@ -13,17 +14,18 @@ defmodule StackService do
 
   @impl true
   def init(_opts) do
+    # dbg({:init, __MODULE__, self()})
     {:ok, %{stack: []}}
   end
 
   @impl true
-  def handle_message(%Message{operation_id: "push"} = message, state) do
+  def handle_message(%Message{op_id: "push"} = message, state) do
     %{payload: %{value: value}} = message
     {:noreply, %{state | stack: [value | state.stack]}}
   end
 
   @impl true
-  def handle_message(%Message{operation_id: "pop"}, state) do
+  def handle_message(%Message{op_id: "pop"}, state) do
     {value, new_stack} =
       case state.stack do
         [top | rest] -> {top, rest}
@@ -31,7 +33,7 @@ defmodule StackService do
       end
 
     response = %Message{
-      operation_id: "pop_response",
+      op_id: "pop_response",
       payload: %{value: value}
     }
 
@@ -39,7 +41,13 @@ defmodule StackService do
   end
 
   @impl true
-  def handle_info(_info, state) do
+  def handle_info({"test_internal", payload, params}, state) do
+    dbg({"RECV-info: test_internal", payload, params})
+    {:noreply, state}
+  end
+
+  def handle_info(unexpected, state) do
+    dbg({:unexpected, unexpected})
     {:noreply, state}
   end
 end

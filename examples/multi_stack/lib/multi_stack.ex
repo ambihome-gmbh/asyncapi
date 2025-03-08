@@ -18,13 +18,13 @@ defmodule MultiStackService do
   end
 
   @impl true
-  def handle_message(%Message{operation_id: "create"} = message, state) do
-    %{payload: %{"name" => name}} = message
+  def handle_message(%Message{op_id: "create"} = message, state) do
+    %{payload: %{name: name}} = message
 
     stack_id = Uniq.UUID.uuid6()
 
     response = %Message{
-      operation_id: "create_response",
+      op_id: "create_response",
       payload: %Payload.CreateResponse{name: name, id: stack_id}
     }
 
@@ -35,18 +35,18 @@ defmodule MultiStackService do
   end
 
   @impl true
-  def handle_message(%Message{operation_id: "push"} = message, state) do
+  def handle_message(%Message{op_id: "push"} = message, state) do
     %{
       payload: %Payload.Push{value: value},
-      parameters: %{"stack_id" => stack_id}
+      params: %{stack_id: stack_id}
     } = message
 
     noreply(%{state | stacks: update_in(state.stacks, [stack_id, :data], &[value | &1])})
   end
 
   @impl true
-  def handle_message(%Message{operation_id: "pop"} = message, state) do
-    %{parameters: %{"stack_id" => stack_id}} = message
+  def handle_message(%Message{op_id: "pop"} = message, state) do
+    %{params: %{stack_id: stack_id}} = message
 
     # NOTE: crashes if no stack with stack_id
     {value, new_stack} =
@@ -56,9 +56,9 @@ defmodule MultiStackService do
       end
 
     response = %Message{
-      operation_id: "pop_response",
+      op_id: "pop_response",
       payload: %Payload.PopResponse{value: value},
-      parameters: %{"stack_id" => stack_id}
+      params: %{stack_id: stack_id}
     }
 
     reply(

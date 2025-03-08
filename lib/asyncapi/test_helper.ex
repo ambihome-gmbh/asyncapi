@@ -5,7 +5,7 @@ defmodule Asyncapi.TestHelper do
 
   defmacro generate_tests(service, schema) do
     asyncapi = Asyncapi.load(schema)
-    testcases = asyncapi.schema.schema["x-testcases"]
+    testcases = Map.fetch!(asyncapi.schema.schema, "x-testcases")
 
     quote unquote: false,
           bind_quoted: [
@@ -16,8 +16,8 @@ defmodule Asyncapi.TestHelper do
       setup do
         asyncapi = unquote(Macro.escape(asyncapi))
         {:ok, broker_state} = unquote(service).get_broker().connect(asyncapi)
-        {:ok, _} = start_supervised(unquote(service))
-        {:ok, state: %{asyncapi: asyncapi, broker: broker_state}}
+        {:ok, service_pid} = start_supervised(unquote(service))
+        {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
       end
 
       for testcase <- testcases do
@@ -27,12 +27,19 @@ defmodule Asyncapi.TestHelper do
           sequence = unquote(Macro.escape(parsed_sequence))
 
           Enum.reduce(sequence, %{}, fn step, acc ->
+            # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
             {payload, acc} = Asyncapi.TestHelper.deref(step.payload, acc)
-            {parameters, acc} = Asyncapi.TestHelper.deref(step.parameters, acc)
+            {params, acc} = Asyncapi.TestHelper.deref(step.params, acc)
 
             case step do
+              %{from: "service", to: "service"} ->
+                send(context.service_pid, {step.operation, payload, params})
+
+                acc
+
               %{to: "service"} ->
-                MqttAsyncapi.sendp(step.operation, payload, parameters, context.state)
+                MqttAsyncapi.sendp(step.operation, payload, params, context.state)
+
                 acc
 
               %{from: "service"} ->
@@ -45,7 +52,7 @@ defmodule Asyncapi.TestHelper do
                          )
 
                 acc
-                |> Asyncapi.TestHelper.match(asyncapi_message.parameters, parameters)
+                |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
                 |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
             end
           end)
@@ -63,10 +70,10 @@ defmodule Asyncapi.TestHelper do
         {:binding, binding_name} ->
           ExUnit.Assertions.assert(
             Map.has_key?(received, k),
-            "Binding not found: #{k} --> #{binding_name}"
+            "Binding not found: #{inspect(k)} in #{inspect(received)} --> #{inspect(binding_name)}"
           )
 
-          Map.put(acc, binding_name, Map.fetch!(received, k))
+          Map.put(acc, binding_name, Map.fetch!(received, k)) |> dbg
 
         _ ->
           ExUnit.Assertions.assert(v == Map.fetch!(received, k))
@@ -83,6 +90,7 @@ defmodule Asyncapi.TestHelper do
         case type do
           :reference -> {{key, Map.fetch!(bindings, value)}, acc}
           :binding -> {{key, {type, value}}, acc}
+          :list -> {{key, map(value, fn {:literal, v} -> v end)}, acc}
           _ -> {{key, value}, acc}
         end
       end)

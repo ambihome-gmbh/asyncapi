@@ -33,7 +33,7 @@ defmodule Asyncapi.Parser.Sequence do
 
     string_literal =
       ignore(string("'"))
-      |> utf8_string([not: ?'], min: 1)
+      |> utf8_string([not: ?'], min: 0)
       |> ignore(string("'"))
       |> unwrap_and_tag(:literal)
 
@@ -46,6 +46,23 @@ defmodule Asyncapi.Parser.Sequence do
 
     nil_literal = string("nil") |> replace(nil) |> unwrap_and_tag(:literal)
 
+    # NOTE: only literals in lists for now. update testhelper/deref if this changes!
+    list =
+      ignore(string("["))
+      |> concat(
+        sep_by(
+          choice([
+            string_literal,
+            float_literal,
+            integer_literal,
+            nil_literal
+          ]),
+          ","
+        )
+      )
+      |> concat(ignore(string("]")))
+      |> tag(:list)
+
     reference =
       ignore(string("$"))
       |> concat(ident())
@@ -56,7 +73,15 @@ defmodule Asyncapi.Parser.Sequence do
       |> unwrap_and_tag(:binding)
 
     value =
-      choice([string_literal, float_literal, integer_literal, nil_literal, reference, binding])
+      choice([
+        string_literal,
+        float_literal,
+        integer_literal,
+        nil_literal,
+        list,
+        reference,
+        binding
+      ])
 
     key
     |> concat(ignore(sep(":")))
@@ -79,11 +104,11 @@ defmodule Asyncapi.Parser.Sequence do
     |> tag(:payload)
   end
 
-  defp parameters() do
+  defp params() do
     ignore(string("["))
     |> concat(optional(kv_list()))
     |> concat(ignore(string("]")))
-    |> tag(:parameters)
+    |> tag(:params)
   end
 
   defp bind_ident(binding) do
@@ -102,7 +127,7 @@ defmodule Asyncapi.Parser.Sequence do
     |> ignore(string(":"))
     |> ignore(optional(whitespace()))
     |> concat(bind_ident(:operation))
-    |> concat(optional(parameters()))
+    |> concat(optional(params()))
     |> concat(optional(payload()))
   end
 end
@@ -117,13 +142,13 @@ defmodule Asyncapi.Parser do
   end
 
   defp resolve_step({:ok, parsed_, "", _, _, _}) do
-    parsed = Map.merge(%{parameters: [], payload: []}, Map.new(parsed_))
+    parsed = Map.merge(%{params: [], payload: []}, Map.new(parsed_))
 
     %{
       actor_from: [actor_from],
       actor_to: [actor_to],
       operation: [operation],
-      parameters: parameters,
+      params: params,
       payload: payload
     } = parsed
 
@@ -131,7 +156,7 @@ defmodule Asyncapi.Parser do
       from: actor_from,
       to: actor_to,
       operation: operation,
-      parameters: resolve_kv(parameters),
+      params: resolve_kv(params),
       payload: resolve_kv(payload)
     }
   end
@@ -140,7 +165,9 @@ defmodule Asyncapi.Parser do
     Enum.reduce(
       kv_pair_list,
       %{},
-      fn {:kv_pair, [k, v]}, acc -> Map.put(acc, String.to_atom(k), v) end
+      fn
+        {:kv_pair, [k, v]}, acc -> Map.put(acc, String.to_atom(k), v)
+      end
     )
   end
 

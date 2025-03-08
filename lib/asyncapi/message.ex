@@ -2,8 +2,8 @@ defmodule Asyncapi.Message do
   import Enum
 
   @type t :: %__MODULE__{}
-  defstruct operation_id: nil,
-            parameters: %{},
+  defstruct op_id: nil,
+            params: %{},
             payload: %{},
             retain: false,
             qos: 0
@@ -13,14 +13,14 @@ defmodule Asyncapi.Message do
     %{topic: topic, payload: payload} = mqtt_message
 
     with {:ok, operation} <- Asyncapi.find_operation(topic, operations),
-         parameters = Regex.named_captures(operation.regex, topic),
-         :ok <- Asyncapi.validate_parameters(parameters, operation, schema),
+         params = Regex.named_captures(operation.regex, topic),
+         :ok <- Asyncapi.validate_parameters(params, operation, schema),
          :ok <- Asyncapi.validate_payload(payload, operation, schema) do
       {
         :ok,
         %__MODULE__{
-          operation_id: operation.id,
-          parameters: to_atom_map(parameters),
+          op_id: operation.id,
+          params: to_atom_map(params),
           payload: struct(operation.payload_module_name, to_atom_map(payload))
         }
       }
@@ -32,7 +32,7 @@ defmodule Asyncapi.Message do
 
   def to_mqtt_message!(%__MODULE__{} = message, asyncapi) do
     %{schema: schema, operations: operations} = asyncapi
-    %{operation_id: operation_id, parameters: parameters, payload: payload} = message
+    %{op_id: op_id, params: params, payload: payload} = message
 
     payload =
       case payload do
@@ -41,14 +41,14 @@ defmodule Asyncapi.Message do
       end
 
     payload = to_string_map(payload)
-    parameters = to_string_map(parameters)
+    params = to_string_map(params)
 
-    with {:ok, operation} <- fetch_operation(operations, operation_id),
-         :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(parameters, operation),
-         :ok <- Asyncapi.validate_parameters(parameters, operation, schema),
+    with {:ok, operation} <- fetch_operation(operations, op_id),
+         :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(params, operation),
+         :ok <- Asyncapi.validate_parameters(params, operation, schema),
          :ok <- Asyncapi.validate_payload(payload, operation, schema) do
       %{
-        topic: interpolate_parameters(operation.address, parameters),
+        topic: interpolate_parameters(operation.address, params),
         payload: payload,
         qos: message.qos,
         retain: message.retain
@@ -66,15 +66,15 @@ defmodule Asyncapi.Message do
     %{mqtt_message | payload: Jason.encode!(mqtt_message.payload)}
   end
 
-  defp fetch_operation(operations, operation_id) do
-    case Map.fetch(operations, operation_id) do
-      :error -> {:error, :operation_not_found, operation_id}
+  defp fetch_operation(operations, op_id) do
+    case Map.fetch(operations, op_id) do
+      :error -> {:error, :operation_not_found, op_id}
       ok -> ok
     end
   end
 
-  defp interpolate_parameters(address, parameters) do
-    reduce(parameters, address, fn {p, v}, topic -> String.replace(topic, "{#{p}}", v) end)
+  defp interpolate_parameters(address, params) do
+    reduce(params, address, fn {p, v}, topic -> String.replace(topic, "{#{p}}", v) end)
   end
 
   defp to_atom_map(map_) do

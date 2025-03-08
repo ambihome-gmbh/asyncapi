@@ -15,7 +15,7 @@ defmodule MultiStackTest do
   # schema_path = Application.compile_env(:asyncapi, :schemas) |> Keyword.get(:multistack_user)
   # (achtung: pfade runtime/compiletime)
 
-  Asyncapi.TestHelper.generate_tests(MultiStackService, "priv/schema/user_schema.json")
+  Asyncapi.TestHelper.generate_tests(MultiStackService, "priv/schema/bundled/user.json")
 
   test "payload modules are generated" do
     assert %Payload.PopResponse{value: 42} == %Payload.PopResponse{value: 42}

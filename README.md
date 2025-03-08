@@ -45,7 +45,9 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] handling of invalid messages from outside, cant just raise ->TO-DO-1
 - [ ] bessere trennung MqttAsyncAPI, broker impl ->TO-DO-3
 - [ ] retained messages
-- [ ] generate_tests nicht mit hardcoded pfad aufrufen -> TO-DO-4
+- [ ] generate_tests nicht mit hardcoded pfad aufrufen, env-zugriff nicht in use sondern in __using__ -> TO-DO-4
+- [x] internal messages
+  - [ ] when an internal message is the last in a sequence, it may not be received before test ends!
 
 
 
@@ -57,6 +59,7 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - `required` und `default` zusammen auf einer prop sinnlos, da mit struct `@enforce_keys` default in struct egal, muss immer gegeben werden
 - `"additionalProperties": true` sinnlos mit struct
 - es wird nicht gechecked, ob die parameter die in channel/address genutzt werden auch definiert sind!
+- message name muss gesetzt und uniq sein in schema (module)
 
 ## References
 

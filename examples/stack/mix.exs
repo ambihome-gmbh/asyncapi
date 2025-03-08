@@ -19,6 +19,7 @@ defmodule Stack.MixProject do
 
   defp deps do
     [
+      {:uniq, "~> 0.6"},
       {:asyncapi, path: "../.."}
     ]
   end

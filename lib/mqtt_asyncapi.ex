@@ -52,16 +52,16 @@ defmodule MqttAsyncapi do
     )
   end
 
-  def send(operation_id, payload, state) do
+  def send(op_id, payload, state) do
     publish(
-      %Message{operation_id: operation_id, payload: payload},
+      %Message{op_id: op_id, payload: payload},
       state
     )
   end
 
-  def sendp(operation_id, payload, parameters, state) do
+  def sendp(op_id, payload, params, state) do
     publish(
-      %Message{operation_id: operation_id, payload: payload, parameters: parameters},
+      %Message{op_id: op_id, payload: payload, params: params},
       state
     )
   end

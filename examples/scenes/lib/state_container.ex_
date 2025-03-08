@@ -1,0 +1,45 @@
+defmodule StateContainer do
+  schema_path = Application.compile_env(:asyncapi, :schemas) |> Keyword.get(:state_container_service)
+
+  use MqttAsyncapi,
+    schema_path: unquote(schema_path),
+    broker: unquote(Application.compile_env(:asyncapi, :broker))
+
+  require Logger
+
+  alias Asyncapi.Message
+
+  def get_last(group) do
+    with [{^group, val}] <- :ets.lookup(:state_container_ets, group) do
+      {:ok, val}
+    else
+      _ -> :unknown
+    end
+  end
+
+  def start_link(opts \\ []) do
+    MqttAsyncapi.start_link(__MODULE__, opts)
+  end
+
+  @impl true
+  def init(_) do
+    {:ok, :ets.new(:state_container_ets, [:set, :protected, :named_table])}
+  end
+
+  @impl true
+  def handle_message(%Message{op_id: "GrpVal_Write_ind"} = message, state) do
+    %{payload: %{"Value" => val}, params: %{"group_address" => dest}} = message
+    :ets.insert(state, {dest, val})
+    {:noreply, state}
+  end
+
+  # @impl true
+  # def handle_message(%Message{op_id: "STS_CMD_GET_ALL_VALUES"}, state) do
+  #   message = %Message{
+  #     op_id: "STS_INFO_STATE",
+  #     payload: state |> :ets.tab2list() |> Enum.into(%{})
+  #   }
+
+  #   {:reply, [message], state}
+  # end
+end
