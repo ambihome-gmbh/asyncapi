@@ -137,6 +137,7 @@
             },
             "pop_response": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                     "value": {
                         "type": [
@@ -151,6 +152,7 @@
             },
             "create_response": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                     "id": {
                         "type": "string"
@@ -166,6 +168,7 @@
             },
             "create": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                     "name": {
                         "type": "string"
@@ -177,6 +180,7 @@
             },
             "push": {
                 "type": "object",
+                "additionalProperties": false,
                 "properties": {
                     "value": {
                         "type": "integer"

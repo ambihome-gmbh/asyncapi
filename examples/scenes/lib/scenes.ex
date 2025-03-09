@@ -1,9 +1,5 @@
 defmodule CoboServices.Scenes do
-  schema_path = Application.compile_env(:asyncapi, :schemas) |> Keyword.get(:service)
-
-  use MqttAsyncapi,
-    schema_path: unquote(schema_path),
-    broker: unquote(Application.compile_env(:asyncapi, :broker))
+  use MqttAsyncapi, schema: :scenes_service
 
   import Enum
 

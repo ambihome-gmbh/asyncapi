@@ -1,0 +1,628 @@
+{
+    "asyncapi": "3.0.0",
+    "info": {
+        "description": "Coboservices Scene API description - user perspective",
+        "title": "Scenes API",
+        "version": "0.2"
+    },
+    "x-testcases": [
+        {
+            "name": "create scene",
+            "sequence": [
+                "user->service: scn_add/{id: 'x', name: 'S1', member_channels: ['ch1', 'ch2']}",
+                "service->user: scn_info_state[scene_id: id]/{name: 'S1'}",
+                "user->service: dp_write_ind[dp_id: 'ch1']/{id: 'ch1', value: 'some value'}",
+                "user->service: scn_update[scene_id: $id]/{id: $id, name: 'S11', member_channels: ['ch1', 'ch2']}",
+                "service->user: scn_info_state[scene_id: $id]/{name: 'S11'}"
+            ]
+        }
+    ],
+    "defaultContentType": "application/json",
+    "servers": {
+        "production": {
+            "host": "127.0.0.1",
+            "protocol": "mqtt",
+            "variables": {
+                "port": {
+                    "default": "1883",
+                    "enum": [
+                        "1883"
+                    ]
+                }
+            }
+        }
+    },
+    "channels": {
+        "SCN_CMD_ADD": {
+            "address": "SCN/CMD_ADD",
+            "messages": {
+                "add": {
+                    "name": "ADD",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "id": {
+                                "description": "Scene ID - TODO trait that overwrites this with null for cmd-add",
+                                "type": "string"
+                            },
+                            "name": {
+                                "description": "Scene name",
+                                "type": "string"
+                            },
+                            "member_channels": {
+                                "description": "channel ids of the scene members",
+                                "type": "array",
+                                "minItems": 1,
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "fixed": {
+                                "description": "Scene is fixed",
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "fixed_type": {
+                                "description": "scene fixed to min or max values",
+                                "type": "string",
+                                "default": "fixed_type_none",
+                                "enum": [
+                                    "fixed_type_min",
+                                    "fixed_type_max",
+                                    "fixed_type_none"
+                                ]
+                            },
+                            "static": {
+                                "description": "Scene is static",
+                                "type": "boolean",
+                                "default": false
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name",
+                            "member_channels"
+                        ],
+                        "examples": [
+                            {
+                                "name": "Sample Scene Name",
+                                "member_channels": [
+                                    "channel_3",
+                                    "channel_14"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "description": "Add a new scene. A new `scene_id` is created by the service. Publishes `SCN_INFO_STATE/{scene_id}`."
+        },
+        "SCN_CMD_CALL": {
+            "address": "SCN/CMD_CALL/{scene_id}",
+            "messages": {
+                "call": {
+                    "name": "CALL",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "_sender": {
+                                "description": "sender uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Call scene with ID `scene_id`. The scene must exist and must not be an undo-scene. When a scene is called, the stored value for each member is sent to the bus. The scene's undo-scene is deleted. New undo-scene is created. Publishes `SCN/INFO_STATE/{scene_id}`.",
+            "parameters": {
+                "scene_id": {
+                    "description": "ID of a scene."
+                }
+            }
+        },
+        "SCN_CMD_DELETE": {
+            "address": "SCN/CMD_DELETE/{scene_id}",
+            "messages": {
+                "delete": {
+                    "name": "DELETE",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "_sender": {
+                                "description": "sender uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Delete scene with ID `scene_id`. The scene must exist and must not be an undo-scene. The scene's undo-scene is deleted. Publishes `SCN/INFO_DELETED/{scene_id}`.",
+            "parameters": {
+                "scene_id": {
+                    "description": "ID of a scene."
+                }
+            }
+        },
+        "SCN_CMD_GET_ALL_INFO": {
+            "address": "SCN/CMD_GET_ALL_INFO",
+            "messages": {
+                "get_all_info": {
+                    "name": "GET_ALL_INFO",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "_sender": {
+                                "description": "sender uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Request status of all scenes. Publishes `SCN/INFO_STATE/{scene_id}` for all scenes."
+        },
+        "SCN_CMD_GET_INFO": {
+            "address": "SCN/CMD_GET_INFO/{scene_id}",
+            "messages": {
+                "get_info": {
+                    "name": "GET_INFO",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "_sender": {
+                                "description": "sender uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Request status of scene with ID `scene_id`. The scene must exist and must not be an undo-scene. Publishes `SCN/INFO_STATE/{scene_id}`.",
+            "parameters": {
+                "scene_id": {
+                    "description": "ID of a scene."
+                }
+            }
+        },
+        "SCN_CMD_LEARN": {
+            "address": "SCN/CMD_LEARN/{scene_id}",
+            "messages": {
+                "learn": {
+                    "name": "LEARN",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "_sender": {
+                                "description": "sender uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Learn scene with ID `scene_id`. The scene must exist and must not be an undo-scene. When a scene is learned the current state of all members is stored. Publishes `SCN/INFO_STATE/{scene_id}`.",
+            "parameters": {
+                "scene_id": {
+                    "description": "ID of a scene."
+                }
+            }
+        },
+        "SCN_CMD_UNDO_SCENE": {
+            "address": "SCN/CMD_UNDO_SCENE/{scene_id}",
+            "messages": {
+                "undo": {
+                    "name": "UNDO",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "_sender": {
+                                "description": "sender uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "Call undo-scene of scene with ID `scene_id`. The scene must exist and must not be an undo-scene. The must have been called once, so that an undo-scene exists. The called undo-scene is then deleted.",
+            "parameters": {
+                "scene_id": {
+                    "description": "ID of a scene."
+                }
+            }
+        },
+        "SCN_CMD_UPDATE": {
+            "address": "SCN/CMD_UPDATE/{scene_id}",
+            "messages": {
+                "update": {
+                    "name": "UPDATE",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "id": {
+                                "description": "Scene ID - TODO trait that overwrites this with null for cmd-add",
+                                "type": "string"
+                            },
+                            "name": {
+                                "description": "Scene name",
+                                "type": "string"
+                            },
+                            "member_channels": {
+                                "description": "channel ids of the scene members",
+                                "type": "array",
+                                "minItems": 1,
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "fixed": {
+                                "description": "Scene is fixed",
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "fixed_type": {
+                                "description": "scene fixed to min or max values",
+                                "type": "string",
+                                "default": "fixed_type_none",
+                                "enum": [
+                                    "fixed_type_min",
+                                    "fixed_type_max",
+                                    "fixed_type_none"
+                                ]
+                            },
+                            "static": {
+                                "description": "Scene is static",
+                                "type": "boolean",
+                                "default": false
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name",
+                            "member_channels"
+                        ],
+                        "examples": [
+                            {
+                                "name": "Sample Scene Name",
+                                "member_channels": [
+                                    "channel_3",
+                                    "channel_14"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "description": "Update name and members of scene with ID `scene_id`. All members and their stored values are deleted and then the given members are added. The fixed attribute cannot be changed.",
+            "parameters": {
+                "scene_id": {
+                    "description": "ID of a scene."
+                }
+            }
+        },
+        "SCN_INFO_STATE": {
+            "address": "SCN/INFO_STATE/{scene_id}",
+            "messages": {
+                "info": {
+                    "name": "INFO_STATE",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "id": {
+                                "description": "Scene ID - TODO trait that overwrites this with null for cmd-add",
+                                "type": "string"
+                            },
+                            "name": {
+                                "description": "Scene name",
+                                "type": "string"
+                            },
+                            "member_channels": {
+                                "description": "channel ids of the scene members",
+                                "type": "array",
+                                "minItems": 1,
+                                "uniqueItems": true,
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "fixed": {
+                                "description": "Scene is fixed",
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "fixed_type": {
+                                "description": "scene fixed to min or max values",
+                                "type": "string",
+                                "default": "fixed_type_none",
+                                "enum": [
+                                    "fixed_type_min",
+                                    "fixed_type_max",
+                                    "fixed_type_none"
+                                ]
+                            },
+                            "static": {
+                                "description": "Scene is static",
+                                "type": "boolean",
+                                "default": false
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "name",
+                            "member_channels"
+                        ],
+                        "examples": [
+                            {
+                                "name": "Sample Scene Name",
+                                "member_channels": [
+                                    "channel_3",
+                                    "channel_14"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "description": "State of scene with ID `scene_id`.",
+            "parameters": {
+                "scene_id": {
+                    "description": "ID of a scene."
+                }
+            }
+        },
+        "SCN_INFO_DELETED": {
+            "address": "SCN/INFO_DELETED/{scene_id}",
+            "messages": {
+                "deleted": {
+                    "name": "INFO_DELETED",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "_sender": {
+                                "description": "sender uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "The scene with ID `scene_id` was deleted.",
+            "parameters": {
+                "scene_id": {
+                    "description": "ID of a scene."
+                }
+            }
+        },
+        "SCN_ERROR": {
+            "address": "SCN/ERROR",
+            "messages": {
+                "error": {
+                    "name": "ERROR",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "_sender": {
+                                "description": "sender uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "description": "some error occurred, back to sender. TODO payload, needs sender trait"
+        },
+        "dp_write_ind": {
+            "address": "DP/WRITE/{dp_id}",
+            "parameters": {
+                "dp_id": {
+                    "description": "ID of a DP."
+                }
+            },
+            "messages": {
+                "dp_write_ind": {
+                    "name": "dp_write_ind",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "id": {
+                                "description": "DP ID",
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "value"
+                        ]
+                    }
+                }
+            },
+            "description": "testing dummy temp"
+        }
+    },
+    "operations": {
+        "dp_write_ind": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/dp_write_ind"
+            }
+        },
+        "scn_add": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/SCN_CMD_ADD"
+            }
+        },
+        "scn_call": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/SCN_CMD_CALL"
+            }
+        },
+        "scn_delete": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/SCN_CMD_DELETE"
+            }
+        },
+        "scn_get_all_info": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/SCN_CMD_GET_ALL_INFO"
+            }
+        },
+        "scn_get_info": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/SCN_CMD_GET_INFO"
+            }
+        },
+        "scn_learn": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/SCN_CMD_LEARN"
+            }
+        },
+        "scn_undo": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/SCN_CMD_UNDO_SCENE"
+            }
+        },
+        "scn_update": {
+            "action": "send",
+            "channel": {
+                "$ref": "#/channels/SCN_CMD_UPDATE"
+            }
+        },
+        "scn_info_state": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/SCN_INFO_STATE"
+            }
+        },
+        "scn_info_deleted": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/SCN_INFO_DELETED"
+            }
+        },
+        "scn_error": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/SCN_ERROR"
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "empty_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "_sender": {
+                        "description": "sender uuid",
+                        "type": "string"
+                    }
+                }
+            },
+            "scn_config_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "id": {
+                        "description": "Scene ID - TODO trait that overwrites this with null for cmd-add",
+                        "type": "string"
+                    },
+                    "name": {
+                        "description": "Scene name",
+                        "type": "string"
+                    },
+                    "member_channels": {
+                        "description": "channel ids of the scene members",
+                        "type": "array",
+                        "minItems": 1,
+                        "uniqueItems": true,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "fixed": {
+                        "description": "Scene is fixed",
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "fixed_type": {
+                        "description": "scene fixed to min or max values",
+                        "type": "string",
+                        "default": "fixed_type_none",
+                        "enum": [
+                            "fixed_type_min",
+                            "fixed_type_max",
+                            "fixed_type_none"
+                        ]
+                    },
+                    "static": {
+                        "description": "Scene is static",
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "member_channels"
+                ],
+                "examples": [
+                    {
+                        "name": "Sample Scene Name",
+                        "member_channels": [
+                            "channel_3",
+                            "channel_14"
+                        ]
+                    }
+                ]
+            },
+            "dp_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "id": {
+                        "description": "DP ID",
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "value"
+                ]
+            }
+        },
+        "parameters": {
+            "scene_id": {
+                "description": "ID of a scene."
+            },
+            "dp_id": {
+                "description": "ID of a DP."
+            }
+        }
+    }
+}

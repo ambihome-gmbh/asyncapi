@@ -1,0 +1,62 @@
+{
+    "asyncapi": "3.0.0",
+    "info": {
+        "description": "Dataponts API description",
+        "title": "Datapoints API",
+        "version": "0.2"
+    },
+    "defaultContentType": "application/json",
+    "channels": {
+        "dp_write_ind": {
+            "address": "DP/WRITE/{dp_id}",
+            "parameters": {
+                "dp_id": {
+                    "$ref": "#/components/parameters/dp_id"
+                }
+            },
+            "messages": {
+                "dp_write_ind": {
+                    "name": "dp_write_ind",
+                    "payload": {
+                        "$ref": "#/components/schemas/dp_payload"
+                    }
+                }
+            },
+            "description": "testing dummy temp"
+        }
+    },
+    "operations": {
+        "dp_write_ind": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/dp_write_ind"
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "dp_id": {
+                "description": "ID of a DP."
+            }
+        },
+        "schemas": {
+            "dp_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "id": {
+                        "description": "DP ID",
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "value"
+                ]
+            }
+        }
+    }
+}

@@ -1,21 +1,21 @@
 defmodule Asyncapi.TestHelper do
-  # require ExUnit.Assertions
   use ExUnit.Case
   import Enum
 
-  defmacro generate_tests(service, schema) do
-    asyncapi = Asyncapi.load(schema)
+  defmacro generate_tests(service, schema_path, broker) do
+    asyncapi = Asyncapi.load(schema_path)
     testcases = Map.fetch!(asyncapi.schema.schema, "x-testcases")
 
     quote unquote: false,
           bind_quoted: [
             service: service,
+            broker: broker,
             asyncapi: Macro.escape(asyncapi),
             testcases: Macro.escape(testcases)
           ] do
       setup do
         asyncapi = unquote(Macro.escape(asyncapi))
-        {:ok, broker_state} = unquote(service).get_broker().connect(asyncapi)
+        {:ok, broker_state} = unquote(broker).connect(asyncapi)
         {:ok, service_pid} = start_supervised(unquote(service))
         {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
       end
@@ -38,6 +38,7 @@ defmodule Asyncapi.TestHelper do
                 acc
 
               %{to: "service"} ->
+                dbg({step.operation, payload, params})
                 MqttAsyncapi.sendp(step.operation, payload, params, context.state)
 
                 acc
@@ -73,7 +74,7 @@ defmodule Asyncapi.TestHelper do
             "Binding not found: #{inspect(k)} in #{inspect(received)} --> #{inspect(binding_name)}"
           )
 
-          Map.put(acc, binding_name, Map.fetch!(received, k)) |> dbg
+          Map.put(acc, binding_name, Map.fetch!(received, k))
 
         _ ->
           ExUnit.Assertions.assert(v == Map.fetch!(received, k))

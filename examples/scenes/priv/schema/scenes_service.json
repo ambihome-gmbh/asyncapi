@@ -7,12 +7,6 @@
   },
   "defaultContentType": "application/json",
   "operations": {
-    "GrpVal_Write_req": {
-      "action": "send",
-      "channel": {
-        "$ref": "#/channels/GrpVal_Write_req"
-      }
-    },
     "add": {
       "action": "receive",
       "channel": {

@@ -1,0 +1,11 @@
+{
+    "asyncapi": "3.0.0",
+    "operations": {
+        "grpval_write_ind": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/grpval_write_ind"
+            }
+        }
+    }
+}

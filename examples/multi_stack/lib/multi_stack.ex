@@ -1,9 +1,5 @@
 defmodule MultiStackService do
-  schema_path = Application.compile_env(:asyncapi, :schemas) |> Keyword.get(:multistack_service)
-
-  use MqttAsyncapi,
-    schema_path: unquote(schema_path),
-    broker: unquote(Application.compile_env(:asyncapi, :broker))
+  use MqttAsyncapi, schema: :multistack_service
 
   alias Asyncapi.Message
   alias MultiStackApi.Payload

@@ -1,5 +1,6 @@
 defmodule Asyncapi.Broker.Dummy do
   def connect(asyncapi) do
+    # dbg(asyncapi.subscriptions)
     Enum.each(asyncapi.subscriptions, &DummyBroker.subscribe(&1))
     {:ok, %{module: __MODULE__}}
   end

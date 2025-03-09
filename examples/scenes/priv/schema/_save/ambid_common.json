@@ -1,0 +1,122 @@
+{
+  "asyncapi": "3.0.0",
+  "channels": {
+    "grpval_write_req": {
+      "address": "ambid/to_KNX/{group_address}/GrpVal_Write/req",
+      "messages": {
+        "ambid_to_knx": {
+          "$ref": "#/components/messages/ambid_to_knx"
+        }
+      },
+      "description": "Request to write a value to `group_address`.",
+      "parameters": {
+        "group_address": {
+          "$ref": "#/components/parameters/group_address"
+        }
+      }
+    },
+    "grpval_read_req": {
+      "address": "ambid/to_KNX/{group_address}/GrpVal_Read/req",
+      "messages": {
+        "ambid_to_knx": {
+          "$ref": "#/components/messages/ambid_to_knx"
+        }
+      },
+      "description": "Read the value of `group-address`. Used by the state-service to initialize after server reboot.",
+      "parameters": {
+        "group_address": {
+          "$ref": "#/components/parameters/group_address"
+        }
+      }
+    },
+    "grpval_write_ind": {
+      "address": "ambid/from_KNX/{group_address}/GrpVal_Write/ind",
+      "messages": {
+        "ambid_from_knx": {
+          "$ref": "#/components/messages/ambid_from_knx"
+        }
+      },
+      "description": "A KNX device has written a value to `group-address`.",
+      "parameters": {
+        "group_address": {
+          "$ref": "#/components/parameters/group_address"
+        }
+      }
+    },
+    "grpval_resp_ind": {
+      "address": "ambid/from_KNX/{group_address}/GrpVal_Resp/ind",
+      "messages": {
+        "ambid_from_knx": {
+          "$ref": "#/components/messages/ambid_from_knx"
+        }
+      },
+      "description": "A KNX device responds to a GrpVal_Read.req to `group-address`. Used by the state-service to initialize after server reboot.",
+      "parameters": {
+        "group_address": {
+          "$ref": "#/components/parameters/group_address"
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "group_address": {
+        "description": "group_address"
+      }
+    },
+    "messages": {
+      "ambid_to_knx": {
+        "name": "to_knx",
+        "title": "Message to KNX",
+        "contentType": "application/json",
+        "payload": {
+          "$ref": "#/components/schemas/ambid_payload"
+        }
+      },
+      "ambid_from_knx": {
+        "name": "from_knx",
+        "title": "Message from KNX",
+        "contentType": "application/json",
+        "payload": {
+          "$ref": "#/components/schemas/ambid_payload"
+        }
+      }
+    },
+    "schemas": {
+      "ambid_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "If possible all DPTs are decoded as numbers."
+              },
+              {
+                "type": "string",
+                "description": "Some like Text and Date/Time DPTs are strings. TODO: format of complex DPT like Date/Time"
+              }
+            ]
+          },
+          "unit": {
+            "description": "Optional unit of the value. Ignored if sent to KNX.",
+            "type": "string"
+          },
+          "ctrl": {
+            "description": "cEMI control-flags",
+            "type": "string"
+          },
+          "src": {
+            "description": "source address",
+            "type": "string"
+          },
+          "dpt": {
+            "description": "datapoint type",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

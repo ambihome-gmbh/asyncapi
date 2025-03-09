@@ -48,6 +48,7 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] generate_tests nicht mit hardcoded pfad aufrufen, env-zugriff nicht in use sondern in __using__ -> TO-DO-4
 - [x] internal messages
   - [ ] when an internal message is the last in a sequence, it may not be received before test ends!
+- [ ] run tests in all examples also
 
 
 
