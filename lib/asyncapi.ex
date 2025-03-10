@@ -5,12 +5,17 @@ defmodule Asyncapi do
   defstruct [:schema, :subscriptions, :operations, :server]
 
   def find_operation(topic, operations) do
-    operations
-    |> Map.values()
-    |> find(&Regex.match?(&1.regex, topic))
-    |> case do
-      nil -> {:error, :no_matching_operation}
-      operation -> {:ok, operation}
+    matching_operations =
+      operations
+      |> Map.values()
+      |> filter(&Regex.match?(&1.regex, topic))
+
+    # TODO this or further up should raise on error here!?
+    case matching_operations do
+      [] -> {:error, :no_matching_operation}
+      [operation] -> {:ok, operation}
+      # TODO this should be ensured in a static check!
+      [_, _ | _] -> {:error, :ambiguous_operation}
     end
   end
 
@@ -26,6 +31,7 @@ defmodule Asyncapi do
   end
 
   def validate_parameters(parameter_values, operation, schema) do
+    # dbg(parameter_values)
     parameter_validation_errors =
       for {name, value} <- parameter_values,
           validation_result = validate_parameter(name, value, operation, schema),
@@ -42,13 +48,14 @@ defmodule Asyncapi do
 
   defp validate_parameter(name, value, operation, schema) do
     parameter_schema = operation.parameter_schemas[name]
-    Validator.validate_fragment(schema, parameter_schema, value)
+    result = Validator.validate_fragment(schema, parameter_schema, value)
+    result
   end
 
   def validate_payload(payload, operation, schema) do
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
       :ok -> :ok
-      {:error, msg} -> {:error, :payload_validation_error, msg, payload}
+      {:error, msg} -> {:error, :payload_validation_error, msg, operation.id, payload}
     end
   end
 

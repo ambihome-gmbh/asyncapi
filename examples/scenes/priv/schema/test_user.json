@@ -73,9 +73,16 @@
       }
     },
     "dp_write_ind": {
+      "description": "NOTE: test-user is all other actors for now! TODO split up! needs change in test-helper. HERE: KNX-wrapper",
       "action": "send",
       "channel": {
         "$ref": "#/channels/dp_write_ind"
+      }
+    },
+    "dp_write_req": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/dp_write_req"
       }
     }
   }

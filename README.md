@@ -49,6 +49,43 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [x] internal messages
   - [ ] when an internal message is the last in a sequence, it may not be received before test ends!
 - [ ] run tests in all examples also
+- [ ] messages -> components for stuff like this
+```
+ "channels": {
+        "dp_write_req": {
+            "address": "DP/WRITE_REQ",
+            "messages": {
+                "dp_write": {
+                    "name": "dp_write",
+                    "payload": {
+                        "$ref": "#/components/schemas/dp_payload"
+                    }
+                }
+            },
+            "description": "testing dummy temp"
+        },
+        "dp_write_ind": {
+            "address": "DP/WRITE_IND",
+            "messages": {
+                "dp_write": {
+                    "name": "dp_write",
+                    "payload": {
+                        "$ref": "#/components/schemas/dp_payload"
+                    }
+                }
+            },
+            "description": "testing dummy temp"
+        }
+    },
+```
+- [ ] sequence regions that can be reused (eg dp-write, add-scene, ...)
+- [ ] `_` match in sequence (
+    - [ ] possible at all places, eg:  _->_: _[_]/_ 
+    - [ ] or partially: ...[a: _]
+- [ ] check if a sequence step is even possible first (`from` has operation)
+- [ ] test coverage in examples
+- [ ] render api like "asyncapi studio" but with seq diag
+  
 
 
 

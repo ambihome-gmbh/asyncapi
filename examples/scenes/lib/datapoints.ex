@@ -3,10 +3,19 @@ defmodule Datapoints do
 
   alias Asyncapi.Message
 
-  def get_last(group) do
-    case :ets.lookup(:datapoints, group) do
-      [{^group, val}] -> {:ok, val}
+  def get(dp_id) do
+    case :ets.lookup(:datapoints, dp_id) do
+      [{^dp_id, value}] -> {:ok, value}
       _ -> {:error, :unknown}
+    end
+  end
+
+  def get_all_values(dp_ids) do
+    for dp_id <- dp_ids, into: %{} do
+      case get(dp_id) do
+        {:ok, value} -> {dp_id, value}
+        {:error, :unknown} -> {dp_id, nil}
+      end
     end
   end
 
@@ -16,16 +25,16 @@ defmodule Datapoints do
 
   @impl true
   def init(_) do
-    ets_result = :ets.new(:datapoints, [:set, :protected, :named_table])
-    dbg(ets_result)
-    {:ok, ets_result}
+    table_name = :ets.new(:datapoints, [:set, :protected, :named_table])
+    {:ok, table_name}
   end
 
   @impl true
   def handle_message(%Message{op_id: "dp_write_ind"} = message, state) do
-    %{payload: %{value: value}, params: %{dp_id: dp_id}} = message
+    # TODO wie op_id wenn mehrere passen (wie hier)
+    %{payload: %{id: dp_id, value: value}} = message
 
-    dbg({:ets, :insert, {dp_id, value}})
+    # dbg({:ets, :insert, {dp_id, value}})
 
     :ets.insert(state, {dp_id, value})
     {:noreply, state}

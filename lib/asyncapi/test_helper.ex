@@ -24,9 +24,12 @@ defmodule Asyncapi.TestHelper do
         parsed_sequence = Enum.map(testcase["sequence"], &Asyncapi.Parser.parse_step/1)
 
         test testcase["name"], context do
+          IO.puts("\n\n")
           sequence = unquote(Macro.escape(parsed_sequence))
 
           Enum.reduce(sequence, %{}, fn step, acc ->
+            Asyncapi.TestHelper.display_step(step)
+
             # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
             {payload, acc} = Asyncapi.TestHelper.deref(step.payload, acc)
             {params, acc} = Asyncapi.TestHelper.deref(step.params, acc)
@@ -38,7 +41,12 @@ defmodule Asyncapi.TestHelper do
                 acc
 
               %{to: "service"} ->
-                dbg({step.operation, payload, params})
+                assert Asyncapi.TestHelper.all_deref?(payload),
+                       "Payload not fully dereferenced: #{inspect(payload)}"
+
+                assert Asyncapi.TestHelper.all_deref?(params),
+                       "Params not fully dereferenced: #{inspect(params)}"
+
                 MqttAsyncapi.sendp(step.operation, payload, params, context.state)
 
                 acc
@@ -52,17 +60,48 @@ defmodule Asyncapi.TestHelper do
                            context.state.asyncapi
                          )
 
+                # dbg(asyncapi_message)
+
+                assert step.operation == asyncapi_message.op_id
+
                 acc
                 |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
                 |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
             end
           end)
+
+          Process.sleep(10)
         end
       end
     end
   end
 
   @compile {:no_warn_undefined, ExUnit.Assertions}
+
+  def display_step(step) do
+
+    # TODO resolve the tuples in payload and params
+    # payload: %{
+    #   id: {:literal, "x"},
+    #   name: {:literal, "S1"},
+    #   member_channels: {:list, [literal: "ch1", literal: "ch2"]}
+    # },
+    # params = Enum.map_join(step.params, ",", fn {k, v} -> "#{k}: #{v}" end)
+
+    IO.puts(
+      "#{step.from}->#{step.to}: #{step.operation}[#{inspect(step.params)}]/#{inspect(step.payload)}"
+    )
+  end
+
+  def all_deref?(map_) do
+    Enum.all?(
+      map_,
+      fn
+        {_, {_, _}} -> false
+        {_, _} -> true
+      end
+    )
+  end
 
   @doc false
   def match(bindings, received, step) do

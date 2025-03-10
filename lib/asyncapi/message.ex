@@ -43,6 +43,8 @@ defmodule Asyncapi.Message do
     payload = to_string_map(payload)
     params = to_string_map(params)
 
+    # dbg({message, payload, params})
+
     with {:ok, operation} <- fetch_operation(operations, op_id),
          :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(params, operation),
          :ok <- Asyncapi.validate_parameters(params, operation, schema),

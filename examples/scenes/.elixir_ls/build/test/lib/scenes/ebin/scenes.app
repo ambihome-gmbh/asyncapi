@@ -1,9 +1,0 @@
-{application,scenes,
-             [{modules,['Elixir.CoboServices.Scenes','Elixir.Datapoints']},
-              {compile_env,[{elixir,[dbg_callback],
-                                    {ok,{'Elixir.Macro',dbg,[]}}}]},
-              {optional_applications,[]},
-              {applications,[kernel,stdlib,elixir,logger,uniq,asyncapi]},
-              {description,"scenes"},
-              {registered,[]},
-              {vsn,"0.1.0"}]}.

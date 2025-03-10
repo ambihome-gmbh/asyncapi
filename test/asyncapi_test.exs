@@ -75,12 +75,12 @@ defmodule AsyncApiTest do
              Message.from_mqtt_message(%{topic: "nonexisting", payload: "{}"}, asyncapi)
 
     assert {:error, :payload_validation_error,
-            [{"Required property p_isrequired was not present.", "#"}],
+            [{"Required property p_isrequired was not present.", "#"}], "P2",
             %{}} ==
              Message.from_mqtt_message(%{topic: "P2", payload: %{}}, asyncapi)
 
     assert {:error, :payload_validation_error,
-            [{"Type mismatch. Expected String, Null but got Integer.", "#/p"}],
+            [{"Type mismatch. Expected String, Null but got Integer.", "#/p"}], "P2",
             %{"p" => 1, "p_isrequired" => "foo"}} ==
              Message.from_mqtt_message(
                %{topic: "P2", payload: %{"p" => 1, "p_isrequired" => "foo"}},
@@ -88,7 +88,8 @@ defmodule AsyncApiTest do
              )
 
     assert {:error, :payload_validation_error,
-            [{"Schema does not allow additional properties.", "#/additional"}], %{"additional" => ""}} ==
+            [{"Schema does not allow additional properties.", "#/additional"}], "P1",
+            %{"additional" => ""}} ==
              Message.from_mqtt_message(%{topic: "P1", payload: %{"additional" => ""}}, asyncapi)
 
     assert {:error, :parameter_validation_error,

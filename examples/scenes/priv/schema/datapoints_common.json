@@ -7,16 +7,23 @@
     },
     "defaultContentType": "application/json",
     "channels": {
-        "dp_write_ind": {
-            "address": "DP/WRITE/{dp_id}",
-            "parameters": {
-                "dp_id": {
-                    "$ref": "#/components/parameters/dp_id"
+        "dp_write_req": {
+            "address": "DP/WRITE_REQ",
+            "messages": {
+                "dp_write": {
+                    "name": "dp_write",
+                    "payload": {
+                        "$ref": "#/components/schemas/dp_payload"
+                    }
                 }
             },
+            "description": "testing dummy temp"
+        },
+        "dp_write_ind": {
+            "address": "DP/WRITE_IND",
             "messages": {
-                "dp_write_ind": {
-                    "name": "dp_write_ind",
+                "dp_write": {
+                    "name": "dp_write",
                     "payload": {
                         "$ref": "#/components/schemas/dp_payload"
                     }
@@ -25,20 +32,7 @@
             "description": "testing dummy temp"
         }
     },
-    "operations": {
-        "dp_write_ind": {
-            "action": "receive",
-            "channel": {
-                "$ref": "#/channels/dp_write_ind"
-            }
-        }
-    },
     "components": {
-        "parameters": {
-            "dp_id": {
-                "description": "ID of a DP."
-            }
-        },
         "schemas": {
             "dp_payload": {
                 "type": "object",

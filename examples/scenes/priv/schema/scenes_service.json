@@ -97,6 +97,12 @@
       "channel": {
         "$ref": "#/channels/SCN_ERROR"
       }
+    },
+    "dp_write_req": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/dp_write_req"
+      }
     }
   }
 }
