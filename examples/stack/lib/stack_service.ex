@@ -34,12 +34,7 @@ defmodule StackService do
     {:reply, [response], %{state | stack: new_stack}}
   end
 
-  @impl true
-  def handle_info({"test_internal", payload, params}, state) do
-    dbg({"RECV-info: test_internal", payload, params})
-    {:noreply, state}
-  end
-
+  
   def handle_info(unexpected, state) do
     dbg({:unexpected, unexpected})
     {:noreply, state}

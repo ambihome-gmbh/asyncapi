@@ -5,7 +5,6 @@
       "name": "push, pop",
       "sequence": [
         "user->service: push/{value: 42}",
-        "service->service: test_internal[par: 'p1']/{pay: 42}",
         "user->service: pop",
         "service->user: pop_response/{value: 42}"
       ]

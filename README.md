@@ -85,6 +85,8 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] check if a sequence step is even possible first (`from` has operation)
 - [ ] test coverage in examples
 - [ ] render api like "asyncapi studio" but with seq diag
+- [ ] jump to asyncapi code from example project-IDE code and terminal
+- [ ] dopplung runtime/config
   
 
 

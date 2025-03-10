@@ -35,8 +35,30 @@ defmodule Asyncapi.TestHelper do
             {params, acc} = Asyncapi.TestHelper.deref(step.params, acc)
 
             case step do
-              %{from: "service", to: "service"} ->
-                send(context.service_pid, {step.operation, payload, params})
+              %{from: "internal", to: "service"} ->
+                assert step.params == %{}, "params not allowed for intenal messages"
+
+                internal_message_tag = String.to_atom(step.operation)
+
+                internal_message =
+                  if payload == %{},
+                    do: internal_message_tag,
+                    else: {internal_message_tag, payload}
+
+                send(context.service_pid, internal_message)
+
+                acc
+
+              %{from: "service", to: "internal"} ->
+                assert step.params == %{}, "params not allowed for intenal messages"
+                assert_receive(internal_message)
+                assert {:"$gen_cast", {operation, payload}} = internal_message
+
+                assert step.operation == "#{operation}"
+
+                # TODO
+                #   - match payload
+                #   - message structure more flexible?
 
                 acc
 
@@ -71,6 +93,7 @@ defmodule Asyncapi.TestHelper do
           end)
 
           Process.sleep(10)
+          # :erlang.process_info(self(), :messages) |> dbg
         end
       end
     end
@@ -79,7 +102,6 @@ defmodule Asyncapi.TestHelper do
   @compile {:no_warn_undefined, ExUnit.Assertions}
 
   def display_step(step) do
-
     # TODO resolve the tuples in payload and params
     # payload: %{
     #   id: {:literal, "x"},
@@ -139,6 +161,9 @@ defmodule Asyncapi.TestHelper do
   end
 
   case Application.compile_env(:asyncapi, :broker) do
+    nil ->
+      raise("env(:asyncapi, :broker) not configured")
+
     Asyncapi.Broker.Dummy ->
       def start_broker, do: start_supervised!(DummyBroker)
 

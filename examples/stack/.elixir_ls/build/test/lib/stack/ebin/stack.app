@@ -1,9 +1,0 @@
-{application,stack,
-             [{modules,['Elixir.StackService']},
-              {compile_env,[{elixir,[dbg_callback],
-                                    {ok,{'Elixir.Macro',dbg,[]}}}]},
-              {optional_applications,[]},
-              {applications,[kernel,stdlib,elixir,logger,uniq,asyncapi]},
-              {description,"stack"},
-              {registered,[]},
-              {vsn,"0.1.0"}]}.

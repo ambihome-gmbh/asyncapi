@@ -1,0 +1,63 @@
+{
+  "asyncapi": "3.0.0",
+  "x-testcases": [
+    {
+      "name": "bake a cake",
+      "sequence": [
+        "user->service: start_baking",
+        "service->internal: schedule_timeout",
+        "service->internal: schedule_cron",
+        "internal->service: peek",
+        "service->user: baking_not_done",
+        "internal->service: peek",
+        "service->user: baking_not_done",
+        "internal->service: timeout",
+        "service->user: baking_done"
+      ]
+    }
+  ],
+  "channels": {
+    "start_baking": {
+      "address": "start_baking",
+      "messages": {
+        "start_baking-message": {
+          "name": "start_baking",
+          "payload": {
+            "$ref": "#/components/schemas/empty_payload"
+          }
+        }
+      }
+    },
+    "baking_done": {
+      "address": "baking_done",
+      "messages": {
+        "baking_done-message": {
+          "name": "baking_done",
+          "payload": {
+            "$ref": "#/components/schemas/empty_payload"
+          }
+        }
+      }
+    },
+    "baking_not_done": {
+      "address": "baking_not_done",
+      "messages": {
+        "baking_not_done-message": {
+          "name": "baking_not_done",
+          "payload": {
+            "$ref": "#/components/schemas/empty_payload"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "empty_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      }
+    }
+  }
+}

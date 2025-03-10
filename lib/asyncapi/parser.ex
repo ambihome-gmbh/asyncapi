@@ -2,7 +2,7 @@ defmodule Asyncapi.Parser.Sequence do
   import NimbleParsec
 
   defp ident() do
-    ascii_string([?a..?z, ?A..?Z, ?0..?9, ?_], min: 1, max: 20)
+    ascii_string([?a..?z, ?A..?Z, ?0..?9, ?_], min: 1, max: 100)
   end
 
   defp whitespace() do
