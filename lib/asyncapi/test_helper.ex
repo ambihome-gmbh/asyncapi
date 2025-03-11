@@ -23,6 +23,8 @@ defmodule Asyncapi.TestHelper do
       for testcase <- testcases do
         parsed_sequence = Enum.map(testcase["sequence"], &Asyncapi.Parser.parse_step/1)
 
+        IO.puts(Enum.join(testcase["sequence"], "\n"))
+
         test testcase["name"], context do
           IO.puts("\n\n")
           sequence = unquote(Macro.escape(parsed_sequence))
@@ -36,6 +38,12 @@ defmodule Asyncapi.TestHelper do
 
             case step do
               %{from: "internal", to: "service"} ->
+                case :erlang.process_info(self(), :messages) do
+                  {:messages, []} -> nil
+                  # TODO
+                  {:messages, messages} -> dbg({:unexpected_messages, messages})
+                end
+
                 assert step.params == %{}, "params not allowed for intenal messages"
 
                 internal_message_tag = String.to_atom(step.operation)
@@ -51,8 +59,8 @@ defmodule Asyncapi.TestHelper do
 
               %{from: "service", to: "internal"} ->
                 assert step.params == %{}, "params not allowed for intenal messages"
-                assert_receive(internal_message)
-                assert {:"$gen_cast", {operation, payload}} = internal_message
+                assert_receive({:"$gen_cast", internal_message})
+                assert {operation, payload} = internal_message
 
                 assert step.operation == "#{operation}"
 
@@ -63,6 +71,12 @@ defmodule Asyncapi.TestHelper do
                 acc
 
               %{to: "service"} ->
+                case :erlang.process_info(self(), :messages) do
+                  {:messages, []} -> nil
+                  # TODO
+                  {:messages, messages} -> dbg({:unexpected_messages, messages})
+                end
+
                 assert Asyncapi.TestHelper.all_deref?(payload),
                        "Payload not fully dereferenced: #{inspect(payload)}"
 
@@ -82,7 +96,11 @@ defmodule Asyncapi.TestHelper do
                            context.state.asyncapi
                          )
 
-                # dbg(asyncapi_message)
+                case :erlang.process_info(self(), :messages) do
+                  {:messages, []} -> nil
+                  # TODO
+                  {:messages, messages} -> dbg({:unexpected_messages, messages})
+                end
 
                 assert step.operation == asyncapi_message.op_id
 

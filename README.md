@@ -50,6 +50,7 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
   - [ ] when an internal message is the last in a sequence, it may not be received before test ends!
 - [ ] run tests in all examples also
 - [ ] messages -> components for stuff like this
+- [ ] tests muessen neu generiert werden wenn schema oder code sich aendert
 ```
  "channels": {
         "dp_write_req": {
@@ -87,6 +88,8 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] render api like "asyncapi studio" but with seq diag
 - [ ] jump to asyncapi code from example project-IDE code and terminal
 - [ ] dopplung runtime/config
+- [ ] custom types in schema (eg channel-id?)
+- [ ] echte DSL (geht --> ?)
   
 
 
@@ -100,6 +103,7 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - `"additionalProperties": true` sinnlos mit struct
 - es wird nicht gechecked, ob die parameter die in channel/address genutzt werden auch definiert sind!
 - message name muss gesetzt und uniq sein in schema (module)
+- asyncapi validator sieht nicht wenn required und properties nicht zusammen passen
 
 ## References
 

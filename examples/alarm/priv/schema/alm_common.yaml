@@ -1,0 +1,180 @@
+asyncapi: 3.0.0
+
+channels:
+  arm:
+    address: "ALM/{alarm_type}/arm"
+    messages:
+      message:
+        name: arm
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: >
+      Arm alarm service.
+
+      Only handled if service is in `state-disarmed`.
+
+      Checks if the alarm-service is ready (config OK).
+
+      If ready tran to `state-wait` and wait `config.timeout`, then tran to `state-active`.
+
+      Publishes `ALM/{alarm_type}/state`.
+    parameters:
+      alarm_type:
+        $ref: "#/components/parameters/alarm_type"
+  disarm:
+    address: "ALM/{alarm_type}/disarm"
+    messages:
+      message:
+        name: disarm
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: |
+      Disarm alarm service.
+      From any state: tran to `state-disarmed`.
+    parameters:
+      alarm_type:
+        $ref: "#/components/parameters/alarm_type"
+  get_state:
+    address: "ALM/{alarm_type}/get_state"
+    messages:
+      message:
+        name: get_state
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: |
+      Publishes `ALM/{alarm_type}/state`.
+    parameters:
+      alarm_type:
+        $ref: "#/components/parameters/alarm_type"
+  set_config:
+    address: "ALM/{alarm_type}/set_config"
+    messages:
+      message:
+        name: set_config
+        payload:
+          $ref: "#/components/schemas/alm_set_config_payload"
+    description: |
+      Only allowed and handled in `state-disarmed`.
+      Set service config.
+    parameters:
+      alarm_type:
+        $ref: "#/components/parameters/alarm_type"
+  state:
+    address: "ALM/{alarm_type}/state"
+    messages:
+      message:
+        name: state
+        payload:
+          $ref: "#/components/schemas/alm_info_state_payload"
+    description: >
+      The current state and configuration of the alarm service.
+
+      Published on any state-transition and after `ALM/{alarm_type}/get_state` received.
+    parameters:
+      alarm_type:
+        $ref: "#/components/parameters/alarm_type"
+
+components:
+  parameters:
+    alarm_type:
+      description: type of an alarm
+      enum:
+        - alarm_incursion
+
+  schemas:
+    empty_payload:
+      type: object
+      additionalProperties: false
+
+    alm_set_config_payload:
+      type: object
+      additionalProperties: false
+      properties:
+        mails:
+          description: list of valid mail addresses
+          type: array
+          items:
+            type: string
+        timeout:
+          description: time from activate command until arming
+          type: integer
+          default: 30
+          minimum: 4
+          maximum: 361
+        monitored:
+          description: list of monitored group addresses
+          type: array
+          items:
+            type: string
+        actions:
+          description: list of action that should be executed on alarm
+          type: array
+          default:
+            - SEND_MAILS
+          items:
+            type: string
+            enum:
+              - SEND_MAILS
+              - CALL_SCENE
+      required:
+        - mails
+        - monitored
+      examples:
+        - mails:
+            - fey@ambihome.com
+          timeout: 10
+          monitored:
+            - channel_1
+            - channel_2
+          actions:
+            - SEND_MAILS
+            - CALL_SCENE
+
+    alm_info_state_payload:
+      type: object
+      additionalProperties: false
+      properties:
+        sm_state:
+          description: state of the alarm state machine
+          type: string
+          default: state_disarmed
+          enum:
+            - state_disarmed
+            - state_wait_arm
+            - state_armed
+            - state_wait_alarm
+            - state_alarm
+        perpetrators:
+          description: list of channels that would trigger an alarm right now (e.g. window open)
+          type: array
+          items:
+            type: string
+        ready_state:
+          description: a list of errors or empty list if ready
+          type: array
+          items:
+            type: string
+            enum:
+              - NO_ACTION
+              - MONITORED_EMPTY
+              - ALARM_CONDITION
+              - UNINITIALIZED
+        alarm_type:
+          $ref: "#/components/parameters/alarm_type"
+        alarm_sources:
+          description: list of channels that can be monitored 
+          type: array
+          items:
+            type: string
+        alarm_condition:
+          type: boolean
+        config:
+          $ref: "#/components/schemas/alm_set_config_payload"
+      required:
+        - sm_state
+        - perpetrators
+        - ready_state
+        - config
+        - alarm_sources
+        - alarm_type
+        - alarm_condition

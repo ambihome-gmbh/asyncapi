@@ -1,0 +1,49 @@
+asyncapi: 3.0.0
+
+info:
+  title: Alarm API
+  version: 0.0.1
+
+defaultContentType: application/json
+
+servers:
+  production:
+    host: 'localhost:{port}'
+    protocol: mqtt
+    description: Test broker
+    variables:
+      port:
+        description: TODO
+        default: '1883'
+        enum:
+          - '1883'
+          
+operations:
+  arm:
+    action: receive
+    channel:
+      $ref: '#/channels/arm'
+  disarm:
+    action: receive
+    channel:
+      $ref: '#/channels/disarm'
+  get_state:
+    action: receive
+    channel:
+      $ref: '#/channels/get_state'
+  set_config:
+    action: receive
+    channel:
+      $ref: '#/channels/set_config'
+  state:
+    action: send
+    channel:
+      $ref: '#/channels/state'
+  dp_write_ind: 
+    action: receive
+    channel:
+      $ref: '#/channels/dp_write_ind'
+  dp_write_req: 
+    action: send
+    channel:
+      $ref: '#/channels/dp_write_req'

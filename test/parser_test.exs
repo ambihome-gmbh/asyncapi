@@ -17,14 +17,15 @@ defmodule ParserTest do
                int: {:literal, 1},
                ref: {:reference, "ref"},
                str: {:literal, "tst"},
-               emp: {:literal, ""},
+               estr: {:literal, ""},
                nul: {:literal, nil},
-               lst: {:list, [{:literal, 1}, {:literal, "a"}]}
+               lst: {:list, [{:literal, 1}, {:literal, "a"}]},
+               elst: {:list, []}
              },
              operation: "op"
            } ==
              parse_step(
-               "f->t: op[p1: $r, p2: 1]/{int: 1, str: 'tst', emp: '', ref: $ref, flt: 1.2, bnd: bind, nul: nil, lst: [1, 'a']}"
+               "f->t: op[p1: $r, p2: 1]/{int: 1, str: 'tst', estr: '', ref: $ref, flt: 1.2, bnd: bind, nul: nil, lst: [1, 'a'], elst: []}"
              )
   end
 end

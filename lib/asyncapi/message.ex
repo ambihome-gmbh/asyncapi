@@ -40,10 +40,11 @@ defmodule Asyncapi.Message do
         _ -> payload
       end
 
-    payload = to_string_map(payload)
+    # payload = to_string_map(payload)
+    payload = payload |> Jason.encode!() |> Jason.decode!()
     params = to_string_map(params)
 
-    # dbg({message, payload, params})
+    # dbg({op_id, payload})
 
     with {:ok, operation} <- fetch_operation(operations, op_id),
          :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(params, operation),

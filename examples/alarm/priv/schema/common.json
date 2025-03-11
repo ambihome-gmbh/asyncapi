@@ -1,0 +1,43 @@
+{
+    "asyncapi": "3.0.0",
+    "servers": {
+        "production": {
+            "host": "127.0.0.1",
+            "protocol": "mqtt",
+            "variables": {
+                "port": {
+                    "default": "1883",
+                    "enum": [
+                        "1883"
+                    ]
+                }
+            }
+        }
+    },
+    "x-testcases": [
+        {
+            "name": "wip",
+            "sequence": [
+                "user->service: dp_write_ind/{id: 'ch1', value: '0'}",
+                "user->service: dp_write_ind/{id: 'ch2', value: '0'}",
+                "user->service: alm_get_state[alarm_type: 'alarm_incursion']",
+                "service->user: alm_state/{ready_state: ['MONITORED_EMPTY'], alarm_sources: ['ch1', 'ch2']}",
+                "user->service: alm_set_config[alarm_type: 'alarm_incursion']/{mails: ['m'], monitored: ['ch1', 'ch2']}"
+            ]
+        }
+    ],
+    "components": {
+        "schemas": {
+            "empty_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "_sender": {
+                        "description": "sender uuid",
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

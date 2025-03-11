@@ -20,8 +20,7 @@ defmodule Asyncapi.Parser.Sequence do
       |> ignore(sep(sep_char))
       |> concat(comb)
 
-    comb
-    |> times(sep_comb, min: 0)
+    optional(comb |> times(sep_comb, min: 0))
   end
 
   defp kv_pair() do

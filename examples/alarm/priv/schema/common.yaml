@@ -1,0 +1,45 @@
+asyncapi: 3.0.0
+
+channels:
+  API/ERROR:
+    address: API/ERROR
+    messages:
+      subscribe.message:
+        name: ERROR
+        payload:
+          $ref: '#/components/schemas/api_error_payload'
+    description: |
+      The API has received an invalid message.
+ 
+operations:
+  api_error:
+    action: send
+    channel:
+      $ref: '#/channels/api_error'
+  
+components:
+  schemas:
+    empty_payload:
+      type: object
+      additionalProperties: false
+    api_error_payload:
+      type: object
+      additionalProperties: false
+      properties:
+        tag:
+          description: |
+            the tag of the invalid message
+            (empty string if `tag` was not set).
+          type: string
+        owner:
+          description: |
+            the owner of the invalid message
+            (empty string if `owner` was not set).
+          type: string
+        traceback:
+          description: |
+            List of lines in the schema validation traceback.
+          type: array
+          items:
+            type: string
+    
