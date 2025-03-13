@@ -1,0 +1,7 @@
+asyncapi: 3.0.0
+
+components:
+  schemas:
+    empty_payload:
+      type: object
+      additionalProperties: false

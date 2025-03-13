@@ -1,0 +1,15 @@
+{
+    "asyncapi": "3.0.0",
+    "x-testcases": [
+        {
+            "name": "wip",
+            "sequence": [
+                "user->service: create/{type: 'absolute_time', time: '00:00:00Z', channel: 'ch1', value: '1', weekdays: [0], active: true}",
+                "service->user: state/{id: id}",
+                "service->internal: delete_cron/{id: $id}",
+                "service->internal: create_cron/{id: $id, crontab: '0 0 * * 0'}",
+                "internal->service: timeout/{id: $id}"
+              ]
+        }
+    ]
+}

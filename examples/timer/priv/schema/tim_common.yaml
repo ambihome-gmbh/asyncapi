@@ -1,0 +1,211 @@
+asyncapi: 3.0.0
+channels:
+  create:
+    address: TIM/CMD_CREATE
+    messages:
+      publish.message:
+        name: create
+        payload:
+          $ref: "#/components/schemas/tim_config_payload"
+    description: |
+      The service creates a new timer.
+      Publishes `info_state`
+  update:
+    address: TIM/CMD_UPDATE/{timer_id}
+    messages:
+      publish.message:
+        name: update
+        payload:
+          $ref: "#/components/schemas/tim_config_payload"
+    description: |
+      Update timer.
+      The service updates the timer with ID `timer_id`.
+      Publishes `info_state:
+    parameters:
+      timer_id:
+        $ref: "#/components/parameters/timer_id"
+  activate:
+    address: TIM/CMD_ACTIVATE/{timer_id}
+    messages:
+      publish.message:
+        name: activate
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: |
+      Activates the timer with ID `timer_id`.
+      Publishes `info_state:
+    parameters:
+      timer_id:
+        $ref: "#/components/parameters/timer_id"
+  deactivate:
+    address: TIM/CMD_DEACTIVATE/{timer_id}
+    messages:
+      publish.message:
+        name: deactivate
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: |
+      Deactivates the timer with ID `timer_id`.
+      Publishes `info_state:
+    parameters:
+      timer_id:
+        $ref: "#/components/parameters/timer_id"
+  delete:
+    address: TIM/CMD_DELETE/{timer_id}
+    messages:
+      publish.message:
+        name: delete
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: |
+      Delete timer with ID `timer_id`.
+      Publishes `TIME/INFO_DELETED/{timer_id}`.
+    parameters:
+      timer_id:
+        $ref: "#/components/parameters/timer_id"
+  get_all_states:
+    address: TIM/CMD_GET_ALL_STATES
+    messages:
+      publish.message:
+        name: get_all_states
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: |
+      Publishes `info_state:
+  get_state:
+    address: TIM/CMD_GET_STATE/{timer_id}
+    messages:
+      publish.message:
+        name: get_state
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: |
+      Publishes `info_state:
+    parameters:
+      timer_id:
+        $ref: "#/components/parameters/timer_id"
+  info_state:
+    address: TIM/INFO_STATE/{timer_id}
+    messages:
+      subscribe.message:
+        name: INFO_STATE
+        payload:
+          $ref: "#/components/schemas/tim_config_payload"
+    description: |
+      State of the timer with ID `timer_id`.
+    parameters:
+      timer_id:
+        $ref: "#/components/parameters/timer_id"
+  info_deleted:
+    address: TIM/INFO_DELETED/{timer_id}
+    messages:
+      subscribe.message:
+        name: INFO_DELETED
+        payload:
+          $ref: "#/components/schemas/empty_payload"
+    description: |
+      The timer with ID `timer_id` was deleted.
+components:
+  parameters:
+    timer_id:
+      description: ID of a timer.
+  schemas:
+    empty_payload:
+      type: object
+      additionalProperties: false
+    tim_config_payload:
+      type: object
+      properties:
+        id:
+          description: ID of the timer
+          default: null
+          type: 
+            - string
+            - "null"
+        type:
+          description: Type of the timer.
+          type: string
+          default: absolute_time
+          enum:
+            - absolute_time
+            - sun
+        sun_event:
+          description: |
+            Sun event that should be used as time.
+            Only when type is `sun`.
+          type: string
+          default: not_applicable
+          enum:
+            - not_applicable
+            - morning_astronomical_twilight
+            - morning_nautical_twilight
+            - morning_civil_twilight
+            - sunrise
+            - midday
+            - sunset
+            - evening_civil_twilight
+            - evening_nautical_twilight
+            - evening_astronomical_twilight
+        time:
+          description: |
+            Point in time when the timer should be executed if active.
+            ISO_8601. (todo type)
+            Only when `type` is `absolute_time`.
+            `not_applicable` otherwise.
+          type: string
+        channel:
+          description: |
+            ID of the channel that should be affected by the timer.
+          type: string
+        value:
+          description: >
+            When the timer fires, this value is sent to channel 
+          type: string
+        absolute_offset:
+          description: Offset in minutes that is added to the time.
+          default: 0
+          type: number
+        random_offset:
+          description: Random offset in minutes that is added to the time.
+          default: 0
+          type: number
+        random_type:
+          description: |
+            Type of random offset.
+            normal: normal distribution
+            uniform: uniform distribution
+            testmode_add/sub: only for testing
+          type: string
+          default: not_applicable
+          enum:
+            - not_applicable
+            - normal
+            - uniform
+            - testmode_add
+            - testmode_sub
+        weekdays:
+          description: Weekdays on which the timer should be executed if active.
+          type: array
+          items:
+            type: number
+            description: Monday=0 .. Sunday=6.
+            minimum: 0
+            maximum: 6
+        active:
+          description: Active state of the timer. 
+          default: true
+          type: boolean
+        deleted:
+          description: Deleted state of the timer. 
+          default: false
+          type: boolean
+
+      required:
+        - type
+        - weekdays
+        - channel
+        - value
+        - time
+        - active
+      additionalProperties: false
+   

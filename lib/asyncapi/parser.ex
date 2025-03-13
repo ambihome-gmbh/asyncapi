@@ -1,5 +1,52 @@
 defmodule Asyncapi.Parser.Sequence do
+  @moduledoc """
+  you can drop the following block here: https://www.planttext.com/
+
+  ```plantuml
+  @startuml
+
+  ' messages from service are expected by the test, other messages are sent from the test to the service
+
+  ' some user of the service (i.e. the test process)
+  participant user
+  ' the service under test, running in a AsyncApi-Genserver
+  participant service
+  ' service's helper processes, need to be named are accessed via registry,
+  ' so that the test process can capture messages to them and answer in place
+  participant internal
+
+  ' sync request to a service-internal process. expects a GenServer.call().
+  service -> internal: sync-request (:gen.call)
+  ' sync reply is implemented as a GenServer.reply() from the test process
+  internal --> service: sync-reply (:gen.reply)
+
+  ' async request to a service-internal process. expects a GenServer.cast.
+  service ->> internal: async-request (:gen.cast)
+  ' async reply is implemented as a send() from the test process
+  internal -->> service: async-reply (send)
+
+  ' async user<->service communication always uses a broker. (sync not allowed).
+  user ->> service: async-request (publish)
+  service -->> user: async-reply (publish)
+
+  ' messages syntax
+  ' op_id = asyncapi operation ID
+  ' parameters in [ ], only string values allowed
+  ' payload in { }, strings, int, float, nil, bool, lists allowed. NO NESTED STRUCTURES!
+  user -> service: op_id1[param: 'param_val']/{payload_key1: 'value1', ...}
+  ' can bind to var in expected messages
+  service -> user: op_id2/{k: var}
+  ' and reference them in messages sent
+  user -> service: op_id3/{l: $var}
+  ```
+
+  @enduml
+  """
   import NimbleParsec
+
+
+
+
 
   defp ident() do
     ascii_string([?a..?z, ?A..?Z, ?0..?9, ?_], min: 1, max: 100)
@@ -43,6 +90,13 @@ defmodule Asyncapi.Parser.Sequence do
       |> post_traverse({:get_float, []})
       |> unwrap_and_tag(:literal)
 
+    boolean_literal =
+      choice([
+        "true" |> string() |> replace(true),
+        "false" |> string() |> replace(false)
+      ])
+      |> unwrap_and_tag(:literal)
+
     nil_literal = string("nil") |> replace(nil) |> unwrap_and_tag(:literal)
 
     # NOTE: only literals in lists for now. update testhelper/deref if this changes!
@@ -54,7 +108,8 @@ defmodule Asyncapi.Parser.Sequence do
             string_literal,
             float_literal,
             integer_literal,
-            nil_literal
+            nil_literal,
+            boolean_literal
           ]),
           ","
         )
@@ -77,6 +132,7 @@ defmodule Asyncapi.Parser.Sequence do
         float_literal,
         integer_literal,
         nil_literal,
+        boolean_literal,
         list,
         reference,
         binding
@@ -116,11 +172,29 @@ defmodule Asyncapi.Parser.Sequence do
     |> tag(binding)
   end
 
+  # defp arrow() do
+  #   ignore(optional(whitespace()))
+  #   |> ignore(string("->"))
+  #   |> ignore(optional(whitespace()))
+  # end
+
+  defp arrow() do
+    ignore(optional(whitespace()))
+    |> choice([
+      string("->>") |> replace(:async),
+      # string("-->>") |> replace(:async_reply),
+      string("->") |> replace(:sync),
+      # string("-->") |> replace(:sync_reply)
+    ])
+    |> ignore(optional(whitespace()))
+    |> tag(:arrow)
+  end
+
   def step() do
     ignore(optional(whitespace()))
     |> concat(bind_ident(:actor_from))
     |> ignore(optional(whitespace()))
-    |> ignore(string("->"))
+    |> concat(arrow())
     |> ignore(optional(whitespace()))
     |> concat(bind_ident(:actor_to))
     |> ignore(string(":"))
@@ -147,6 +221,7 @@ defmodule Asyncapi.Parser do
       actor_from: [actor_from],
       actor_to: [actor_to],
       operation: [operation],
+      arrow: [arrow],
       params: params,
       payload: payload
     } = parsed
@@ -154,6 +229,7 @@ defmodule Asyncapi.Parser do
     %{
       from: actor_from,
       to: actor_to,
+      arrow: arrow,
       operation: operation,
       params: resolve_kv(params),
       payload: resolve_kv(payload)

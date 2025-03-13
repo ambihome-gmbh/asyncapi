@@ -90,6 +90,15 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] dopplung runtime/config
 - [ ] custom types in schema (eg channel-id?)
 - [ ] echte DSL (geht --> ?)
+- [ ] structs diskutieren.
+    - generell gut
+    - schlecht direkt struct fuer payload zu machen, da die keinen namen haben
+    - jetzt von message namen, aber nur payload. gibt dann viele gleiche mit unterschiedl namen. auch nicht gut
+    - ganze message? (incl param)
+    - ganze operation? (incl param und opid)
+    - doch irgendwie nur payload?
+    - root namen von title abgeleitet nicht gut
+- [ ] offset: {type, num} state random_offset, random_type
   
 
 

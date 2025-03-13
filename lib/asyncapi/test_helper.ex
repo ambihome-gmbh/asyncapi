@@ -33,17 +33,12 @@ defmodule Asyncapi.TestHelper do
             Asyncapi.TestHelper.display_step(step)
 
             # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
-            {payload, acc} = Asyncapi.TestHelper.deref(step.payload, acc)
-            {params, acc} = Asyncapi.TestHelper.deref(step.params, acc)
+            payload = Asyncapi.TestHelper.deref(step.payload, acc)
+            params = Asyncapi.TestHelper.deref(step.params, acc)
 
             case step do
-              %{from: "internal", to: "service"} ->
-                case :erlang.process_info(self(), :messages) do
-                  {:messages, []} -> nil
-                  # TODO
-                  {:messages, messages} -> dbg({:unexpected_messages, messages})
-                end
-
+              %{from: "internal", to: "service", arrow: arrow} ->
+                Asyncapi.TestHelper.check_for_unexpected_messages()
                 assert step.params == %{}, "params not allowed for intenal messages"
 
                 internal_message_tag = String.to_atom(step.operation)
@@ -53,29 +48,44 @@ defmodule Asyncapi.TestHelper do
                     do: internal_message_tag,
                     else: {internal_message_tag, payload}
 
-                send(context.service_pid, internal_message)
-
-                acc
-
-              %{from: "service", to: "internal"} ->
-                assert step.params == %{}, "params not allowed for intenal messages"
-                assert_receive({:"$gen_cast", internal_message})
-                assert {operation, payload} = internal_message
-
-                assert step.operation == "#{operation}"
-
-                # TODO
-                #   - match payload
-                #   - message structure more flexible?
-
-                acc
-
-              %{to: "service"} ->
-                case :erlang.process_info(self(), :messages) do
-                  {:messages, []} -> nil
+                if arrow == :async do
+                  send(context.service_pid, internal_message)
+                else
+                  dbg(step)
+                  internal_message = nil
+                  raise("sync not implemented")
                   # TODO
-                  {:messages, messages} -> dbg({:unexpected_messages, messages})
+                  # Genserver.reply({context.service_pid, acc.last_call_tag}, internal_message)
                 end
+
+                acc
+
+              %{from: "service", to: "internal", arrow: arrow} ->
+                assert step.params == %{}, "params not allowed for intenal messages"
+
+                internal_message =
+                  if arrow == :async do
+                    assert_receive({:"$gen_cast", internal_message})
+                    internal_message
+                  else
+                    dbg(step)
+                    raise("sync not implemented")
+                    # TODO statt _from - pin service pid?
+                    # assert_receive({:"$gen_call", {_from, tag}, internal_message})
+                  end
+
+                {internal_message_tag, internal_message_payload} =
+                  case internal_message do
+                    {operation, payload} -> {operation, payload}
+                    operation -> {operation, %{}}
+                  end
+
+                assert step.operation == "#{internal_message_tag}"
+
+                Asyncapi.TestHelper.match(acc, internal_message_payload, payload)
+
+              %{to: "service", arrow: :async} ->
+                Asyncapi.TestHelper.check_for_unexpected_messages()
 
                 assert Asyncapi.TestHelper.all_deref?(payload),
                        "Payload not fully dereferenced: #{inspect(payload)}"
@@ -87,7 +97,7 @@ defmodule Asyncapi.TestHelper do
 
                 acc
 
-              %{from: "service"} ->
+              %{from: "service", arrow: :async} ->
                 assert_receive({:publish, mqtt_message})
 
                 assert {:ok, asyncapi_message} =
@@ -96,17 +106,14 @@ defmodule Asyncapi.TestHelper do
                            context.state.asyncapi
                          )
 
-                case :erlang.process_info(self(), :messages) do
-                  {:messages, []} -> nil
-                  # TODO
-                  {:messages, messages} -> dbg({:unexpected_messages, messages})
-                end
-
                 assert step.operation == asyncapi_message.op_id
 
                 acc
                 |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
                 |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
+
+              _ ->
+                raise("Unsupported step: #{inspect(step)} -- sync when only async supported??")
             end
           end)
 
@@ -118,6 +125,13 @@ defmodule Asyncapi.TestHelper do
   end
 
   @compile {:no_warn_undefined, ExUnit.Assertions}
+
+  def check_for_unexpected_messages() do
+    case :erlang.process_info(self(), :messages) do
+      {:messages, []} -> nil
+      {:messages, messages} -> dbg({:unexpected_messages_todo, messages})
+    end
+  end
 
   def display_step(step) do
     # TODO resolve the tuples in payload and params
@@ -165,17 +179,14 @@ defmodule Asyncapi.TestHelper do
 
   @doc false
   def deref(map_, bindings) do
-    {map_, bindings} =
-      map_reduce(map_, bindings, fn {key, {type, value}}, acc ->
-        case type do
-          :reference -> {{key, Map.fetch!(bindings, value)}, acc}
-          :binding -> {{key, {type, value}}, acc}
-          :list -> {{key, map(value, fn {:literal, v} -> v end)}, acc}
-          _ -> {{key, value}, acc}
-        end
-      end)
-
-    {Map.new(map_), bindings}
+    Map.new(map_, fn {key, {type, value}} ->
+      case type do
+        :reference -> {key, Map.fetch!(bindings, value)}
+        :binding -> {key, {type, value}}
+        :list -> {key, map(value, fn {:literal, v} -> v end)}
+        _ -> {key, value}
+      end
+    end)
   end
 
   case Application.compile_env(:asyncapi, :broker) do
