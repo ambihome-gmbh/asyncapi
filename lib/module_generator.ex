@@ -4,7 +4,7 @@ defmodule ModuleGenerator do
         schema = Asyncapi.load(schema_path),
         {_, operation} <- schema.operations do
       if Map.get(operation.payload_schema, "additionalProperties", true) == true do
-        raise("additionalProperties are not allowed: #{inspect(operation)}")
+        raise("additionalProperties has to be set to false in schema! #{inspect(operation)}")
       end
 
       struct_keys =

@@ -1,5 +1,10 @@
 {
   "asyncapi": "3.0.0",
+  "info": {
+    "description": "Dataponts API description",
+    "title": "Timer API",
+    "version": "0.0.1"
+  },
   "x-testcases": [
     {
       "name": "wip",
@@ -14,15 +19,15 @@
         "service->internal: get_day_of_year",
         "internal->service: day_of_year/{day_of_year: 2}",
         "service->>user: dp_write_req/{id: 'ch1', value: '1'}",
-        "service->>internal: create_cron/{id: $id, crontab: '0 0 * * 0'}"
+        "service->>internal: create_cron/{id: $id, crontab: '0 0 * * 0'}",
+        "user->>service: delete[timer_id: $id]",
+        "service->>internal: delete_cron",
+        "service->>user: state/{id: $id, deleted: true}",
+        "user->>service: deactivate[timer_id: $id]",
+        "service->>user: error/{message: 'attempt_to_access_deleted_timer'}"
       ]
     }
   ],
-  "info": {
-    "description": "Dataponts API description",
-    "title": "Timer API",
-    "version": "0.0.1"
-  },
   "defaultContentType": "application/json",
   "servers": {
     "production": {
@@ -41,6 +46,24 @@
     }
   },
   "channels": {
+    "error": {
+      "address": "API/ERROR",
+      "messages": {
+        "publish.message": {
+          "name": "error",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message": {
+                "type": "string",
+                "description": "A human-readable description of the error."
+              }
+            }
+          }
+        }
+      }
+    },
     "create": {
       "address": "TIM/CMD_CREATE",
       "messages": {
@@ -84,7 +107,7 @@
                 ]
               },
               "time": {
-                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo tye)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
+                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo type)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
                 "type": "string"
               },
               "channel": {
@@ -195,7 +218,7 @@
                 ]
               },
               "time": {
-                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo tye)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
+                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo type)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
                 "type": "string"
               },
               "channel": {
@@ -396,7 +419,7 @@
                 ]
               },
               "time": {
-                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo tye)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
+                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo type)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
                 "type": "string"
               },
               "channel": {
@@ -601,18 +624,29 @@
       "channel": {
         "$ref": "#/channels/dp_write_req"
       }
+    },
+    "error": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/error"
+      }
     }
   },
   "components": {
-    "parameters": {
-      "timer_id": {
-        "description": "ID of a timer."
-      }
-    },
     "schemas": {
       "empty_payload": {
         "type": "object",
         "additionalProperties": false
+      },
+      "error_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A human-readable description of the error."
+          }
+        }
       },
       "tim_config_payload": {
         "type": "object",
@@ -652,7 +686,7 @@
             ]
           },
           "time": {
-            "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo tye)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
+            "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo type)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
             "type": "string"
           },
           "channel": {
@@ -732,6 +766,11 @@
           "id",
           "value"
         ]
+      }
+    },
+    "parameters": {
+      "timer_id": {
+        "description": "ID of a timer."
       }
     }
   }

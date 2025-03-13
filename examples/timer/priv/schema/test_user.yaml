@@ -63,3 +63,7 @@ operations:
     action: receive
     channel:
       $ref: "#/channels/dp_write_req"
+  error:
+    action: receive
+    channel:
+      $ref: "#/channels/error"

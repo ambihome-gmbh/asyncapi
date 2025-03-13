@@ -23,6 +23,24 @@
     }
   },
   "channels": {
+    "error": {
+      "address": "API/ERROR",
+      "messages": {
+        "publish.message": {
+          "name": "error",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message": {
+                "type": "string",
+                "description": "A human-readable description of the error."
+              }
+            }
+          }
+        }
+      }
+    },
     "dp_write_req": {
       "address": "DP/WRITE_REQ",
       "messages": {
@@ -86,6 +104,20 @@
   },
   "components": {
     "schemas": {
+      "empty_payload": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "error_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A human-readable description of the error."
+          }
+        }
+      },
       "dp_payload": {
         "type": "object",
         "additionalProperties": false,

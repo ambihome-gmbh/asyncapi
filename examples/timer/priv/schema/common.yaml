@@ -1,7 +1,25 @@
 asyncapi: 3.0.0
 
+channels:
+  error:
+    address: API/ERROR
+    messages:
+        publish.message:
+          name: error
+          payload:
+            $ref: "#/components/schemas/error_payload"
+      
 components:
   schemas:
     empty_payload:
       type: object
       additionalProperties: false
+    error_payload:
+      type: object
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+          description: A human-readable description of the error.
+
+  

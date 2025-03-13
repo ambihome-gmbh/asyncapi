@@ -32,9 +32,10 @@ defmodule Timer do
   def handle_message(%Message{} = message, state) do
     case message.op_id do
       "create" -> create_or_update(state, message.payload)
-      "update" -> create_or_update(state, message.payload, message.params.id)
-      "activate" -> update_active_flag(state, message.params.timer_id, true)
-      "deactivate" -> update_active_flag(state, message.params.timer_id, false)
+      "update" -> create_or_update(state, message.payload, message.params.timer_id)
+      "activate" -> set_flag(state, message.params.timer_id, :active, true)
+      "deactivate" -> set_flag(state, message.params.timer_id, :active, false)
+      "delete" -> set_flag(state, message.params.timer_id, :deleted, true)
       _ -> noreply(state)
     end
   end
@@ -57,7 +58,7 @@ defmodule Timer do
           payload: %Payload.DpWrite{id: timer.channel, value: timer.value}
         }
 
-        create_cron_if_active(state, timer)
+        maybe_create_cron(state, timer)
 
         reply(response, state)
     end
@@ -68,10 +69,10 @@ defmodule Timer do
     update_(state, timer)
   end
 
-  defp update_active_flag(state, timer_id, active?) do
+  defp set_flag(state, timer_id, flag, set?) do
     case fetch_timer(state, timer_id) do
-      {:error, _} -> raise "todo impl error msg"
-      {:ok, timer} -> update_(state, %{timer | active: active?})
+      {:error, msg} -> error(state, msg)
+      {:ok, timer} -> update_(state, Map.put(timer, flag, set?))
     end
   end
 
@@ -80,7 +81,7 @@ defmodule Timer do
       state
       |> put_timer(timer)
       |> delete_pending_cron(timer)
-      |> create_cron_if_active(timer)
+      |> maybe_create_cron(timer)
 
     reply(info_state_message(timer), new_state)
   end
@@ -88,8 +89,13 @@ defmodule Timer do
   defp fetch_timer(state, timer_id) do
     case Map.get(state.timers, timer_id) do
       nil -> {:error, :unknown_timer}
+      %{deleted: true} -> {:error, :attempt_to_access_deleted_timer}
       timer -> {:ok, timer}
     end
+  end
+
+  defp error(state, msg) do
+    reply(%Message{op_id: "error", payload: %{message: msg}}, state)
   end
 
   defp delete_pending_cron(state, timer) do
@@ -97,14 +103,13 @@ defmodule Timer do
     state
   end
 
-  defp create_cron_if_active(state, %{active: false}) do
-    state
-  end
+  defp maybe_create_cron(state, %{active: false}), do: state
+  defp maybe_create_cron(state, %{deleted: true}), do: state
+  defp maybe_create_cron(state, timer), do: create_cron(state, timer)
 
-  defp create_cron_if_active(state, timer) do
+  defp create_cron(state, timer) do
     # TODO signatur fuer call sollte anders sein
     {:day_of_year, %{day_of_year: day_of_year}} = TimeServer.get_day_of_year()
-    dbg(day_of_year)
     geo_today = Map.fetch!(state.geo, day_of_year)
     TimeServer.create_cron_from_timer_config(timer, geo_today)
     state
@@ -118,14 +123,7 @@ defmodule Timer do
   # get_all_states
   # get_state
 
-  # delete
-
   defp info_state_message(timer) do
-    %Message{
-      op_id: "state",
-      params: %{timer_id: timer.id},
-      # TODO struct
-      payload: timer
-    }
+    %Message{op_id: "state", params: %{timer_id: timer.id}, payload: timer}
   end
 end
