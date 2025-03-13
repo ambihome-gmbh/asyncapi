@@ -11,6 +11,8 @@
         "service->>internal: create_cron/{crontab: '0 0 * * 0'}",
         "service->>user: state/{id: id}",
         "internal->>service: timeout/{id: $id}",
+        "service->internal: get_day_of_year",
+        "internal->service: day_of_year/{day_of_year: 2}",
         "service->>user: dp_write_req/{id: 'ch1', value: '1'}",
         "service->>internal: create_cron/{id: $id, crontab: '0 0 * * 0'}"
       ]
