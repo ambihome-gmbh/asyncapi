@@ -101,7 +101,8 @@ defmodule Timer do
   end
 
   defp create_cron_if_active(state, timer) do
-    day_of_year = Date.utc_today() |> Date.day_of_year()
+    day_of_year = TimeServer.get_day_of_year()
+    dbg(day_of_year)
     geo_today = state.geo[day_of_year]
     TimeServer.create_cron_from_timer_config(timer, geo_today)
     state

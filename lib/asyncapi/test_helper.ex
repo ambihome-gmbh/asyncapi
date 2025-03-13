@@ -26,15 +26,15 @@ defmodule Asyncapi.TestHelper do
         IO.puts(Enum.join(testcase["sequence"], "\n"))
 
         test testcase["name"], context do
-          IO.puts("\n\n")
+          IO.puts("\n")
           sequence = unquote(Macro.escape(parsed_sequence))
 
-          Enum.reduce(sequence, %{}, fn step, acc ->
+          Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
             Asyncapi.TestHelper.display_step(step)
 
             # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
-            payload = Asyncapi.TestHelper.deref(step.payload, acc)
-            params = Asyncapi.TestHelper.deref(step.params, acc)
+            payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
+            params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
 
             case step do
               %{from: "internal", to: "service", arrow: arrow} ->
@@ -158,23 +158,28 @@ defmodule Asyncapi.TestHelper do
   end
 
   @doc false
-  def match(bindings, received, step) do
-    reduce(step, bindings, fn {k, v}, acc ->
-      case v do
-        {:binding, binding_name} ->
-          ExUnit.Assertions.assert(
-            Map.has_key?(received, k),
-            "Binding not found: #{inspect(k)} in #{inspect(received)} --> #{inspect(binding_name)}"
-          )
+  def match(acc, received, step) do
+    bindings = acc.bindings
 
-          Map.put(acc, binding_name, Map.fetch!(received, k))
+    new_bindings =
+      reduce(step, bindings, fn {k, v}, acc ->
+        case v do
+          {:binding, binding_name} ->
+            ExUnit.Assertions.assert(
+              Map.has_key?(received, k),
+              "Binding not found: #{inspect(k)} in #{inspect(received)} --> #{inspect(binding_name)}"
+            )
 
-        _ ->
-          ExUnit.Assertions.assert(v == Map.fetch!(received, k))
+            Map.put(acc, binding_name, Map.fetch!(received, k))
 
-          acc
-      end
-    end)
+          _ ->
+            ExUnit.Assertions.assert(v == Map.fetch!(received, k))
+
+            acc
+        end
+      end)
+
+    %{acc | bindings: new_bindings}
   end
 
   @doc false

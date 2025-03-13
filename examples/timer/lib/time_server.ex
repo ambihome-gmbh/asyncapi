@@ -20,6 +20,10 @@ defmodule TimeServer do
     GenServer.call(__MODULE__, :get_utc_today)
   end
 
+  def get_day_of_year() do
+    GenServer.call(__MODULE__, :get_day_of_year)
+  end
+
   @impl true
   def init(state) do
     dbg(:init)
@@ -30,6 +34,13 @@ defmodule TimeServer do
   def handle_call(:get_utc_today, _from, state) do
     dbg(:get_utc_today)
     {:reply, {:utc_today, %{utc_today: "DUMMY"}}, state}
+  end
+
+  @impl true
+  def handle_call(:get_day_of_year, _from, state) do
+    dbg(:get_day_of_year)
+    day_of_year = Date.utc_today() |> Date.day_of_year()
+    {:reply, {:day_of_year, %{day_of_year: day_of_year}}, state}
   end
 
   # def handle_cast({:schedule_timeout, parameters}, state) do
