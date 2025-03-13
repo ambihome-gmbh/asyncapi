@@ -51,27 +51,22 @@ defmodule Asyncapi.TestHelper do
                 if arrow == :async do
                   send(context.service_pid, internal_message)
                 else
-                  dbg(step)
-                  internal_message = nil
-                  raise("sync not implemented")
-                  # TODO
-                  # Genserver.reply({context.service_pid, acc.last_call_tag}, internal_message)
+                  GenServer.reply({context.service_pid, acc.last_call_tag}, internal_message)
                 end
 
-                acc
+                %{acc | last_call_tag: nil}
 
               %{from: "service", to: "internal", arrow: arrow} ->
                 assert step.params == %{}, "params not allowed for intenal messages"
 
-                internal_message =
+                {internal_message, call_tag} =
                   if arrow == :async do
                     assert_receive({:"$gen_cast", internal_message})
-                    internal_message
+                    {internal_message, nil}
                   else
-                    dbg(step)
-                    raise("sync not implemented")
                     # TODO statt _from - pin service pid?
-                    # assert_receive({:"$gen_call", {_from, tag}, internal_message})
+                    assert_receive({:"$gen_call", {_from, tag}, internal_message})
+                    {internal_message, tag}
                   end
 
                 {internal_message_tag, internal_message_payload} =
@@ -82,7 +77,9 @@ defmodule Asyncapi.TestHelper do
 
                 assert step.operation == "#{internal_message_tag}"
 
-                Asyncapi.TestHelper.match(acc, internal_message_payload, payload)
+                acc
+                |> Map.put(:last_call_tag, call_tag)
+                |> Asyncapi.TestHelper.match(internal_message_payload, payload)
 
               %{to: "service", arrow: :async} ->
                 Asyncapi.TestHelper.check_for_unexpected_messages()
