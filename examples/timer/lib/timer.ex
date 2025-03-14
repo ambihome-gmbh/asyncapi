@@ -108,8 +108,7 @@ defmodule Timer do
   defp maybe_create_cron(state, timer), do: create_cron(state, timer)
 
   defp create_cron(state, timer) do
-    # TODO signatur fuer call sollte anders sein
-    {:day_of_year, %{day_of_year: day_of_year}} = TimeServer.get_day_of_year()
+    {:ok, day_of_year} = TimeServer.get_day_of_year()
     geo_today = Map.fetch!(state.geo, day_of_year)
     TimeServer.create_cron_from_timer_config(timer, geo_today)
     state

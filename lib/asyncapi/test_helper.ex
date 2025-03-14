@@ -180,6 +180,11 @@ defmodule Asyncapi.TestHelper do
   end
 
   @doc false
+
+  def deref({:literal, value}, _bindings) do
+    value
+  end
+
   def deref(map_, bindings) do
     Map.new(map_, fn {key, {type, value}} ->
       case type do
