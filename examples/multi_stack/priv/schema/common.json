@@ -4,11 +4,11 @@
         {
             "name": "create, push, pop - ok",
             "sequence": [
-                "user->service: create/{name: 'SomeName'}",
-                "service->user: create_response/{name: 'SomeName', id: stack_id}",
-                "user->service: push[stack_id: $stack_id]/{value: 42}",
-                "user->service: pop[stack_id: $stack_id]",
-                "service->user: pop_response[stack_id: $stack_id]/{value: 42}"
+                "user->>service: create/{name: 'SomeName'}",
+                "service->>user: create_response/{name: 'SomeName', id: stack_id}",
+                "user->>service: push[stack_id: $stack_id]/{value: 42}",
+                "user->>service: pop[stack_id: $stack_id]",
+                "service->>user: pop_response[stack_id: $stack_id]/{value: 42}"
             ]
         }
     ],
