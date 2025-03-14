@@ -1,3 +1,3 @@
-defmodule StackServiceSchema do
-  use Asyncapi.Schema, schema: "priv/schema/bundled/service_schema.json"
+defmodule StackSchema do
+  use Asyncapi.Schema, schema_path: "priv/schema/bundled/service_schema.json"
 end

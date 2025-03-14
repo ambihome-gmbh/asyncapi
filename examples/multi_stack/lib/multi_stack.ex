@@ -1,8 +1,9 @@
 defmodule MultiStackService do
-  use MqttAsyncapi, schema: :multistack_service
+  use MqttAsyncapi, schema_module: MultiStackSchema
 
   alias Asyncapi.Message
-  alias MultiStackApi.Payload
+  # alias MultiStackSchema.Payload, as: P
+  import Asyncapi.Helpers
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -21,11 +22,11 @@ defmodule MultiStackService do
 
     response = %Message{
       op_id: "create_response",
-      payload: %Payload.CreateResponse{name: name, id: stack_id}
+      payload: %MultiStackSchema.CreateResponse{name: name, id: stack_id}
     }
 
     reply(
-      [response],
+      response,
       %{state | stacks: Map.put(state.stacks, stack_id, %{name: name, data: []})}
     )
   end
@@ -33,7 +34,7 @@ defmodule MultiStackService do
   @impl true
   def handle_message(%Message{op_id: "push"} = message, state) do
     %{
-      payload: %Payload.Push{value: value},
+      payload: %MultiStackSchema.Push{value: value},
       params: %{stack_id: stack_id}
     } = message
 
@@ -53,12 +54,12 @@ defmodule MultiStackService do
 
     response = %Message{
       op_id: "pop_response",
-      payload: %Payload.PopResponse{value: value},
+      payload: %MultiStackSchema.PopResponse{value: value},
       params: %{stack_id: stack_id}
     }
 
     reply(
-      [response],
+      response,
       %{state | stacks: put_in(state.stacks, [stack_id, :data], new_stack)}
     )
   end
@@ -67,7 +68,4 @@ defmodule MultiStackService do
   def handle_info(_info, state) do
     noreply(state)
   end
-
-  defp reply(responses, state), do: {:reply, responses, state}
-  defp noreply(state), do: {:noreply, state}
 end

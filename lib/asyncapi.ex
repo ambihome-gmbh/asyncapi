@@ -59,12 +59,14 @@ defmodule Asyncapi do
     end
   end
 
-  def load(schema_path) do
+  def load(schema_path, schema_module) do
     schema = schema_path |> File.read!() |> Jason.decode!() |> ExJsonSchema.Schema.resolve()
 
     operations =
       for {op_id, operation} <- schema.schema["operations"], into: %{} do
-        channel = operation["channel"] |> resolve_schema(schema) |> load_channel(schema)
+        channel =
+          operation["channel"] |> resolve_schema(schema) |> load_channel(schema, schema_module)
+
         {op_id, Map.merge(channel, %{id: op_id, action: operation["action"]})}
       end
 
@@ -87,15 +89,11 @@ defmodule Asyncapi do
     }
   end
 
-  defp load_channel(channel, schema) do
+  defp load_channel(channel, schema, schema_module) do
     # NOTE: asyncapi allows multiple message, but we support only exactly one
     [{_, message}] = to_list(channel["messages"])
 
-    module_name_parts = [
-      Recase.to_pascal(schema.schema["info"]["title"]),
-      "Payload",
-      Recase.to_pascal(message["name"])
-    ]
+    module_name_parts = [schema_module, Recase.to_pascal(message["name"])]
 
     payload_schema = message |> resolve_schema(schema) |> Map.get("payload")
 

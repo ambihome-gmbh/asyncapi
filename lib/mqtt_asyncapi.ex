@@ -13,14 +13,14 @@ defmodule MqttAsyncapi do
               {:noreply, state :: term} | {:reply, [reply_message :: Message.t()], state :: term}
 
   @broker Application.compile_env(:asyncapi, :broker)
-  @schemas Application.compile_env(:asyncapi, :schemas)
+  # @schemas Application.compile_env(:asyncapi, :schemas)
 
   defmacro __using__(opts) do
     quote do
       @behaviour MqttAsyncapi
       require Logger
 
-      def get_schema_key(), do: unquote(Keyword.get(opts, :schema))
+      def get_schema_module(), do: unquote(Keyword.get(opts, :schema_module))
 
       def child_spec(opts) do
         %{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}
@@ -39,16 +39,13 @@ defmodule MqttAsyncapi do
   # --- API
 
   def start_link(user_module, opts) do
-    schema_key = user_module.get_schema_key()
-    schema_path = Keyword.get(@schemas, schema_key)
-
-    raise("X")
+    schema_module = user_module.get_schema_module()
 
     GenServer.start_link(
       __MODULE__,
       [
         {:user_module, user_module},
-        {:asyncapi_schema_path, schema_path}
+        {:schema_module, schema_module}
         | opts
       ],
       name: user_module
@@ -74,9 +71,8 @@ defmodule MqttAsyncapi do
   @impl GenServer
   def init(opts) do
     {user_module, opts} = Keyword.pop(opts, :user_module)
-    {asyncapi_schema_path, opts} = Keyword.pop(opts, :asyncapi_schema_path)
-
-    asyncapi = Asyncapi.load(asyncapi_schema_path)
+    {schema_module, opts} = Keyword.pop(opts, :schema_module)
+    asyncapi = schema_module.get_asyncapi()
 
     # TO-DO-2 -> broker wrapper
     # Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")

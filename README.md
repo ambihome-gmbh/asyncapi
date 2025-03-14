@@ -1,27 +1,55 @@
 # Asyncapi
 
-**EXPERIMENTAL**
-
 Receive and send valid asyncapi messages over MQTT.
 
 
-## howto
+## about
 
-...
 
 
 ## Test
 
-Run this before the mqtt tests 
+When using MQTT (not Dummy) you can run this before tests:
 
 ```
 docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
+docker start nanomq
+...
+docker stop nanomq
 ```
 
-(nanomq running in a container named nanomq is expected by the tests.)
-
-
 ## TODO
+
+### Prio 1
+
+- nano-mq per system-call weg (brauchts nicht mehr mit dummy-broker)
+- struct generator
+    - [ ] muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben
+    - [ ] muss automatisch bundlen
+    - [ ] SchemaModule.MessagePayload.<message-name>
+- [ ] handling of invalid messages from outside, cant just raise ->TO-DO-1
+- [ ] when an internal message is the last in a sequence, it may not be received before test ends!
+- [ ] `quote` option `location` (um bessere fehlermeldungen in test zu haben)
+- [ ] nested maps
+    - [ ] damit: offset: {type, num} state random_offset, random_type
+
+### Prio 2
+
+- [ ] retained messages
+- [ ] Logging -> TO-DO-2
+- [ ] bessere trennung MqttAsyncAPI, broker impl ->TO-DO-3
+- [ ] @BM - run tests in all examples also
+- [ ] check if a sequence step is even possible first (`from` has operation)
+- [ ] test coverage in examples
+- [ ] custom types in schema (eg channel-id?)
+
+### backlog
+
+- [ ] render api like "asyncapi studio" but with seq diag
+- [ ] sequence regions that can be reused (eg dp-write, add-scene, ...)
+- [ ] jsv lib evaluieren (@BM)
+- [ ] https://hexdocs.pm/ex_json_schema/readme.html#validation-error-formats
+- [ ] echte DSL (geht --> ?)
 
 - [x] make mqtt-client robust
 - [x] create a more involved sample service with state, implementing a stack
@@ -33,30 +61,12 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [x] examples in eigene projects
 - [x] @BM kann man auf UserDummy module verzichten -> ja
 - [x] erste ID `0` (implementation detail) muss in schema auftauchen? 
-- [ ] Logging -> TO-DO-2
 - [x] handle nil in sequence parser (needed in "pop from empty")
-- [ ] jsv lib evaluieren (@BM)
-- [ ] https://hexdocs.pm/ex_json_schema/readme.html#validation-error-formats
-- [ ] handling of invalid messages from outside, cant just raise ->TO-DO-1
-- [ ] bessere trennung MqttAsyncAPI, broker impl ->TO-DO-3
-- [ ] retained messages
-- [ ] generate_tests nicht mit hardcoded pfad aufrufen, env-zugriff nicht in use sondern in __using__ -> TO-DO-4
+- [x] generate_tests nicht mit hardcoded pfad aufrufen
 - [x] internal messages
-  - [ ] when an internal message is the last in a sequence, it may not be received before test ends!
-- [ ] run tests in all examples also
-- [ ] sequence regions that can be reused (eg dp-write, add-scene, ...)
-- [ ] `_` match in sequence (
-    - [ ] possible at all places, eg:  _->_: _[_]/_ 
-    - [ ] or partially: ...[a: _]
-- [ ] check if a sequence step is even possible first (`from` has operation)
-- [ ] test coverage in examples
-- [ ] render api like "asyncapi studio" but with seq diag
-- [ ] jump to asyncapi code from example project-IDE code and terminal
-    - quote / location
-- [ ] dopplung runtime/config
-- [ ] custom types in schema (eg channel-id?)
-- [ ] echte DSL (geht --> ?)
-- [ ] structs diskutieren.
+- [x] jump to asyncapi code from example project-IDE code and terminal - geht nicht
+- [x] dopplung runtime/config
+- [x] structs diskutieren.
     - generell gut
     - schlecht direkt struct fuer payload zu machen, da die keinen namen haben
     - jetzt von message namen, aber nur payload. gibt dann viele gleiche mit unterschiedl namen. auch nicht gut
@@ -64,18 +74,40 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
     - ganze operation? (incl param und opid)
     - doch irgendwie nur payload?
     - root namen von title abgeleitet nicht gut
-- [ ] offset: {type, num} state random_offset, random_type
-  
 
-- [ ] module-generator
-  - ? auch fuer parameter?
-  - muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben
-  - muss automatisch bundlen
-  - ! kann dann nicht in dep sein!
+## Module Generator / Structs
 
-## Module Generator
 
-siehe stack beispiel, WIP
+
+```
+  SchemaModule                           SchemaModule                                          
+  operation-perspective-user──►channel◄──operation-perspective-service  
+                            1 1   │1                                    
+                                  │                                     
+                                  ▼n                                    
+                               message                                  
+                                  │1                                    
+                                  │                                     
+                                  ▼1                                    
+                               payload                                  
+                                                                        
+```
+
+op, ch und msg haben ID:
+
+operationId: {operation-object}
+channelId: {channel-object}
+messageId: {message-object}
+
+payload hat keine ID, da: 
+message-object:.payload -> schema-object
+das schema-object hat keine ID und weiss auch nicht, dass es ein payload ist!
+
+parameter haben auch keine ID, sondern ein "field pattern" ist aber bei MQTT quasi eine ID (relativ zu channel)
+??? auch parameter-struct ??? --> spaeter evtl wenn Anwendugsfall dafuer da
+
+- op-ids die auf gleichen channel gehen koennen unterschiedlich sein, es kann evtl auch unterschiedliche (rueckwaertskompatible) versionen gebene. daher sinnvoll, dass es aus jeder perspektive eine eigene struct gibt
+
 
 
 ## Notes
