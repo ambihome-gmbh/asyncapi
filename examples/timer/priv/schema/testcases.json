@@ -7,19 +7,20 @@
                 "user->>service: create/{type: 'absolute_time', time: '00:00:00Z', channel: 'ch1', value: '1', weekdays: [0], active: true}",
                 "service->>internal: delete_cron",
                 "service->internal: get_day_of_year",
-                "internal->service: day_of_year/{day_of_year: 1}",
+                "internal->service: ok/1",
                 "service->>internal: create_cron/{crontab: '0 0 * * 0'}",
                 "service->>user: state/{id: id}",
                 "internal->>service: timeout/{id: $id}",
                 "service->internal: get_day_of_year",
-                "internal->service: day_of_year/{day_of_year: 2}",
+                "internal->service: ok/2",
                 "service->>user: dp_write_req/{id: 'ch1', value: '1'}",
                 "service->>internal: create_cron/{id: $id, crontab: '0 0 * * 0'}",
                 "user->>service: delete[timer_id: $id]",
                 "service->>internal: delete_cron",
                 "service->>user: state/{id: $id, deleted: true}",
-                "user->>service: deactivate[timer_id: $id]"
-            ]
+                "user->>service: deactivate[timer_id: $id]",
+                "service->>user: error/{message: 'attempt_to_access_deleted_timer'}"
+              ]
         }
     ]
 }

@@ -64,8 +64,8 @@ defmodule Asyncapi.TestHelper do
                     assert_receive({:"$gen_cast", internal_message})
                     {internal_message, nil}
                   else
-                    # TODO statt _from - pin service pid?
-                    assert_receive({:"$gen_call", {_from, tag}, internal_message})
+                    service_pid = context.service_pid
+                    assert_receive({:"$gen_call", {^service_pid, tag}, internal_message})
                     {internal_message, tag}
                   end
 

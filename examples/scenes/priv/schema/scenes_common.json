@@ -4,11 +4,19 @@
     {
       "name": "create scene",
       "sequence": [
-        "user->service: scn_add/{id: 'x', name: 'S1', member_channels: ['ch1', 'ch2']}",
-        "service->user: scn_info_state[scene_id: id]/{name: 'S1'}",
-        "user->service: scn_update[scene_id: $id]/{id: $id, name: 'S11', member_channels: ['ch1', 'ch2']}",
-        "service->user: scn_info_state[scene_id: $id]/{name: 'S11'}",
-        "user->service: dp_write_ind[dp_id: 'ch1']/{value: 4711}"
+        "KNX->>service: dp_write_ind/{id: 'ch1', value: 'initial-1'}",
+        "KNX->>service: dp_write_ind/{id: 'ch2', value: 'initial-2'}",
+        "user->>service: scn_add/{id: nil, name: 'S1', member_channels: ['ch1', 'ch2']}",
+        "service->>user: scn_info_state[scene_id: id]/{name: 'S1'}",
+        "user->>service: scn_update[scene_id: $id]/{id: $id, name: 'S11', member_channels: ['ch1', 'ch2']}",
+        "service->>user: scn_info_state[scene_id: $id]/{name: 'S11'}",
+        "KNX->>service: dp_write_ind/{id: 'ch1', value: 'after-learn-1'}",
+        "user->>service: scn_call[scene_id: $id]",
+        "service->>KNX: dp_write_req/{id: 'ch1', value: 'initial-1'}",
+        "service->>KNX: dp_write_req/{id: 'ch2', value: 'initial-2'}",
+        "user->>service: scn_undo[scene_id: $id]",
+        "service->>KNX: dp_write_req/{id: 'ch1', value: 'after-learn-1'}",
+        "service->>KNX: dp_write_req/{id: 'ch2', value: 'initial-2'}"
       ]
     }
   ],
@@ -199,7 +207,10 @@
         "properties": {
           "id": {
             "description": "Scene ID - TODO trait that overwrites this with null for cmd-add",
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "name": {
             "description": "Scene name",

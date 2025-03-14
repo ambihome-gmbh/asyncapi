@@ -57,15 +57,3 @@ defmodule Alarm.StateMachine do
     end
   end
 end
-
-{:error, :payload_validation_error, [{"Schema does not allow additional properties.", "#/config/timeout"}],
- "state",
- %{
-   "alarm_condition" => false,
-   "alarm_sources" => ["ch1", "ch2"],
-   "alarm_type" => "alarm_incursion",
-   "config" => %{"actions" => ["SEND_MAILS"], "timeout" => 30, "mails" => [], "monitored" => []},
-   "perpetrators" => [],
-   "ready_state" => ["MONITORED_EMPTY"],
-   "sm_state" => "state_disarmed"
- }}
