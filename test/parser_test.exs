@@ -5,14 +5,21 @@ defmodule ParserTest do
 
   test "step" do
     assert %{
-             params: %{},
-             to: "to",
              from: "from",
-             payload: %{},
+             to: "to",
              operation: "operation",
+             params: %{},
+             payload: %{},
              arrow: :sync
            } ==
              parse_step("from->to: operation")
+
+    assert %{payload: {:literal, 1}} = parse_step("f->t: o/1")
+    assert %{payload: {:literal, 1.2}} = parse_step("f->t: o/1.2")
+    assert %{payload: {:literal, nil}} = parse_step("f->t: o/nil")
+    assert %{payload: {:literal, true}} = parse_step("f->t: o/true")
+    assert %{payload: {:literal, false}} = parse_step("f->t: o/false")
+    assert %{payload: {:literal, "string"}} = parse_step("f->t: o/'string'")
 
     assert %{
              params: %{p1: {:reference, "r"}, p2: {:literal, 1}},

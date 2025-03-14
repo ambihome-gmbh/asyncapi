@@ -44,10 +44,6 @@ defmodule Asyncapi.Parser.Sequence do
   """
   import NimbleParsec
 
-
-
-
-
   defp ident() do
     ascii_string([?a..?z, ?A..?Z, ?0..?9, ?_], min: 1, max: 100)
   end
@@ -68,6 +64,29 @@ defmodule Asyncapi.Parser.Sequence do
       |> concat(comb)
 
     optional(comb |> times(sep_comb, min: 0))
+  end
+
+  defp literal() do
+    string_literal =
+      ignore(string("'"))
+      |> utf8_string([not: ?'], min: 0)
+      |> ignore(string("'"))
+
+    float_literal =
+      integer(min: 1)
+      |> string(".")
+      |> integer(min: 1)
+      |> post_traverse({:get_float, []})
+
+    choice([
+      string("nil") |> replace(nil),
+      string("true") |> replace(true),
+      string("false") |> replace(false),
+      float_literal,
+      integer(min: 1),
+      string_literal
+    ])
+    |> unwrap_and_tag(:literal)
   end
 
   defp kv_pair() do
@@ -102,18 +121,7 @@ defmodule Asyncapi.Parser.Sequence do
     # NOTE: only literals in lists for now. update testhelper/deref if this changes!
     list =
       ignore(string("["))
-      |> concat(
-        sep_by(
-          choice([
-            string_literal,
-            float_literal,
-            integer_literal,
-            nil_literal,
-            boolean_literal
-          ]),
-          ","
-        )
-      )
+      |> concat(sep_by(literal(), ","))
       |> concat(ignore(string("]")))
       |> tag(:list)
 
@@ -122,12 +130,11 @@ defmodule Asyncapi.Parser.Sequence do
       |> concat(ident())
       |> unwrap_and_tag(:reference)
 
-    binding =
-      ident()
-      |> unwrap_and_tag(:binding)
+    binding = unwrap_and_tag(ident(), :binding)
 
     value =
       choice([
+        # TODO use the literal function here and get rid of the duplications
         string_literal,
         float_literal,
         integer_literal,
@@ -151,11 +158,15 @@ defmodule Asyncapi.Parser.Sequence do
     |> ignore(optional(whitespace()))
   end
 
-  defp payload() do
-    ignore(string("/"))
-    |> ignore(string("{"))
+  defp map() do
+    ignore(string("{"))
     |> concat(optional(kv_list()))
     |> concat(ignore(string("}")))
+  end
+
+  defp payload() do
+    ignore(string("/"))
+    |> choice([map(), literal()])
     |> tag(:payload)
   end
 
@@ -172,18 +183,12 @@ defmodule Asyncapi.Parser.Sequence do
     |> tag(binding)
   end
 
-  # defp arrow() do
-  #   ignore(optional(whitespace()))
-  #   |> ignore(string("->"))
-  #   |> ignore(optional(whitespace()))
-  # end
-
   defp arrow() do
     ignore(optional(whitespace()))
     |> choice([
       string("->>") |> replace(:async),
       # string("-->>") |> replace(:async_reply),
-      string("->") |> replace(:sync),
+      string("->") |> replace(:sync)
       # string("-->") |> replace(:sync_reply)
     ])
     |> ignore(optional(whitespace()))
@@ -231,12 +236,14 @@ defmodule Asyncapi.Parser do
       to: actor_to,
       arrow: arrow,
       operation: operation,
-      params: resolve_kv(params),
-      payload: resolve_kv(payload)
+      params: maybe_resolve_kv(params),
+      payload: maybe_resolve_kv(payload)
     }
   end
 
-  defp resolve_kv(kv_pair_list) do
+  defp maybe_resolve_kv([literal: literal]), do: {:literal, literal}
+
+  defp maybe_resolve_kv(kv_pair_list) do
     Enum.reduce(
       kv_pair_list,
       %{},
