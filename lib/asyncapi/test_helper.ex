@@ -23,14 +23,14 @@ defmodule Asyncapi.TestHelper do
       for testcase <- testcases do
         parsed_sequence = Enum.map(testcase["sequence"], &Asyncapi.Parser.parse_step/1)
 
-        IO.puts(Enum.join(testcase["sequence"], "\n"))
+        # IO.puts(Enum.join(testcase["sequence"], "\n"))
 
         test testcase["name"], context do
           IO.puts("\n")
           sequence = unquote(Macro.escape(parsed_sequence))
 
           Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
-            Asyncapi.TestHelper.display_step(step)
+            # Asyncapi.TestHelper.display_step(step)
 
             # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
             payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)

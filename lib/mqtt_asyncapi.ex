@@ -42,6 +42,8 @@ defmodule MqttAsyncapi do
     schema_key = user_module.get_schema_key()
     schema_path = Keyword.get(@schemas, schema_key)
 
+    raise("X")
+
     GenServer.start_link(
       __MODULE__,
       [

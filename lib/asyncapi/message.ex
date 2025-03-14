@@ -21,7 +21,7 @@ defmodule Asyncapi.Message do
         %__MODULE__{
           op_id: operation.id,
           params: to_atom_map(params),
-          payload: struct(operation.payload_module_name, to_atom_map(payload))
+          payload: struct!(operation.payload_module_name, to_atom_map(payload))
         }
       }
     else

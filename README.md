@@ -37,11 +37,6 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [x] handle nil in sequence parser (needed in "pop from empty")
 - [ ] jsv lib evaluieren (@BM)
 - [ ] https://hexdocs.pm/ex_json_schema/readme.html#validation-error-formats
-- [ ] module-generator
-  - ? auch fuer parameter?
-  - muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben
-  - muss automatisch bundlen
-  - ! kann dann nicht in dep sein!
 - [ ] handling of invalid messages from outside, cant just raise ->TO-DO-1
 - [ ] bessere trennung MqttAsyncAPI, broker impl ->TO-DO-3
 - [ ] retained messages
@@ -49,36 +44,6 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [x] internal messages
   - [ ] when an internal message is the last in a sequence, it may not be received before test ends!
 - [ ] run tests in all examples also
-- [ ] messages -> components for stuff like this
-- [ ] tests muessen neu generiert werden wenn schema oder code sich aendert
-```
- "channels": {
-        "dp_write_req": {
-            "address": "DP/WRITE_REQ",
-            "messages": {
-                "dp_write": {
-                    "name": "dp_write",
-                    "payload": {
-                        "$ref": "#/components/schemas/dp_payload"
-                    }
-                }
-            },
-            "description": "testing dummy temp"
-        },
-        "dp_write_ind": {
-            "address": "DP/WRITE_IND",
-            "messages": {
-                "dp_write": {
-                    "name": "dp_write",
-                    "payload": {
-                        "$ref": "#/components/schemas/dp_payload"
-                    }
-                }
-            },
-            "description": "testing dummy temp"
-        }
-    },
-```
 - [ ] sequence regions that can be reused (eg dp-write, add-scene, ...)
 - [ ] `_` match in sequence (
     - [ ] possible at all places, eg:  _->_: _[_]/_ 
@@ -87,6 +52,7 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] test coverage in examples
 - [ ] render api like "asyncapi studio" but with seq diag
 - [ ] jump to asyncapi code from example project-IDE code and terminal
+    - quote / location
 - [ ] dopplung runtime/config
 - [ ] custom types in schema (eg channel-id?)
 - [ ] echte DSL (geht --> ?)
@@ -101,6 +67,15 @@ docker run -d -p 1883:1883 --name nanomq emqx/nanomq:latest
 - [ ] offset: {type, num} state random_offset, random_type
   
 
+- [ ] module-generator
+  - ? auch fuer parameter?
+  - muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben
+  - muss automatisch bundlen
+  - ! kann dann nicht in dep sein!
+
+## Module Generator
+
+siehe stack beispiel, WIP
 
 
 ## Notes

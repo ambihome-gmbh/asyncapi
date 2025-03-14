@@ -1,5 +1,5 @@
 defmodule StackService do
-  use MqttAsyncapi, schema: :stack_service
+  use MqttAsyncapi, schema: StackServiceSchema
 
   alias Asyncapi.Message
 
@@ -34,7 +34,7 @@ defmodule StackService do
     {:reply, [response], %{state | stack: new_stack}}
   end
 
-  
+
   def handle_info(unexpected, state) do
     dbg({:unexpected, unexpected})
     {:noreply, state}
