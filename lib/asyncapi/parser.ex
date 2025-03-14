@@ -241,7 +241,7 @@ defmodule Asyncapi.Parser do
     }
   end
 
-  defp maybe_resolve_kv([literal: literal]), do: {:literal, literal}
+  defp maybe_resolve_kv(literal: literal), do: {:literal, literal}
 
   defp maybe_resolve_kv(kv_pair_list) do
     Enum.reduce(
