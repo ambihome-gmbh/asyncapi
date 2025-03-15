@@ -1,5 +1,5 @@
 defmodule Datapoints do
-  use MqttAsyncapi, schema: :datapoints_service
+  use MqttAsyncapi, schema_module: DatapointsSchema
 
   alias Asyncapi.Message
 

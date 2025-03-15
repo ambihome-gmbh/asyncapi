@@ -1,23 +1,30 @@
 # Timer
 
-**TODO: Add description**
+TODO
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `timer` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:timer, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/timer>.
-
-
-TIM/([^{/]*)
+Compiling 5 files (.ex)
+generating module Elixir.DatapointsSchema.MessagePayload.DpWrite
+generating module Elixir.TimerSchema.MessagePayload.Activate
+generating module Elixir.TestUserSchema.MessagePayload.Activate
+generating module Elixir.TimerSchema.MessagePayload.Create
+generating module Elixir.TestUserSchema.MessagePayload.Create
+generating module Elixir.TimerSchema.MessagePayload.Deactivate
+generating module Elixir.TestUserSchema.MessagePayload.Deactivate
+generating module Elixir.TestUserSchema.MessagePayload.Delete
+generating module Elixir.TimerSchema.MessagePayload.Delete
+generating module Elixir.TestUserSchema.MessagePayload.InfoDeleted
+generating module Elixir.TimerSchema.MessagePayload.DpWrite
+generating module Elixir.TestUserSchema.MessagePayload.DpWrite
+generating module Elixir.TimerSchema.MessagePayload.Error
+generating module Elixir.TestUserSchema.MessagePayload.DpWrite
+generating module Elixir.TimerSchema.MessagePayload.GetAllStates
+generating module Elixir.TestUserSchema.MessagePayload.Error
+generating module Elixir.TimerSchema.MessagePayload.GetState
+generating module Elixir.TestUserSchema.MessagePayload.GetAllStates
+generating module Elixir.TimerSchema.MessagePayload.InfoState
+generating module Elixir.TestUserSchema.MessagePayload.GetState
+generating module Elixir.TimerSchema.MessagePayload.Update
+generating module Elixir.TestUserSchema.MessagePayload.InfoState
+generating module Elixir.TestUserSchema.MessagePayload.Update
+warning: redefining module TestUserSchema.MessagePayload.DpWrite (current version loaded from _build/test/lib/timer/ebin/Elixir.TestUserSchema.MessagePayload.DpWrite.beam)
+└─ test/support/test_user_schema.ex: TestUserSchema.MessagePayload.DpWrite (module)

@@ -1,10 +1,11 @@
-defmodule CoboServices.Scenes do
-  use MqttAsyncapi, schema: :scenes_service
+defmodule ScenesService do
+  use MqttAsyncapi, schema_module: ScenesSchema
 
   import Enum
 
   alias Asyncapi.Message
-  alias ScenesApi.Payload
+  import Asyncapi.Helpers
+  alias ScenesSchema.MessagePayload, as: P
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -131,7 +132,7 @@ defmodule CoboServices.Scenes do
   defp error_message(_peer_message, _error) do
     %Message{
       op_id: "error",
-      payload: %Payload.Error{}
+      payload: %P.Error{}
     }
   end
 
@@ -149,7 +150,7 @@ defmodule CoboServices.Scenes do
     for {member, value} <- snapshot do
       %Message{
         op_id: "dp_write_req",
-        payload: %Payload.DpWrite{id: member, value: value}
+        payload: %P.DpWrite{id: member, value: value}
       }
     end
   end
@@ -166,7 +167,6 @@ defmodule CoboServices.Scenes do
 
   defp learn(state, scene, snap_type) do
     snapshot = Datapoints.get_all_values(scene.member_channels)
-    # dbg(snapshot)
     put_in(state, [:snaps, snap_type, scene.id], snapshot)
   end
 
@@ -184,14 +184,7 @@ defmodule CoboServices.Scenes do
 
   # --
 
-  # --> helpers module
-
   defp validate_ok(true, _), do: :ok
   defp validate_ok(false, error), do: {:error, error}
 
-  defp reply(%Message{} = response, state), do: {:reply, [response], state}
-  defp reply([%Message{} | _] = responses, state), do: {:reply, responses, state}
-  defp reply([], state), do: {:noreply, state}
-  defp reply(unexpected, _), do: raise("expected message(s), got #{inspect(unexpected)}")
-  defp noreply(state), do: {:noreply, state}
 end

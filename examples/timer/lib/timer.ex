@@ -1,9 +1,9 @@
-defmodule Timer do
-  use MqttAsyncapi, schema: :tim_service
+defmodule TimerService do
+  use MqttAsyncapi, schema_module: TimerSchema
 
   alias Asyncapi.Message
   import Asyncapi.Helpers
-  alias TimerApi.Payload
+  alias TimerSchema.MessagePayload, as: P
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -55,7 +55,7 @@ defmodule Timer do
       {:ok, timer} ->
         response = %Message{
           op_id: "dp_write_req",
-          payload: %Payload.DpWrite{id: timer.channel, value: timer.value}
+          payload: %P.DpWrite{id: timer.channel, value: timer.value}
         }
 
         maybe_create_cron(state, timer)
