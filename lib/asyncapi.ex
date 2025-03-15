@@ -93,7 +93,7 @@ defmodule Asyncapi do
     # NOTE: asyncapi allows multiple message, but we support only exactly one
     [{_, message}] = to_list(channel["messages"])
 
-    module_name_parts = [schema_module, Recase.to_pascal(message["name"])]
+    module_name_parts = [schema_module, "MessagePayload", Recase.to_pascal(message["name"])]
 
     payload_schema = message |> resolve_schema(schema) |> Map.get("payload")
 

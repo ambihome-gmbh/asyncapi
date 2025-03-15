@@ -13,14 +13,14 @@ defmodule MqttAsyncapi do
               {:noreply, state :: term} | {:reply, [reply_message :: Message.t()], state :: term}
 
   @broker Application.compile_env(:asyncapi, :broker)
-  # @schemas Application.compile_env(:asyncapi, :schemas)
 
   defmacro __using__(opts) do
     quote do
       @behaviour MqttAsyncapi
       require Logger
 
-      def get_schema_module(), do: unquote(Keyword.get(opts, :schema_module))
+      # TODO give a clear warning here if schema_module is not set
+      def get_schema_module(), do: unquote(Keyword.fetch!(opts, :schema_module))
 
       def child_spec(opts) do
         %{id: __MODULE__, start: {__MODULE__, :start_link, [opts]}}

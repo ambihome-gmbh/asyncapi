@@ -2,7 +2,7 @@ defmodule MultiStackService do
   use MqttAsyncapi, schema_module: MultiStackSchema
 
   alias Asyncapi.Message
-  # alias MultiStackSchema.Payload, as: P
+  alias MultiStackSchema.MessagePayload, as: P
   import Asyncapi.Helpers
 
   def start_link(opts \\ []) do
@@ -22,7 +22,7 @@ defmodule MultiStackService do
 
     response = %Message{
       op_id: "create_response",
-      payload: %MultiStackSchema.CreateResponse{name: name, id: stack_id}
+      payload: %P.CreateResponse{name: name, id: stack_id}
     }
 
     reply(
@@ -34,7 +34,7 @@ defmodule MultiStackService do
   @impl true
   def handle_message(%Message{op_id: "push"} = message, state) do
     %{
-      payload: %MultiStackSchema.Push{value: value},
+      payload: %P.Push{value: value},
       params: %{stack_id: stack_id}
     } = message
 
@@ -54,7 +54,7 @@ defmodule MultiStackService do
 
     response = %Message{
       op_id: "pop_response",
-      payload: %MultiStackSchema.PopResponse{value: value},
+      payload: %P.PopResponse{value: value},
       params: %{stack_id: stack_id}
     }
 

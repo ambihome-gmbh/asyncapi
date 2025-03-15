@@ -1,21 +1,5 @@
 {
   "asyncapi": "3.0.0",
-  "x-testcases": [
-    {
-      "name": "bake a cake",
-      "sequence": [
-        "user->service: start_baking",
-        "service->internal: schedule_timeout",
-        "service->internal: schedule_cron",
-        "internal->service: peek",
-        "service->user: baking_not_done",
-        "internal->service: peek",
-        "service->user: baking_not_done",
-        "internal->service: timeout",
-        "service->user: baking_done"
-      ]
-    }
-  ],
   "channels": {
     "start_baking": {
       "address": "start_baking",

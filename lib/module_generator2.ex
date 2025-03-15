@@ -39,7 +39,29 @@ defmodule Asyncapi.Schema do
       end)
 
     quote do
-      # TODO mix-recompile
+      @schema_file_glob unquote(schema_path)
+                        |> Path.dirname()
+                        |> Path.join("../**")
+
+      @schem_hash @schema_file_glob
+                  |> Path.wildcard()
+                  |> Enum.map(&File.stat!(&1))
+                  |> inspect()
+                  |> :erlang.md5()
+
+      def __mix_recompile__?() do
+        new_hash =
+          @schema_file_glob
+          |> Path.wildcard()
+          |> Enum.map(&File.stat!(&1))
+          |> inspect()
+          |> :erlang.md5()
+
+        # TODO bundle
+
+        new_hash != @schem_hash
+      end
+
       unquote(modules)
 
       def get_asyncapi() do

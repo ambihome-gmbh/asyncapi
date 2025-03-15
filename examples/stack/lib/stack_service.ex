@@ -3,6 +3,7 @@ defmodule StackService do
 
   alias Asyncapi.Message
   import Asyncapi.Helpers
+  alias StackSchema.MessagePayload, as: P
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -29,7 +30,7 @@ defmodule StackService do
 
     response = %Message{
       op_id: "pop_response",
-      payload: %StackSchema.PopResponse{value: value}
+      payload: %P.PopResponse{value: value}
     }
 
     reply(response, %{state | stack: new_stack})

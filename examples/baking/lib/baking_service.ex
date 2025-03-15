@@ -1,8 +1,9 @@
 defmodule BakingService do
-  use MqttAsyncapi, schema: :service
+  use MqttAsyncapi, schema_module: BakingSchema
 
   alias Asyncapi.Message
   import Asyncapi.Helpers
+  # alias BakingSchema.MessagePayload, as: P
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -35,3 +36,15 @@ defmodule BakingService do
     reply(%Message{op_id: "baking_not_done"}, state)
   end
 end
+
+{:error,
+ {{:undef,
+   [
+     {nil, :get_asyncapi, [], []},
+     {MqttAsyncapi, :init, 1, [file: ~c"lib/mqtt_asyncapi.ex", line: 75]},
+     {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2229]},
+     {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2184]},
+     {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 329]}
+   ]},
+  {:child, :undefined, BakingService, {BakingService, :start_link, [[]]}, :permanent, false, 5000,
+   :worker, [BakingService]}}}

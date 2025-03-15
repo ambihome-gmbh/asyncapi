@@ -1,6 +1,9 @@
 cd priv/schema
-asyncapi bundle user.json common.json -o bundled/user.json  
-asyncapi bundle service.json common.json -o bundled/service.json
+asyncapi bundle user.yaml common.yaml testcases.json -o bundled/user.json  
+asyncapi bundle service.yaml common.yaml -o bundled/service.json
 
 asyncapi validate bundled/user.json
 asyncapi validate bundled/service.json
+
+asyncapi pretty bundled/user.json
+asyncapi pretty bundled/service.jsonvalidate

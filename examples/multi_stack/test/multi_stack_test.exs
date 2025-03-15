@@ -2,7 +2,7 @@ defmodule MultiStackTest do
   use ExUnit.Case
   require Asyncapi.TestHelper
 
-  alias MultiStackSchema
+  alias MultiStackSchema.MessagePayload, as: P
 
   @broker Application.compile_env(:asyncapi, :broker)
 
@@ -14,6 +14,6 @@ defmodule MultiStackTest do
   Asyncapi.TestHelper.generate_tests(MultiStackService, TestUserSchema, @broker)
 
   test "payload modules are generated" do
-    assert %MultiStackSchema.PopResponse{value: 42} == %MultiStackSchema.PopResponse{value: 42}
+    assert %P.PopResponse{value: 42} == %P.PopResponse{value: 42}
   end
 end
