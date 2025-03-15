@@ -1,0 +1,777 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "description": "Dataponts API description",
+    "title": "Timer API",
+    "version": "0.0.1"
+  },
+  "x-testcases": [
+    {
+      "name": "wip",
+      "sequence": [
+        "user->>service: create/{type: 'absolute_time', time: '00:00:00Z', channel: 'ch1', value: '1', weekdays: [0], active: true}",
+        "service->>internal: delete_cron",
+        "service->internal: get_day_of_year",
+        "internal->service: ok/1",
+        "service->>internal: create_cron/{crontab: '0 0 * * 0'}",
+        "service->>user: state/{id: id}",
+        "internal->>service: timeout/{id: $id}",
+        "service->internal: get_day_of_year",
+        "internal->service: ok/2",
+        "service->>user: dp_write_req/{id: 'ch1', value: '1'}",
+        "service->>internal: create_cron/{id: $id, crontab: '0 0 * * 0'}",
+        "user->>service: delete[timer_id: $id]",
+        "service->>internal: delete_cron",
+        "service->>user: state/{id: $id, deleted: true}",
+        "user->>service: deactivate[timer_id: $id]",
+        "service->>user: error/{message: 'attempt_to_access_deleted_timer'}"
+      ]
+    }
+  ],
+  "defaultContentType": "application/json",
+  "servers": {
+    "production": {
+      "host": "localhost:{port}",
+      "protocol": "mqtt",
+      "description": "Test broker",
+      "variables": {
+        "port": {
+          "description": "TODO",
+          "default": "1883",
+          "enum": [
+            "1883"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {
+    "error": {
+      "address": "API/ERROR",
+      "messages": {
+        "publish.message": {
+          "name": "error",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "message": {
+                "type": "string",
+                "description": "A human-readable description of the error."
+              }
+            }
+          }
+        }
+      }
+    },
+    "create": {
+      "address": "TIM/CMD_CREATE",
+      "messages": {
+        "publish.message": {
+          "name": "create",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "ID of the timer",
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "description": "Type of the timer.",
+                "type": "string",
+                "default": "absolute_time",
+                "enum": [
+                  "absolute_time",
+                  "sun"
+                ]
+              },
+              "sun_event": {
+                "description": "Sun event that should be used as time.\nOnly when type is `sun`.\n",
+                "type": "string",
+                "default": "not_applicable",
+                "enum": [
+                  "not_applicable",
+                  "morning_astronomical_twilight",
+                  "morning_nautical_twilight",
+                  "morning_civil_twilight",
+                  "sunrise",
+                  "midday",
+                  "sunset",
+                  "evening_civil_twilight",
+                  "evening_nautical_twilight",
+                  "evening_astronomical_twilight"
+                ]
+              },
+              "time": {
+                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo type)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
+                "type": "string"
+              },
+              "channel": {
+                "description": "ID of the channel that should be affected by the timer.\n",
+                "type": "string"
+              },
+              "value": {
+                "description": "When the timer fires, this value is sent to channel \n",
+                "type": "string"
+              },
+              "absolute_offset": {
+                "description": "Offset in minutes that is added to the time.",
+                "default": 0,
+                "type": "number"
+              },
+              "random_offset": {
+                "description": "Random offset in minutes that is added to the time.",
+                "default": 0,
+                "type": "number"
+              },
+              "random_type": {
+                "description": "Type of random offset.\nnormal: normal distribution\nuniform: uniform distribution\ntestmode_add/sub: only for testing\n",
+                "type": "string",
+                "default": "not_applicable",
+                "enum": [
+                  "not_applicable",
+                  "normal",
+                  "uniform",
+                  "testmode_add",
+                  "testmode_sub"
+                ]
+              },
+              "weekdays": {
+                "description": "Weekdays on which the timer should be executed if active.",
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "description": "Monday=0 .. Sunday=6.",
+                  "minimum": 0,
+                  "maximum": 6
+                }
+              },
+              "active": {
+                "description": "Active state of the timer.",
+                "default": true,
+                "type": "boolean"
+              },
+              "deleted": {
+                "description": "Deleted state of the timer.",
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "type",
+              "weekdays",
+              "channel",
+              "value",
+              "time",
+              "active"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "The service creates a new timer.\nPublishes `info_state`\n"
+    },
+    "update": {
+      "address": "TIM/CMD_UPDATE/{timer_id}",
+      "messages": {
+        "publish.message": {
+          "name": "update",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "ID of the timer",
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "description": "Type of the timer.",
+                "type": "string",
+                "default": "absolute_time",
+                "enum": [
+                  "absolute_time",
+                  "sun"
+                ]
+              },
+              "sun_event": {
+                "description": "Sun event that should be used as time.\nOnly when type is `sun`.\n",
+                "type": "string",
+                "default": "not_applicable",
+                "enum": [
+                  "not_applicable",
+                  "morning_astronomical_twilight",
+                  "morning_nautical_twilight",
+                  "morning_civil_twilight",
+                  "sunrise",
+                  "midday",
+                  "sunset",
+                  "evening_civil_twilight",
+                  "evening_nautical_twilight",
+                  "evening_astronomical_twilight"
+                ]
+              },
+              "time": {
+                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo type)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
+                "type": "string"
+              },
+              "channel": {
+                "description": "ID of the channel that should be affected by the timer.\n",
+                "type": "string"
+              },
+              "value": {
+                "description": "When the timer fires, this value is sent to channel \n",
+                "type": "string"
+              },
+              "absolute_offset": {
+                "description": "Offset in minutes that is added to the time.",
+                "default": 0,
+                "type": "number"
+              },
+              "random_offset": {
+                "description": "Random offset in minutes that is added to the time.",
+                "default": 0,
+                "type": "number"
+              },
+              "random_type": {
+                "description": "Type of random offset.\nnormal: normal distribution\nuniform: uniform distribution\ntestmode_add/sub: only for testing\n",
+                "type": "string",
+                "default": "not_applicable",
+                "enum": [
+                  "not_applicable",
+                  "normal",
+                  "uniform",
+                  "testmode_add",
+                  "testmode_sub"
+                ]
+              },
+              "weekdays": {
+                "description": "Weekdays on which the timer should be executed if active.",
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "description": "Monday=0 .. Sunday=6.",
+                  "minimum": 0,
+                  "maximum": 6
+                }
+              },
+              "active": {
+                "description": "Active state of the timer.",
+                "default": true,
+                "type": "boolean"
+              },
+              "deleted": {
+                "description": "Deleted state of the timer.",
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "type",
+              "weekdays",
+              "channel",
+              "value",
+              "time",
+              "active"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Update timer.\nThe service updates the timer with ID `timer_id`.\nPublishes `info_state:\n",
+      "parameters": {
+        "timer_id": {
+          "description": "ID of a timer."
+        }
+      }
+    },
+    "activate": {
+      "address": "TIM/CMD_ACTIVATE/{timer_id}",
+      "messages": {
+        "publish.message": {
+          "name": "activate",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Activates the timer with ID `timer_id`.\nPublishes `info_state:\n",
+      "parameters": {
+        "timer_id": {
+          "description": "ID of a timer."
+        }
+      }
+    },
+    "deactivate": {
+      "address": "TIM/CMD_DEACTIVATE/{timer_id}",
+      "messages": {
+        "publish.message": {
+          "name": "deactivate",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Deactivates the timer with ID `timer_id`.\nPublishes `info_state:\n",
+      "parameters": {
+        "timer_id": {
+          "description": "ID of a timer."
+        }
+      }
+    },
+    "delete": {
+      "address": "TIM/CMD_DELETE/{timer_id}",
+      "messages": {
+        "publish.message": {
+          "name": "delete",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Delete timer with ID `timer_id`.\nPublishes `TIME/INFO_DELETED/{timer_id}`.\n",
+      "parameters": {
+        "timer_id": {
+          "description": "ID of a timer."
+        }
+      }
+    },
+    "get_all_states": {
+      "address": "TIM/CMD_GET_ALL_STATES",
+      "messages": {
+        "publish.message": {
+          "name": "get_all_states",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Publishes `info_state:\n"
+    },
+    "get_state": {
+      "address": "TIM/CMD_GET_STATE/{timer_id}",
+      "messages": {
+        "publish.message": {
+          "name": "get_state",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Publishes `info_state:\n",
+      "parameters": {
+        "timer_id": {
+          "description": "ID of a timer."
+        }
+      }
+    },
+    "info_state": {
+      "address": "TIM/INFO_STATE/{timer_id}",
+      "messages": {
+        "subscribe.message": {
+          "name": "INFO_STATE",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "ID of the timer",
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "type": {
+                "description": "Type of the timer.",
+                "type": "string",
+                "default": "absolute_time",
+                "enum": [
+                  "absolute_time",
+                  "sun"
+                ]
+              },
+              "sun_event": {
+                "description": "Sun event that should be used as time.\nOnly when type is `sun`.\n",
+                "type": "string",
+                "default": "not_applicable",
+                "enum": [
+                  "not_applicable",
+                  "morning_astronomical_twilight",
+                  "morning_nautical_twilight",
+                  "morning_civil_twilight",
+                  "sunrise",
+                  "midday",
+                  "sunset",
+                  "evening_civil_twilight",
+                  "evening_nautical_twilight",
+                  "evening_astronomical_twilight"
+                ]
+              },
+              "time": {
+                "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo type)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
+                "type": "string"
+              },
+              "channel": {
+                "description": "ID of the channel that should be affected by the timer.\n",
+                "type": "string"
+              },
+              "value": {
+                "description": "When the timer fires, this value is sent to channel \n",
+                "type": "string"
+              },
+              "absolute_offset": {
+                "description": "Offset in minutes that is added to the time.",
+                "default": 0,
+                "type": "number"
+              },
+              "random_offset": {
+                "description": "Random offset in minutes that is added to the time.",
+                "default": 0,
+                "type": "number"
+              },
+              "random_type": {
+                "description": "Type of random offset.\nnormal: normal distribution\nuniform: uniform distribution\ntestmode_add/sub: only for testing\n",
+                "type": "string",
+                "default": "not_applicable",
+                "enum": [
+                  "not_applicable",
+                  "normal",
+                  "uniform",
+                  "testmode_add",
+                  "testmode_sub"
+                ]
+              },
+              "weekdays": {
+                "description": "Weekdays on which the timer should be executed if active.",
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "description": "Monday=0 .. Sunday=6.",
+                  "minimum": 0,
+                  "maximum": 6
+                }
+              },
+              "active": {
+                "description": "Active state of the timer.",
+                "default": true,
+                "type": "boolean"
+              },
+              "deleted": {
+                "description": "Deleted state of the timer.",
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "type",
+              "weekdays",
+              "channel",
+              "value",
+              "time",
+              "active"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "State of the timer with ID `timer_id`.\n",
+      "parameters": {
+        "timer_id": {
+          "description": "ID of a timer."
+        }
+      }
+    },
+    "info_deleted": {
+      "address": "TIM/INFO_DELETED/{timer_id}",
+      "messages": {
+        "subscribe.message": {
+          "name": "INFO_DELETED",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "The timer with ID `timer_id` was deleted.\n"
+    },
+    "dp_write_req": {
+      "address": "DP/WRITE_REQ",
+      "messages": {
+        "dp_write": {
+          "name": "dp_write",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "DP ID",
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ]
+          }
+        }
+      },
+      "description": "testing dummy temp"
+    },
+    "dp_write_ind": {
+      "address": "DP/WRITE_IND",
+      "messages": {
+        "dp_write": {
+          "name": "dp_write",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "DP ID",
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ]
+          }
+        }
+      },
+      "description": "testing dummy temp"
+    }
+  },
+  "operations": {
+    "create": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/create"
+      }
+    },
+    "update": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/update"
+      }
+    },
+    "activate": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/activate"
+      }
+    },
+    "deactivate": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/deactivate"
+      }
+    },
+    "delete": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/delete"
+      }
+    },
+    "get_all_states": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/get_all_states"
+      }
+    },
+    "get_state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/get_state"
+      }
+    },
+    "state": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/info_state"
+      }
+    },
+    "deleted": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/info_deleted"
+      }
+    },
+    "dp_write_ind": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/dp_write_ind"
+      }
+    },
+    "dp_write_req": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/dp_write_req"
+      }
+    },
+    "error": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/error"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "empty_payload": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "error_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A human-readable description of the error."
+          }
+        }
+      },
+      "tim_config_payload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID of the timer",
+            "default": null,
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "description": "Type of the timer.",
+            "type": "string",
+            "default": "absolute_time",
+            "enum": [
+              "absolute_time",
+              "sun"
+            ]
+          },
+          "sun_event": {
+            "description": "Sun event that should be used as time.\nOnly when type is `sun`.\n",
+            "type": "string",
+            "default": "not_applicable",
+            "enum": [
+              "not_applicable",
+              "morning_astronomical_twilight",
+              "morning_nautical_twilight",
+              "morning_civil_twilight",
+              "sunrise",
+              "midday",
+              "sunset",
+              "evening_civil_twilight",
+              "evening_nautical_twilight",
+              "evening_astronomical_twilight"
+            ]
+          },
+          "time": {
+            "description": "Point in time when the timer should be executed if active.\nISO_8601. (todo type)\nOnly when `type` is `absolute_time`.\n`not_applicable` otherwise.\n",
+            "type": "string"
+          },
+          "channel": {
+            "description": "ID of the channel that should be affected by the timer.\n",
+            "type": "string"
+          },
+          "value": {
+            "description": "When the timer fires, this value is sent to channel \n",
+            "type": "string"
+          },
+          "absolute_offset": {
+            "description": "Offset in minutes that is added to the time.",
+            "default": 0,
+            "type": "number"
+          },
+          "random_offset": {
+            "description": "Random offset in minutes that is added to the time.",
+            "default": 0,
+            "type": "number"
+          },
+          "random_type": {
+            "description": "Type of random offset.\nnormal: normal distribution\nuniform: uniform distribution\ntestmode_add/sub: only for testing\n",
+            "type": "string",
+            "default": "not_applicable",
+            "enum": [
+              "not_applicable",
+              "normal",
+              "uniform",
+              "testmode_add",
+              "testmode_sub"
+            ]
+          },
+          "weekdays": {
+            "description": "Weekdays on which the timer should be executed if active.",
+            "type": "array",
+            "items": {
+              "type": "number",
+              "description": "Monday=0 .. Sunday=6.",
+              "minimum": 0,
+              "maximum": 6
+            }
+          },
+          "active": {
+            "description": "Active state of the timer.",
+            "default": true,
+            "type": "boolean"
+          },
+          "deleted": {
+            "description": "Deleted state of the timer.",
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "type",
+          "weekdays",
+          "channel",
+          "value",
+          "time",
+          "active"
+        ],
+        "additionalProperties": false
+      },
+      "dp_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "DP ID",
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "value"
+        ]
+      }
+    },
+    "parameters": {
+      "timer_id": {
+        "description": "ID of a timer."
+      }
+    }
+  }
+}

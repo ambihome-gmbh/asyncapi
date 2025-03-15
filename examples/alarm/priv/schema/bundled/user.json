@@ -1,0 +1,646 @@
+{
+  "asyncapi": "3.0.0",
+  "x-testcases": [
+    {
+      "name": "wip",
+      "sequence": [
+        "KNX->>service: dp_write_ind/{id: 'ch1', value: '0'}",
+        "KNX->>service: dp_write_ind/{id: 'ch2', value: '0'}",
+        "user->>service: alm_get_state[alarm_type: 'alarm_incursion']",
+        "service->>user: alm_state/{ready_state: ['MONITORED_EMPTY'], alarm_sources: ['ch1', 'ch2']}",
+        "user->>service: alm_set_config[alarm_type: 'alarm_incursion']/{mails: ['m'], monitored: ['ch1', 'ch2']}",
+        "service->>user: alm_state/{ready_state: []}",
+        "user->>service: alm_arm[alarm_type: 'alarm_incursion']",
+        "service->>internal: schedule_timeout",
+        "service->>user: alm_state/{sm_state: 'state_wait_arm', alarm_condition: false}",
+        "internal->>service: timeout",
+        "service->>user: alm_state/{sm_state: 'state_armed', alarm_condition: false}",
+        "KNX->>service: dp_write_ind/{id: 'ch1', value: '1'}",
+        "service->>internal: schedule_timeout",
+        "service->>user: alm_state/{sm_state: 'state_wait_alarm', alarm_condition: true}",
+        "internal->>service: timeout",
+        "service->>user: alm_state/{sm_state: 'state_alarm', alarm_condition: true}"
+      ]
+    }
+  ],
+  "info": {
+    "description": "Dataponts API description",
+    "title": "Alarm API",
+    "version": "0.0.1"
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "production": {
+      "host": "localhost:{port}",
+      "protocol": "mqtt",
+      "description": "Test broker",
+      "variables": {
+        "port": {
+          "description": "TODO",
+          "default": "1883",
+          "enum": [
+            "1883"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {
+    "arm": {
+      "address": "ALM/{alarm_type}/arm",
+      "messages": {
+        "message": {
+          "name": "arm",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Arm alarm service.\nOnly handled if service is in `state-disarmed`.\nChecks if the alarm-service is ready (config OK).\nIf ready tran to `state-wait` and wait `config.timeout`, then tran to `state-active`.\nPublishes `ALM/{alarm_type}/state`.\n",
+      "parameters": {
+        "alarm_type": {
+          "description": "type of an alarm",
+          "enum": [
+            "alarm_incursion"
+          ]
+        }
+      }
+    },
+    "disarm": {
+      "address": "ALM/{alarm_type}/disarm",
+      "messages": {
+        "message": {
+          "name": "disarm",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Disarm alarm service.\nFrom any state: tran to `state-disarmed`.\n",
+      "parameters": {
+        "alarm_type": {
+          "description": "type of an alarm",
+          "enum": [
+            "alarm_incursion"
+          ]
+        }
+      }
+    },
+    "get_state": {
+      "address": "ALM/{alarm_type}/get_state",
+      "messages": {
+        "message": {
+          "name": "get_state",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Publishes `ALM/{alarm_type}/state`.\n",
+      "parameters": {
+        "alarm_type": {
+          "description": "type of an alarm",
+          "enum": [
+            "alarm_incursion"
+          ]
+        }
+      }
+    },
+    "set_config": {
+      "address": "ALM/{alarm_type}/set_config",
+      "messages": {
+        "message": {
+          "name": "set_config",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mails": {
+                "description": "list of valid mail addresses",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "timeout": {
+                "description": "time from activate command until arming",
+                "type": "integer",
+                "default": 30,
+                "minimum": 4,
+                "maximum": 361
+              },
+              "monitored": {
+                "description": "list of monitored group addresses",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "actions": {
+                "description": "list of action that should be executed on alarm",
+                "type": "array",
+                "default": [
+                  "SEND_MAILS"
+                ],
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "SEND_MAILS",
+                    "CALL_SCENE"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "mails",
+              "monitored"
+            ],
+            "examples": [
+              {
+                "mails": [
+                  "fey@ambihome.com"
+                ],
+                "timeout": 10,
+                "monitored": [
+                  "channel_1",
+                  "channel_2"
+                ],
+                "actions": [
+                  "SEND_MAILS",
+                  "CALL_SCENE"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "description": "Only allowed and handled in `state-disarmed`.\nSet service config.\n",
+      "parameters": {
+        "alarm_type": {
+          "description": "type of an alarm",
+          "enum": [
+            "alarm_incursion"
+          ]
+        }
+      }
+    },
+    "state": {
+      "address": "ALM/{alarm_type}/state",
+      "messages": {
+        "message": {
+          "name": "state",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sm_state": {
+                "description": "state of the alarm state machine",
+                "type": "string",
+                "default": "state_disarmed",
+                "enum": [
+                  "state_disarmed",
+                  "state_wait_arm",
+                  "state_armed",
+                  "state_wait_alarm",
+                  "state_alarm"
+                ]
+              },
+              "perpetrators": {
+                "description": "list of channels that would trigger an alarm right now (e.g. window open)",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ready_state": {
+                "description": "a list of errors or empty list if ready",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "NO_ACTION",
+                    "MONITORED_EMPTY",
+                    "ALARM_CONDITION",
+                    "UNINITIALIZED"
+                  ]
+                }
+              },
+              "alarm_type": {
+                "description": "type of an alarm",
+                "enum": [
+                  "alarm_incursion"
+                ]
+              },
+              "alarm_sources": {
+                "description": "list of channels that can be monitored",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "alarm_condition": {
+                "type": "boolean"
+              },
+              "config": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "mails": {
+                    "description": "list of valid mail addresses",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "timeout": {
+                    "description": "time from activate command until arming",
+                    "type": "integer",
+                    "default": 30,
+                    "minimum": 4,
+                    "maximum": 361
+                  },
+                  "monitored": {
+                    "description": "list of monitored group addresses",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "actions": {
+                    "description": "list of action that should be executed on alarm",
+                    "type": "array",
+                    "default": [
+                      "SEND_MAILS"
+                    ],
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SEND_MAILS",
+                        "CALL_SCENE"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "mails",
+                  "monitored"
+                ],
+                "examples": [
+                  {
+                    "mails": [
+                      "fey@ambihome.com"
+                    ],
+                    "timeout": 10,
+                    "monitored": [
+                      "channel_1",
+                      "channel_2"
+                    ],
+                    "actions": [
+                      "SEND_MAILS",
+                      "CALL_SCENE"
+                    ]
+                  }
+                ]
+              }
+            },
+            "required": [
+              "sm_state",
+              "perpetrators",
+              "ready_state",
+              "config",
+              "alarm_sources",
+              "alarm_type",
+              "alarm_condition"
+            ]
+          }
+        }
+      },
+      "description": "The current state and configuration of the alarm service.\nPublished on any state-transition and after `ALM/{alarm_type}/get_state` received.\n",
+      "parameters": {
+        "alarm_type": {
+          "description": "type of an alarm",
+          "enum": [
+            "alarm_incursion"
+          ]
+        }
+      }
+    },
+    "dp_write_req": {
+      "address": "DP/WRITE_REQ",
+      "messages": {
+        "dp_write": {
+          "name": "dp_write",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "DP ID",
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ]
+          }
+        }
+      },
+      "description": "testing dummy temp"
+    },
+    "dp_write_ind": {
+      "address": "DP/WRITE_IND",
+      "messages": {
+        "dp_write": {
+          "name": "dp_write",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "description": "DP ID",
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "value"
+            ]
+          }
+        }
+      },
+      "description": "testing dummy temp"
+    }
+  },
+  "operations": {
+    "alm_arm": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/arm"
+      }
+    },
+    "alm_disarm": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/disarm"
+      }
+    },
+    "alm_get_state": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/get_state"
+      }
+    },
+    "alm_set_config": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/set_config"
+      }
+    },
+    "alm_state": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/state"
+      }
+    },
+    "dp_write_ind": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/dp_write_ind"
+      }
+    },
+    "dp_write_req": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/dp_write_req"
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "alarm_type": {
+        "description": "type of an alarm",
+        "enum": [
+          "alarm_incursion"
+        ]
+      }
+    },
+    "schemas": {
+      "empty_payload": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "alm_set_config_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "mails": {
+            "description": "list of valid mail addresses",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timeout": {
+            "description": "time from activate command until arming",
+            "type": "integer",
+            "default": 30,
+            "minimum": 4,
+            "maximum": 361
+          },
+          "monitored": {
+            "description": "list of monitored group addresses",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "actions": {
+            "description": "list of action that should be executed on alarm",
+            "type": "array",
+            "default": [
+              "SEND_MAILS"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "SEND_MAILS",
+                "CALL_SCENE"
+              ]
+            }
+          }
+        },
+        "required": [
+          "mails",
+          "monitored"
+        ],
+        "examples": [
+          {
+            "mails": [
+              "fey@ambihome.com"
+            ],
+            "timeout": 10,
+            "monitored": [
+              "channel_1",
+              "channel_2"
+            ],
+            "actions": [
+              "SEND_MAILS",
+              "CALL_SCENE"
+            ]
+          }
+        ]
+      },
+      "alm_info_state_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sm_state": {
+            "description": "state of the alarm state machine",
+            "type": "string",
+            "default": "state_disarmed",
+            "enum": [
+              "state_disarmed",
+              "state_wait_arm",
+              "state_armed",
+              "state_wait_alarm",
+              "state_alarm"
+            ]
+          },
+          "perpetrators": {
+            "description": "list of channels that would trigger an alarm right now (e.g. window open)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ready_state": {
+            "description": "a list of errors or empty list if ready",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NO_ACTION",
+                "MONITORED_EMPTY",
+                "ALARM_CONDITION",
+                "UNINITIALIZED"
+              ]
+            }
+          },
+          "alarm_type": {
+            "description": "type of an alarm",
+            "enum": [
+              "alarm_incursion"
+            ]
+          },
+          "alarm_sources": {
+            "description": "list of channels that can be monitored",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "alarm_condition": {
+            "type": "boolean"
+          },
+          "config": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mails": {
+                "description": "list of valid mail addresses",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "timeout": {
+                "description": "time from activate command until arming",
+                "type": "integer",
+                "default": 30,
+                "minimum": 4,
+                "maximum": 361
+              },
+              "monitored": {
+                "description": "list of monitored group addresses",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "actions": {
+                "description": "list of action that should be executed on alarm",
+                "type": "array",
+                "default": [
+                  "SEND_MAILS"
+                ],
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "SEND_MAILS",
+                    "CALL_SCENE"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "mails",
+              "monitored"
+            ],
+            "examples": [
+              {
+                "mails": [
+                  "fey@ambihome.com"
+                ],
+                "timeout": 10,
+                "monitored": [
+                  "channel_1",
+                  "channel_2"
+                ],
+                "actions": [
+                  "SEND_MAILS",
+                  "CALL_SCENE"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "sm_state",
+          "perpetrators",
+          "ready_state",
+          "config",
+          "alarm_sources",
+          "alarm_type",
+          "alarm_condition"
+        ]
+      },
+      "dp_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "DP ID",
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "value"
+        ]
+      }
+    }
+  }
+}
