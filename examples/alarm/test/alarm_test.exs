@@ -13,5 +13,5 @@ defmodule AlarmTest do
     :ok
   end
 
-  Asyncapi.TestHelper.generate_tests(Alarm, "priv/schema/bundled/test_user.json", @broker)
+  Asyncapi.TestHelper.generate_tests(AlarmService, TestUserSchema, @broker)
 end

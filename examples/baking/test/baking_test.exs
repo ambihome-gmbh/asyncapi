@@ -11,9 +11,5 @@ defmodule StackTest do
     :ok
   end
 
-  Asyncapi.TestHelper.generate_tests(
-    BakingService,
-    "priv/schema/bundled/user_schema.json",
-    @broker
-  )
+  Asyncapi.TestHelper.generate_tests(BakingService, TestUserSchema, @broker)
 end

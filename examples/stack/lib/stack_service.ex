@@ -1,7 +1,9 @@
 defmodule StackService do
-  use MqttAsyncapi, schema: :stack_service
+  use MqttAsyncapi, schema_module: StackSchema
 
   alias Asyncapi.Message
+  import Asyncapi.Helpers
+  alias StackSchema.MessagePayload, as: P
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -15,7 +17,7 @@ defmodule StackService do
   @impl true
   def handle_message(%Message{op_id: "push"} = message, state) do
     %{payload: %{value: value}} = message
-    {:noreply, %{state | stack: [value | state.stack]}}
+    noreply(%{state | stack: [value | state.stack]})
   end
 
   @impl true
@@ -28,15 +30,14 @@ defmodule StackService do
 
     response = %Message{
       op_id: "pop_response",
-      payload: %{value: value}
+      payload: %P.PopResponse{value: value}
     }
 
-    {:reply, [response], %{state | stack: new_stack}}
+    reply(response, %{state | stack: new_stack})
   end
 
-  
   def handle_info(unexpected, state) do
     dbg({:unexpected, unexpected})
-    {:noreply, state}
+    noreply(state)
   end
 end

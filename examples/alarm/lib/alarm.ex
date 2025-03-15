@@ -1,9 +1,9 @@
-defmodule Alarm do
-  use MqttAsyncapi, schema: :alarm_service
+defmodule AlarmService do
+  use MqttAsyncapi, schema_module: AlarmSchema
 
   alias Asyncapi.Message
   import Asyncapi.Helpers
-  # alias AlarmApi.Payload
+  alias AlarmSchema.MessagePayload, as: P
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)

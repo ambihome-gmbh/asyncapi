@@ -2,8 +2,8 @@ defmodule Asyncapi.TestHelper do
   use ExUnit.Case
   import Enum
 
-  defmacro generate_tests(service, schema_path, broker) do
-    asyncapi = Asyncapi.load(schema_path)
+  defmacro generate_tests(service, schema_module, broker) do
+    asyncapi = Macro.expand(schema_module, __CALLER__).get_asyncapi()
     testcases = Map.fetch!(asyncapi.schema.schema, "x-testcases")
 
     quote unquote: false,
@@ -30,7 +30,7 @@ defmodule Asyncapi.TestHelper do
           sequence = unquote(Macro.escape(parsed_sequence))
 
           Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
-            Asyncapi.TestHelper.display_step(step)
+            # Asyncapi.TestHelper.display_step(step)
 
             # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
             payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
@@ -204,13 +204,8 @@ defmodule Asyncapi.TestHelper do
       def start_broker, do: start_supervised!(DummyBroker)
 
     Asyncapi.Broker.MQTT ->
-      def start_broker do
-        do_start_broker()
-        on_exit(&do_stop_broker/0)
-      end
-
-      defp do_start_broker(), do: {"nanomq\n", 0} = System.cmd("docker", ["start", "nanomq"])
-      defp do_stop_broker(), do: System.cmd("docker", ["stop", "nanomq"])
+      # NOTE: ensure broker is running!
+      def start_broker, do: nil
   end
 end
 

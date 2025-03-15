@@ -11,5 +11,5 @@ defmodule ScenesTest do
     :ok
   end
 
-  Asyncapi.TestHelper.generate_tests(CoboServices.Scenes, "priv/schema/bundled/test_user.json", @broker)
+  Asyncapi.TestHelper.generate_tests(ScenesService, TestUserSchema, @broker)
 end
