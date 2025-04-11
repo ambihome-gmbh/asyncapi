@@ -1,0 +1,97 @@
+asyncapi: 3.0.0
+
+info:
+  title: KIM API
+  version: 0.0.1
+  description: KIM API
+
+defaultContentType: application/json
+
+operations:
+  datapoint-request:
+    action: send
+    channel:
+      $ref: "#/channels/datapoint-request"
+    reply:
+      channel:
+        $ref: "#/channels/datapoint-response"
+
+  datapoint-response:
+    action: receive
+    channel:
+      $ref: "#/channels/datapoint-response"
+
+  datapoints-request:
+    action: send
+    channel:
+      $ref: "#/channels/datapoints-request"
+    reply:
+      channel:
+        $ref: "#/channels/datapoints-response"
+
+  datapoints-response:
+    action: receive
+    channel:
+      $ref: "#/channels/datapoints-response"
+
+  function-request:
+    action: send
+    channel:
+      $ref: "#/channels/function-request"
+    reply:
+      channel:
+        $ref: "#/channels/function-response"
+
+  function-response:
+    action: receive
+    channel:
+      $ref: "#/channels/function-response"
+
+  functions-request:
+    action: send
+    channel:
+      $ref: "#/channels/functions-request"
+    reply:
+      channel:
+        $ref: "#/channels/functions-response"
+
+  functions-response:
+    action: receive
+    channel:
+      $ref: "#/channels/functions-response"
+
+  location-request:
+    action: send
+    channel:
+      $ref: "#/channels/location-request"
+    reply:
+      channel:
+        $ref: "#/channels/location-response"
+
+  location-response:
+    action: receive
+    channel:
+      $ref: "#/channels/location-response"
+
+  locations-request:
+    action: send
+    channel:
+      $ref: "#/channels/locations-request"
+    reply:
+      channel:
+        $ref: "#/channels/locations-response"
+
+  locations-response:
+    action: receive
+    channel:
+      $ref: "#/channels/locations-response"
+
+  datapoint-write-indication:
+    action: receive
+    channel:
+      $ref: "#/channels/datapoint-write-indication"
+
+  datapoint-write-request:
+    action: send
+    channel:
+      $ref: "#/channels/datapoint-write-request"

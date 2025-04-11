@@ -1,0 +1,8 @@
+functions:
+  description: |
+    # Function Request Channel
+
+    This channel handles individual function requests.
+
+    - Expects a `filter` schema in payload
+    - Replies on `functions/resp/{instance_id}`

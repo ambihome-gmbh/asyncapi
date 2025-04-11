@@ -3,9 +3,9 @@
 Receive and send valid asyncapi messages over MQTT.
 
 
-## about
+## about asyncapi.com
 
-wie swagger/openapi aber async.
+like swagger/openapi but async.
 
 1. The service-user publishes a message to MQTT
     ```
@@ -78,16 +78,17 @@ docker stop nanomq
 
 ### Prio 1
 
-- nano-mq per system-call weg (brauchts nicht mehr mit dummy-broker)
+- [x] nano-mq per system-call weg (brauchts nicht mehr mit dummy-broker)
 - struct generator
-    - [ ] muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben
+    - [x] muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben
     - [ ] muss automatisch bundlen
-    - [ ] SchemaModule.MessagePayload.<message-name>
+    - [ ] @BM redefine module warning
+    - [x] SchemaModule.MessagePayload.<message-name>
 - [ ] handling of invalid messages from outside, cant just raise ->TO-DO-1
 - [ ] when an internal message is the last in a sequence, it may not be received before test ends!
 - [ ] `quote` option `location` (um bessere fehlermeldungen in test zu haben)
 - [ ] nested maps
-    - [ ] damit: offset: {type, num} state random_offset, random_type
+    - [ ] damit: timer-service: offset: {type, num} state random_offset, random_type
 
 ### Prio 2
 
@@ -106,7 +107,6 @@ docker stop nanomq
 - [ ] jsv lib evaluieren (@BM)
 - [ ] https://hexdocs.pm/ex_json_schema/readme.html#validation-error-formats
 - [ ] echte DSL (geht --> ?)
-
 - [x] make mqtt-client robust
 - [x] create a more involved sample service with state, implementing a stack
 - [x] bundle files, so that we can use tools that can not use multiple files, sth like this should do it 
@@ -184,3 +184,8 @@ parameter haben auch keine ID, sondern ein "field pattern" ist aber bei MQTT qua
   - https://studio.asyncapi.com/
 - https://json-schema.org/
 - https://github.com/jonasschmidt/ex_json_schema
+- https://www.learnjsonschema.com/2020-12/ - best resource for jsonschema
+
+
+
+       

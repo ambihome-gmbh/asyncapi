@@ -1,0 +1,255 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+
+location:
+  title: KNX Location
+  description: A KNX location instance, which can be any specific type of location (Site, Building, Floor, etc.).
+  oneOf:
+    - $ref: "#/$defs/Site"
+    - $ref: "#/$defs/Building"
+    - $ref: "#/$defs/Floor"
+    - $ref: "#/$defs/Room"
+    - $ref: "#/$defs/RoomSegment"
+    - $ref: "#/$defs/Space"
+    - $ref: "#/$defs/SiteSegment"
+    - $ref: "#/$defs/Outside"
+
+$defs:
+
+  Location:
+    type: object
+    title: Abstract Base Location
+    properties:
+      id:
+        type: string
+        format: uuid
+      type:
+        const: location
+      location_type_id:
+        const: urn:knx:loc.location
+      name:
+        type: string
+      number:
+        type: number
+      adjacentLocations:
+        type: array
+        items:
+          type: string
+          format: uuid
+      applicationFunctions:
+        type: array
+        items:
+          type: string
+          format: uuid
+      locations:
+        type: array
+        items:
+          type: string
+          format: uuid
+      outsides:
+        type: array
+        items:
+          type: string
+          format: uuid
+      equipments:
+        type: array
+        items:
+          type: string
+          format: uuid
+      address:
+        type: string
+        format: uuid
+      locationUsage:
+        type: string
+        format: uuid
+
+    required:
+      - id
+      - type
+      - location_type_id
+      - name
+    additionalProperties: false
+
+  Room:
+    title: Room
+    description: A physical or logical room within a building or floor.
+    allOf:
+      - $ref: "#/$defs/Location"
+      - type: object
+        title: Room Definition
+        description: Defines the structure and relationships specific to loc#Room.
+        properties:
+          location_type_id:
+            const: urn:knx:loc.room
+          rooms:
+            type: array
+            items:
+              type: string
+              format: uuid
+          roomSegments:
+            type: array
+            items:
+              type: string
+              format: uuid
+        additionalProperties: false
+
+  RoomSegment:
+    title: Room Segment
+    description: A subdivided segment of a room.
+    allOf:
+      - $ref: "#/$defs/Space"
+      - type: object
+        title: Room Segment Definition
+        description: Defines the structure and relationships specific to loc#RoomSegment.
+        properties:
+          location_type_id:
+            const: urn:knx:loc.roomsegment
+          roomSegments:
+            type: array
+            items:
+              type: string
+              format: uuid
+        additionalProperties: false
+
+  Floor:
+    title: Floor
+    description: A level or story within a building.
+    allOf:
+      - $ref: "#/$defs/Location"
+      - type: object
+        title: Floor Definition
+        description: Defines the structure and relationships specific to loc#Floor.
+        properties:
+          location_type_id:
+            const: urn:knx:loc.floor
+          lowerFloor:
+            type: string
+            format: uuid
+          upperFloor:
+            type: string
+            format: uuid
+          rooms:
+            type: array
+            items:
+              type: string
+              format: uuid
+          spaces:
+            type: array
+            items:
+              type: string
+              format: uuid
+        additionalProperties: false
+
+  SiteSegment:
+    title: Site Segment
+    description: A subdivided part of a site, typically containing one or more buildings.
+    allOf:
+      - $ref: "#/$defs/Location"
+      - type: object
+        title: Site Segment Definition
+        description: Defines the structure and relationships specific to loc#SiteSegment.
+        properties:
+          location_type_id:
+            const: urn:knx:loc.sitesegment
+          buildings:
+            type: array
+            items:
+              type: string
+              format: uuid
+          siteSegments:
+            type: array
+            items:
+              type: string
+              format: uuid
+        additionalProperties: false
+
+  Site:
+    title: Site
+    description: A top-level location entity, which may contain buildings and site segments.
+    allOf:
+      - $ref: "#/$defs/Location"
+      - type: object
+        title: Site Definition
+        description: Defines the structure and relationships specific to loc#Site.
+        properties:
+          location_type_id:
+            const: urn:knx:loc.site
+          buildings:
+            type: array
+            items:
+              type: string
+              format: uuid
+          siteSegments:
+            type: array
+            items:
+              type: string
+              format: uuid
+        additionalProperties: false
+
+  Building:
+    title: Building
+    description: A structure within a site that may contain rooms, floors, or other spaces.
+    allOf:
+      - $ref: "#/$defs/Location"
+      - type: object
+        title: Building Definition
+        description: Defines the structure and relationships specific to loc#Building.
+        properties:
+          location_type_id:
+            const: urn:knx:loc.building
+          floors:
+            type: array
+            items:
+              type: string
+              format: uuid
+          rooms:
+            type: array
+            items:
+              type: string
+              format: uuid
+          spaces:
+            type: array
+            items:
+              type: string
+              format: uuid
+        additionalProperties: false
+
+  Space:
+    title: Space
+    description: A general space in a building that may contain floors or rooms.
+    allOf:
+      - $ref: "#/$defs/Location"
+      - type: object
+        title: Space Definition
+        description: Defines the structure and relationships specific to loc#Space.
+        properties:
+          location_type_id:
+            const: urn:knx:loc.space
+          floors:
+            type: array
+            items:
+              type: string
+              format: uuid
+          rooms:
+            type: array
+            items:
+              type: string
+              format: uuid
+          spaces:
+            type: array
+            items:
+              type: string
+              format: uuid
+        additionalProperties: false
+
+  Outside:
+    title: Outside
+    description: An external or outdoor area linked to a location.
+    allOf:
+      - $ref: "#/$defs/Location"
+      - type: object
+        title: Outside Definition
+        description: Defines the structure and relationships specific to loc#Outside.
+        properties:
+          location_type_id:
+            const: urn:knx:loc.outside
+        additionalProperties: false

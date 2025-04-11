@@ -1,0 +1,93 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+
+function:
+  oneOf:
+    - $ref: "#/$defs/switchLight"
+    - $ref: "#/$defs/dimLight"
+
+$defs:
+  switchLight:
+    title: Switch Light
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      type:
+        const: function
+      function_type_id:
+        const: mac#switchLight
+      title:
+        type: string
+      description:
+        type: string
+      function_points:
+        type: object
+        properties:
+          mac#LightCurrentStatus:
+            type: string
+            format: uuid
+          mac#LightSwitchRequest:
+            type: string
+            format: uuid
+        required:
+          - mac#LightCurrentStatus
+          - mac#LightSwitchRequest
+        additionalProperties: false
+      functionLocation:
+        type: string
+        format: uuid
+    required:
+      - id
+      - type
+      - function_type_id
+      - function_points
+      - functionLocation
+    additionalProperties: false
+
+  dimLight:
+    title: Dim Light
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      type:
+        const: function
+      function_type_id:
+        const: mac#dimLight
+      title:
+        type: string
+      description:
+        type: string
+      function_points:
+        type: object
+        properties:
+          mac#LightCurrentStatus:
+            type: string
+            format: uuid
+          mac#LightSwitchRequest:
+            type: string
+            format: uuid
+          mac#LightBrightness:
+            type: string
+            format: uuid
+          mac#LightBrightnessRequest:
+            type: string
+            format: uuid
+        required:
+          - mac#LightCurrentStatus
+          - mac#LightSwitchRequest
+          - mac#LightBrightness
+          - mac#LightBrightnessRequest
+        additionalProperties: false
+      functionLocation:
+        type: string
+        format: uuid
+    required:
+      - id
+      - type
+      - function_type_id
+      - function_points
+      - functionLocation
+    additionalProperties: false
