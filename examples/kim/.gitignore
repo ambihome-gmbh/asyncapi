@@ -21,3 +21,6 @@ kim-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+priv/schema/bundled/**
+.elixir_ls/
