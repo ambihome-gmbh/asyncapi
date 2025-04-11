@@ -76,6 +76,10 @@ defmodule Asyncapi do
       |> filter(&(&1.action == "receive"))
       |> map(&Regex.replace(~r/\{([^}]*)\}/, &1.address, "+"))
 
+    # TODO stage should be selected from actual mix-stage.
+    if not (!!schema.schema["servers"]["production"]),
+      do: raise("need a server/production. TODO meta-schema.")
+
     server = resolve_schema(schema.schema["servers"]["production"], schema)
     "mqtt" = server["protocol"]
     host = to_charlist(server["host"])
@@ -91,9 +95,16 @@ defmodule Asyncapi do
 
   defp load_channel(channel, schema, schema_module) do
     # NOTE: asyncapi allows multiple message, but we support only exactly one
-    [{_, message}] = to_list(channel["messages"])
+    # TODO meta-schema
+    [{message_key, message}] = to_list(channel["messages"])
 
-    module_name_parts = [schema_module, "MessagePayload", Recase.to_pascal(message["name"])]
+    message_name =
+      case message["name"] do
+        nil -> message_key
+        name -> name
+      end
+
+    module_name_parts = [schema_module, "MessagePayload", Recase.to_pascal(message_name)]
 
     payload_schema = message |> resolve_schema(schema) |> Map.get("payload")
 

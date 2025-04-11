@@ -7,6 +7,18 @@ info:
 
 defaultContentType: application/json
 
+servers:
+  production:
+    host: 127.0.0.1
+    protocol: mqtt
+    description: Test broker
+    variables:
+      port:
+        description: MQTT port
+        default: "1883"
+        enum:
+          - "1883"
+
 operations:
   datapoint-request:
     action: send

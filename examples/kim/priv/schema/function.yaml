@@ -7,20 +7,18 @@ function:
 
 $defs:
   switchLight:
-    title: Switch Light
+    title: User Light Switching
     type: object
     properties:
       id:
         type: string
         format: uuid
       type:
-        const: function
-      function_type_id:
         const: mac#switchLight
-      title:
+      name:
         type: string
-      description:
-        type: string
+      trade:
+        const: "tag#lighting"
       function_points:
         type: object
         properties:
@@ -34,32 +32,31 @@ $defs:
           - mac#LightCurrentStatus
           - mac#LightSwitchRequest
         additionalProperties: false
-      functionLocation:
+      function_location:
         type: string
         format: uuid
     required:
       - id
       - type
-      - function_type_id
+      - name
+      - trade
       - function_points
-      - functionLocation
+      - function_location
     additionalProperties: false
 
   dimLight:
-    title: Dim Light
+    title: User Light Dimming
     type: object
     properties:
       id:
         type: string
         format: uuid
       type:
-        const: function
-      function_type_id:
         const: mac#dimLight
-      title:
+      name:
         type: string
-      description:
-        type: string
+      trade:
+        const: "tag#lighting"
       function_points:
         type: object
         properties:
@@ -81,13 +78,14 @@ $defs:
           - mac#LightBrightness
           - mac#LightBrightnessRequest
         additionalProperties: false
-      functionLocation:
+      function_location:
         type: string
         format: uuid
     required:
       - id
       - type
-      - function_type_id
+      - name
+      - trade
       - function_points
-      - functionLocation
+      - function_location
     additionalProperties: false

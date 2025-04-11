@@ -1,18 +1,26 @@
-defmodule Kim do
-  @moduledoc """
-  Documentation for `Kim`.
-  """
+defmodule KimService do
+  use MqttAsyncapi, schema_module: KimSchema
 
-  @doc """
-  Hello world.
+  # alias Asyncapi.Message
+  # alias KimSchema.MessagePayload, as: P
+  import Asyncapi.Helpers
 
-  ## Examples
+  def start_link(opts \\ []) do
+    MqttAsyncapi.start_link(__MODULE__, opts)
+  end
 
-      iex> Kim.hello()
-      :world
+  @impl true
+  def init(_opts) do
+    {:ok, %{}}
+  end
 
-  """
-  def hello do
-    :world
+  @impl true
+  def handle_message(_message, state) do
+    noreply(state)
+  end
+
+  @impl true
+  def handle_info(_info, state) do
+    noreply(state)
   end
 end

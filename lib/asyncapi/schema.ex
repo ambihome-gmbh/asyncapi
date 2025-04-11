@@ -1,6 +1,7 @@
 defmodule Asyncapi.Schema do
   def get_module_datas(schema) do
-    for {_, operation} <- schema.operations do
+    for {_, operation} <- schema.operations, operation.payload_schema["type"] == "object" do
+      # TODO meta-schema
       if Map.get(operation.payload_schema, "additionalProperties", true) == true do
         raise("additionalProperties has to be set to false in schema! #{inspect(operation)}")
       end
@@ -27,7 +28,10 @@ defmodule Asyncapi.Schema do
     module_datas = get_module_datas(schema)
 
     modules =
-      Enum.map(module_datas, fn {module_name, struct_keys, enforce_keys} ->
+      module_datas
+      # TODO meta-schema: for one message name there must be only one message payload (otherwise we would still be generating multiple modules here!)
+      |> Enum.uniq
+      |> Enum.map(fn {module_name, struct_keys, enforce_keys} ->
         IO.puts("generating module #{module_name}")
 
         quote do

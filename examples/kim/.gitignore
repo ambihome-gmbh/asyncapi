@@ -23,4 +23,5 @@ kim-*.tar
 /tmp/
 
 priv/schema/bundled/**
+priv/schema/docs
 .elixir_ls/

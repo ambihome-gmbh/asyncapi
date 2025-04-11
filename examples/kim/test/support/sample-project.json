@@ -1,0 +1,103 @@
+{
+  "locations": [
+    {
+      "id": "ba220997-e795-4c73-ba94-347bb3c3193a",
+      "type": "location",
+      "location_type_id": "urn:knx:loc.building",
+      "name": "Main Building",
+      "number": 1,
+      "floors": [
+        "4a840e1e-d2bf-4fde-ac59-0dac29b4373f"
+      ]
+    },
+    {
+      "id": "4a840e1e-d2bf-4fde-ac59-0dac29b4373f",
+      "type": "location",
+      "location_type_id": "urn:knx:loc.floor",
+      "name": "Ground Floor",
+      "number": 0,
+      "rooms": [
+        "74b5d75f-9a95-418e-ab99-d889554d260c",
+        "89422757-d401-482e-986d-baa62b0f6d75"
+      ]
+    },
+    {
+      "id": "74b5d75f-9a95-418e-ab99-d889554d260c",
+      "type": "location",
+      "location_type_id": "urn:knx:loc.room",
+      "name": "Switch Room",
+      "number": 101,
+      "applicationFunctions": [
+        "33f1d0f6-6935-490b-99cf-2b0dfc51deef"
+      ]
+    },
+    {
+      "id": "89422757-d401-482e-986d-baa62b0f6d75",
+      "type": "location",
+      "location_type_id": "urn:knx:loc.room",
+      "name": "Dim Room",
+      "number": 102,
+      "applicationFunctions": [
+        "23a4941a-f069-4f5e-991d-6fc1e13ebdbf"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "id": "33f1d0f6-6935-490b-99cf-2b0dfc51deef",
+      "type": "function",
+      "function_type_id": "mac#switchLight",
+      "title": "Light Switch",
+      "description": "Controls the light via switch",
+      "functionLocation": "74b5d75f-9a95-418e-ab99-d889554d260c",
+      "function_points": {
+        "mac#LightCurrentStatus": "e78265b2-0d31-44e9-8026-4307c4c60c1d",
+        "mac#LightSwitchRequest": "77eff48e-c730-4419-bcab-9be70c6276b3"
+      }
+    },
+    {
+      "id": "23a4941a-f069-4f5e-991d-6fc1e13ebdbf",
+      "type": "function",
+      "function_type_id": "mac#dimLight",
+      "title": "Light Dimmer",
+      "description": "Dims the light",
+      "functionLocation": "89422757-d401-482e-986d-baa62b0f6d75",
+      "function_points": {
+        "mac#LightCurrentStatus": "e78265b2-0d31-44e9-8026-4307c4c60c1d",
+        "mac#LightSwitchRequest": "77eff48e-c730-4419-bcab-9be70c6276b3",
+        "mac#LightBrightness": "a0a8e851-7b57-4f36-92fd-85b240601354",
+        "mac#LightBrightnessRequest": "fbfaab33-99b8-4621-855d-f6488ffa34ed"
+      }
+    }
+  ],
+  "datapoints": [
+    {
+      "id": "e78265b2-0d31-44e9-8026-4307c4c60c1d",
+      "type": "datapoint",
+      "title": "Light Status",
+      "datapoint_ref": "urn:knx:dpt.switch",
+      "function_ref": "33f1d0f6-6935-490b-99cf-2b0dfc51deef"
+    },
+    {
+      "id": "77eff48e-c730-4419-bcab-9be70c6276b3",
+      "type": "datapoint",
+      "title": "Switch Request",
+      "datapoint_ref": "urn:knx:dpt.switch",
+      "function_ref": "33f1d0f6-6935-490b-99cf-2b0dfc51deef"
+    },
+    {
+      "id": "a0a8e851-7b57-4f36-92fd-85b240601354",
+      "type": "datapoint",
+      "title": "Brightness",
+      "datapoint_ref": "urn:knx:dpt.scaling",
+      "function_ref": "23a4941a-f069-4f5e-991d-6fc1e13ebdbf"
+    },
+    {
+      "id": "fbfaab33-99b8-4621-855d-f6488ffa34ed",
+      "type": "datapoint",
+      "title": "Brightness Request",
+      "datapoint_ref": "urn:knx:dpt.scaling",
+      "function_ref": "23a4941a-f069-4f5e-991d-6fc1e13ebdbf"
+    }
+  ]
+}
