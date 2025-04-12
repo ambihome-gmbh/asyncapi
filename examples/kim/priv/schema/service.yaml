@@ -20,90 +20,90 @@ servers:
           - "1883"
 
 operations:
-  datapoint-request:
+  functionpoint-req:
     action: receive
     channel:
-      $ref: "#/channels/datapoint-request"
+      $ref: "#/channels/functionpoint-req"
     reply:
       channel:
-        $ref: "#/channels/datapoint-response"
+        $ref: "#/channels/functionpoint-resp"
 
-  datapoint-response:
+  functionpoint-resp:
     action: send
     channel:
-      $ref: "#/channels/datapoint-response"
+      $ref: "#/channels/functionpoint-resp"
 
-  datapoints-request:
+  functionpoints-req:
     action: receive
     channel:
-      $ref: "#/channels/datapoints-request"
+      $ref: "#/channels/functionpoints-req"
     reply:
       channel:
-        $ref: "#/channels/datapoints-response"
+        $ref: "#/channels/functionpoints-resp"
 
-  datapoints-response:
+  functionpoints-resp:
     action: send
     channel:
-      $ref: "#/channels/datapoints-response"
+      $ref: "#/channels/functionpoints-resp"
 
-  function-request:
+  function-req:
     action: receive
     channel:
-      $ref: "#/channels/function-request"
+      $ref: "#/channels/function-req"
     reply:
       channel:
-        $ref: "#/channels/function-response"
+        $ref: "#/channels/function-resp"
 
-  function-response:
+  function-resp:
     action: send
     channel:
-      $ref: "#/channels/function-response"
+      $ref: "#/channels/function-resp"
 
-  functions-request:
+  functions-req:
     action: receive
     channel:
-      $ref: "#/channels/functions-request"
+      $ref: "#/channels/functions-req"
     reply:
       channel:
-        $ref: "#/channels/functions-response"
+        $ref: "#/channels/functions-resp"
 
-  functions-response:
+  functions-resp:
     action: send
     channel:
-      $ref: "#/channels/functions-response"
+      $ref: "#/channels/functions-resp"
 
-  location-request:
+  location-req:
     action: receive
     channel:
-      $ref: "#/channels/location-request"
+      $ref: "#/channels/location-req"
     reply:
       channel:
-        $ref: "#/channels/location-response"
+        $ref: "#/channels/location-resp"
 
-  location-response:
+  location-resp:
     action: send
     channel:
-      $ref: "#/channels/location-response"
+      $ref: "#/channels/location-resp"
 
-  locations-request:
+  locations-req:
     action: receive
     channel:
-      $ref: "#/channels/locations-request"
+      $ref: "#/channels/locations-req"
     reply:
       channel:
-        $ref: "#/channels/locations-response"
+        $ref: "#/channels/locations-resp"
 
-  locations-response:
+  locations-resp:
     action: send
     channel:
-      $ref: "#/channels/locations-response"
+      $ref: "#/channels/locations-resp"
 
-  datapoint-write-indication:
+  functionpoint-write-ind:
     action: send
     channel:
-      $ref: "#/channels/datapoint-write-indication"
+      $ref: "#/channels/functionpoint-write-ind"
 
-  datapoint-write-request:
+  functionpoint-write-req:
     action: receive
     channel:
-      $ref: "#/channels/datapoint-write-request"
+      $ref: "#/channels/functionpoint-write-req"

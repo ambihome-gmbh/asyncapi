@@ -3,7 +3,7 @@ cd priv/schema
 set -euo pipefail
 
 DESC_DIR="./descriptions"
-OUT_FILE="./build/channel-descriptions.json"
+OUT_FILE="./generated/channel-descriptions.json"
 
 echo '{' > "$OUT_FILE"
 echo '  "asyncapi": "3.0.0",' >> "$OUT_FILE"
@@ -31,8 +31,8 @@ echo '' >> "$OUT_FILE"
 echo '  }' >> "$OUT_FILE"
 echo '}' >> "$OUT_FILE"
 
-asyncapi bundle user.yaml common.yaml build/channel-descriptions.json -o build/user.json  
-asyncapi bundle service.yaml common.yaml build/channel-descriptions.json -o build/service.json
+asyncapi bundle user.yaml common.yaml generated/channel-descriptions.json -o build/user.json  
+asyncapi bundle service.yaml common.yaml generated/channel-descriptions.json -o build/service.json
 
 asyncapi validate build/user.json
 asyncapi validate build/service.json

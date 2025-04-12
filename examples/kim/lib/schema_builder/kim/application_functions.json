@@ -1,0 +1,737 @@
+[
+  {
+    "ApplicationFunction": "knx#waterDifferentialPressureCtrl",
+    "Label": "Water Difference Pressure Control",
+    "Identifier": "urn:knx:fct.waterDiffentialPressureCtrl",
+    "Superclasses": [
+      "knx#waterCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "mac#blinds",
+    "Label": "User Blinds Control",
+    "Identifier": "urn:knx:fct.blinds",
+    "Superclasses": [
+      "knx#shadingCtrl"
+    ],
+    "FunctionPoints": [
+      "mac#BlindsMoveUpDown",
+      "mac#BlindsPositionLength",
+      "mac#BlindsPositionPercentage",
+      "mac#BlindsSlatPositionDegrees",
+      "mac#BlindsSlatPositionPercentage",
+      "mac#BlindsStatus",
+      "mac#BlindsStopStep",
+      "mac#BlindsStopTrigger",
+      "mac#FrostAlarm",
+      "mac#RainAlarm",
+      "mac#WindAlarm"
+    ],
+    "QualityKinds": [
+      "tag#qk_eq_blindsactuator_positionvector",
+      "tag#qk_eq_slatsactuator_positionvector",
+      "tag#qk_ph_light_illuminance"
+    ],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#audioCtrl",
+    "Label": "Audio Control",
+    "Identifier": "urn:knx:fct.audioCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": [
+      "tag#audio"
+    ]
+  },
+  {
+    "ApplicationFunction": "mac#fanControlContinuous",
+    "Label": "Fan Actuator",
+    "Identifier": "urn:knx:fct.fanControlContinous",
+    "Superclasses": [
+      "knx#fanCtrl"
+    ],
+    "FunctionPoints": [
+      "mac#FanSpeedCurrent",
+      "mac#FanSpeedTarget"
+    ],
+    "QualityKinds": [
+      "tag#qk_eq_fanmotor_angularvelocity"
+    ],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#powerEnvelopeBasedCtrl",
+    "Label": "Power Envelope Based Control",
+    "Identifier": "urn:knx:fct.powerEnvelopeBasedCtrl",
+    "Superclasses": [
+      "knx#smartGridCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#waterTemperatureCtrl",
+    "Label": "Water Temperature Control",
+    "Identifier": "urn:knx:fct.waterTemperatureCtrl",
+    "Superclasses": [
+      "knx#waterCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#switchCtrl",
+    "Label": "Switch Control",
+    "Identifier": "urn:knx:fct.switchCtrl",
+    "Superclasses": [
+      "knx#equipmentCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#weatherStation",
+    "Label": "Weather Station",
+    "Identifier": "urn:knx:fct.weatherStation",
+    "Superclasses": [
+      "knx#monitoring"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#hotWaterDistribution",
+    "Label": "Hot Water Distribution",
+    "Identifier": "urn:knx:fct.hotWaterDistribution",
+    "Superclasses": [
+      "knx#distributionCtrl",
+      "knx#waterCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": [
+      "tag#heating"
+    ]
+  },
+  {
+    "ApplicationFunction": "knx#video",
+    "Label": "Video",
+    "Identifier": "urn:knx:fct.video",
+    "Superclasses": [
+      "knx#monitoring"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#fanCtrl",
+    "Label": "Fan Control",
+    "Identifier": "urn:knx:fct.fanCtrl",
+    "Superclasses": [
+      "knx#equipmentCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#trend",
+    "Label": "Trend",
+    "Identifier": "urn:knx:fct.trend",
+    "Superclasses": [
+      "knx#monitoring"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#lowVoltagePowerDistribution",
+    "Label": "Low-voltage Power Distribution",
+    "Identifier": "urn:knx:fct.lowVoltagePowerDistribution",
+    "Superclasses": [
+      "knx#distributionCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": [
+      "tag#electrical"
+    ]
+  },
+  {
+    "ApplicationFunction": "knx#alarming",
+    "Label": "Alarming",
+    "Identifier": "urn:knx:fct.alarming",
+    "Superclasses": [
+      "knx#plantMngmtCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#airSupplyCtrl",
+    "Label": "Air Supply Control",
+    "Identifier": "urn:knx:fct.airSupplyCtrl",
+    "Superclasses": [
+      "knx#airCtrl",
+      "knx#distributionCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [
+      "tag#qk_ph_air_volumeflowrate"
+    ],
+    "OperatesForTrade": [
+      "tag#ventilation"
+    ]
+  },
+  {
+    "ApplicationFunction": "knx#shadingCtrl",
+    "Label": "Shading Control",
+    "Identifier": "urn:knx:fct.shadingCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": [
+      "tag#shading"
+    ]
+  },
+  {
+    "ApplicationFunction": "knx#powerProfileBasedCtrl",
+    "Label": "Power Profile Based Control",
+    "Identifier": "urn:knx:fct.powerProfileBasedCtrl",
+    "Superclasses": [
+      "knx#smartGridCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#zoneHeatingCtrl",
+    "Label": "Zone Heating Control",
+    "Identifier": "urn:knx:fct.zoneHeatingCtrl",
+    "Superclasses": [
+      "knx#emissionCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#airQualityCtrl",
+    "Label": "Air Quality Control",
+    "Identifier": "urn:knx:fct.airQualityCtrl",
+    "Superclasses": [
+      "knx#airCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#sceneCtrl",
+    "Label": "Scene Control",
+    "Identifier": "urn:knx:fct.sceneCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#monitoring",
+    "Label": "Monitoring",
+    "Identifier": "urn:knx:fct.monitoring",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#distributionCtrl",
+    "Label": "Distribution Control",
+    "Identifier": "urn:knx:fct.distributionCtrl",
+    "Superclasses": [
+      "knx#energyCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "mac#dimLight",
+    "Label": "User Light Dimming",
+    "Identifier": "urn:knx:fct.dimLight",
+    "Superclasses": [
+      "mac#switchLight"
+    ],
+    "FunctionPoints": [
+      "mac#LightAbsoluteSetvalueRequest",
+      "mac#LightCurrentDimmingValue",
+      "mac#LightRelativeDimmingRequest"
+    ],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "mac#systemClock",
+    "Label": "System Clock",
+    "Identifier": "urn:knx:fct.systemClock",
+    "Superclasses": [
+      "knx#timeSynchronization"
+    ],
+    "FunctionPoints": [
+      "mac#CurrentDate",
+      "mac#CurrentDateAndTime",
+      "mac#CurrentTime",
+      "mac#RelationToGMT"
+    ],
+    "QualityKinds": [
+      "tag#qk_ph_temporal_datevalue_site",
+      "tag#qk_ph_temporal_time_site"
+    ],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "mac#switching",
+    "Label": "Switching",
+    "Identifier": "urn:knx:fct.switching",
+    "Superclasses": [
+      "knx#switchCtrl"
+    ],
+    "FunctionPoints": [
+      "mac#SwitchCurrentStatus",
+      "mac#SwitchRequest"
+    ],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#fireAlarming",
+    "Label": "Fire Alarming",
+    "Identifier": "urn:knx:fct.fireAlarming",
+    "Superclasses": [
+      "knx#monitoring"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#airPressureCtrl",
+    "Label": "Air Pressure Control",
+    "Identifier": "urn:knx:fct.airPressureCtrl",
+    "Superclasses": [
+      "knx#airCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#generationCtrl",
+    "Label": "Generation Control",
+    "Identifier": "urn:knx:fct.generationCtrl",
+    "Superclasses": [
+      "knx#energyCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "mac#staircaseLight",
+    "Label": "Staircase Lighting",
+    "Identifier": "urn:knx:fct.staircaseLight",
+    "Superclasses": [
+      "knx#lightingCtrl"
+    ],
+    "FunctionPoints": [
+      "mac#StaircaseStatus",
+      "mac#StaircaseSwitchRequest",
+      "mac#StaircaseTriggerRequest"
+    ],
+    "QualityKinds": [
+      "tag#qk_eq_luminaire_dimmlevel",
+      "tag#qk_ph_light_illuminance"
+    ],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#waterCtrl",
+    "Label": "Water Control",
+    "Identifier": "urn:knx:fct.waterCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#energyStorageCtrl",
+    "Label": "Energy Storage Control",
+    "Identifier": "urn:knx:fct.energyStorageCtrl",
+    "Superclasses": [
+      "knx#energyCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#smartGridCtrl",
+    "Label": "Smart Grid Control",
+    "Identifier": "urn:knx:fct.smartGridCtrl",
+    "Superclasses": [
+      "knx#energyCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": [
+      "tag#electrical"
+    ]
+  },
+  {
+    "ApplicationFunction": "knx#energyCtrl",
+    "Label": "Energy Control",
+    "Identifier": "urn:knx:fct.energyCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#intrusionAlarming",
+    "Label": "Intrusion Alarming",
+    "Identifier": "urn:knx:fct.intrusionAlarm",
+    "Superclasses": [
+      "knx#monitoring"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#demandDrivenBasedCtrl",
+    "Label": "Demand Driven Based Control",
+    "Identifier": "urn:knx:fct.demandDrivenBasedCtrl",
+    "Superclasses": [
+      "knx#smartGridCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#airHumidityCtrl",
+    "Label": "Air Humidity Control",
+    "Identifier": "urn:knx:fct.airHumidityCtrl",
+    "Superclasses": [
+      "knx#airCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "mac#shutter",
+    "Label": "User Shutter Control",
+    "Identifier": "urn:knx:fct.shutter",
+    "Superclasses": [
+      "knx#shadingCtrl"
+    ],
+    "FunctionPoints": [
+      "mac#FrostAlarm",
+      "mac#RainAlarm",
+      "mac#ShutterMoveUpDown",
+      "mac#ShutterPositionLength",
+      "mac#ShutterPositionPercentage",
+      "mac#ShutterStatus",
+      "mac#ShutterStopStep",
+      "mac#ShutterStopTrigger",
+      "mac#WindAlarm"
+    ],
+    "QualityKinds": [
+      "tag#qk_eq_blindsactuator_positionvector",
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#lightingCtrl",
+    "Label": "Lighting Control",
+    "Identifier": "urn:knx:fct.lightingCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": [
+      "tag#lighting"
+    ]
+  },
+  {
+    "ApplicationFunction": "knx#ahuCtrl",
+    "Label": "AHU Control",
+    "Identifier": "urn:knx:fct.ahuCtrl",
+    "Superclasses": [
+      "knx#equipmentCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#plantMngmtCtrl",
+    "Label": "Plant Management Control",
+    "Identifier": "urn:knx:fct.plantMngmCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#airCtrl",
+    "Label": "Air Control",
+    "Identifier": "urn:knx:fct.airCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#airTemperatureCtrl",
+    "Label": "Air Temperature Control",
+    "Identifier": "urn:knx:fct.airTemperatureCtrl",
+    "Superclasses": [
+      "knx#airCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#scheduler",
+    "Label": "Scheduler",
+    "Identifier": "urn:knx:fct.scheduler",
+    "Superclasses": [
+      "knx#plantMngmtCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "mac#switchLight",
+    "Label": "User Light Switching",
+    "Identifier": "urn:knx:fct.switchLight",
+    "Superclasses": [
+      "knx#lightingCtrl"
+    ],
+    "FunctionPoints": [
+      "mac#LightCurrentStatus",
+      "mac#LightSwitchRequest"
+    ],
+    "QualityKinds": [
+      "tag#qk_eq_luminaire_dimmlevel",
+      "tag#qk_ph_light_illuminance"
+    ],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "mac#roomTemperatureControl",
+    "Label": "Room Temperature Control",
+    "Identifier": "urn:knx:fct.roomTemperatureControl",
+    "Superclasses": [
+      "knx#airTemperatureCtrl",
+      "mac#fanControlContinuous"
+    ],
+    "FunctionPoints": [
+      "mac#CoolStageAActuatorCalibrationMode",
+      "mac#CoolStageAActuatorCurrentPosition",
+      "mac#CoolStageAActuatorFault",
+      "mac#CoolStageAActuatorOverridden",
+      "mac#CoolStageAActuatorStatus",
+      "mac#CoolStageAActuatorTargetPosition",
+      "mac#CoolStageAActuatorValveKick",
+      "mac#CoolStageBActuatorCalibrationMode",
+      "mac#CoolStageBActuatorCurrentPosition",
+      "mac#CoolStageBActuatorFault",
+      "mac#CoolStageBActuatorOverridden",
+      "mac#CoolStageBActuatorStatus",
+      "mac#CoolStageBActuatorTargetPosition",
+      "mac#CoolStageBActuatorValveKick",
+      "mac#HeatStageAActuatorCalibrationMode",
+      "mac#HeatStageAActuatorCurrentPosition",
+      "mac#HeatStageAActuatorFault",
+      "mac#HeatStageAActuatorOverridden",
+      "mac#HeatStageAActuatorStatus",
+      "mac#HeatStageAActuatorTargetPosition",
+      "mac#HeatStageAActuatorValveKick",
+      "mac#HeatStageBActuatorCalibrationMode",
+      "mac#HeatStageBActuatorCurrentPosition",
+      "mac#HeatStageBActuatorFault",
+      "mac#HeatStageBActuatorOverridden",
+      "mac#HeatStageBActuatorStatus",
+      "mac#HeatStageBActuatorTargetPosition",
+      "mac#HeatStageBActuatorValveKick",
+      "mac#OutsideTemperature",
+      "mac#RoomTemperature"
+    ],
+    "QualityKinds": [
+      "tag#qk_ph_air_temperature"
+    ],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#fillRateBasedCtrl",
+    "Label": "Fill Rate Based Control",
+    "Identifier": "urn:knx:fct.fillRateBasedCtrl",
+    "Superclasses": [
+      "knx#smartGridCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#individualRoomCtrl",
+    "Label": "Individual Room Control",
+    "Identifier": "urn:knx:fct.individualRoomCtrl",
+    "Superclasses": [
+      "knx#emissionCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#coldWaterDistribution",
+    "Label": "Cold Water Distribution",
+    "Identifier": "urn:knx:fct.coldWaterDistribution",
+    "Superclasses": [
+      "knx#distributionCtrl",
+      "knx#waterCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": [
+      "tag#cooling"
+    ]
+  },
+  {
+    "ApplicationFunction": "knx#equipmentCtrl",
+    "Label": "Equipment Control",
+    "Identifier": "urn:knx:fct.equipmentCtrl",
+    "Superclasses": [
+      "core#ApplicationFunction"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#meter",
+    "Label": "Meter",
+    "Identifier": "urn:knx:fct.meter",
+    "Superclasses": [
+      "knx#monitoring"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#operationModeBasedCtrl",
+    "Label": "Operation Mode Based Control",
+    "Identifier": "urn:knx:fct.operationModeBasedCtrl",
+    "Superclasses": [
+      "knx#smartGridCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#airVolumeCtrl",
+    "Label": "Air Volume Control",
+    "Identifier": "urn:knx:fct.airVolumeCtrl",
+    "Superclasses": [
+      "knx#airCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#timeSynchronization",
+    "Label": "Time Synchronization",
+    "Identifier": "urn:knx:fct.timeSynchronization",
+    "Superclasses": [
+      "knx#plantMngmtCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#pumpCtrl",
+    "Label": "Pump Control",
+    "Identifier": "urn:knx:fct.pumpCtrl",
+    "Superclasses": [
+      "knx#equipmentCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  },
+  {
+    "ApplicationFunction": "knx#dhwCtrl",
+    "Label": "DHW Control",
+    "Identifier": "urn:knx:fct.dhwCtrl",
+    "Superclasses": [
+      "knx#energyCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": [
+      "tag#domesticHotWater"
+    ]
+  },
+  {
+    "ApplicationFunction": "knx#emissionCtrl",
+    "Label": "Emission Control",
+    "Identifier": "urn:knx:fct.emissionCtrl",
+    "Superclasses": [
+      "knx#energyCtrl"
+    ],
+    "FunctionPoints": [],
+    "QualityKinds": [],
+    "OperatesForTrade": []
+  }
+]

@@ -21,7 +21,8 @@ defmodule Kim.MixProject do
   defp deps do
     [
       {:uniq, "~> 0.6"},
-      {:asyncapi, path: "../.."}
+      {:asyncapi, path: "../.."},
+      {:dpts, path: "../../../dpts"}
     ]
   end
 

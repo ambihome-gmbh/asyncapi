@@ -1,0 +1,2669 @@
+[
+  {
+    "FunctionPoint": "mac#CoolStageAActuatorCalibrationMode",
+    "Label": "Cool Stage A Actuator Calibration Mode",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#operationalStateCalibration"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageAActuatorCurrentPosition",
+    "Label": "Cool Stage A Actuator Current Position",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageAActuatorFault",
+    "Label": "Cool Stage A Actuator Fault",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#operationalStateFaulty"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageAActuatorOverridden",
+    "Label": "Cool Stage A Actuator Overridden",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#overrideModeManual"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageAActuatorStatus",
+    "Label": "Cool Stage A Actuator Status",
+    "datapointType": "knx#combinedStatusHVA",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#overrideModeManual"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#closed",
+            "tag#opened"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#forced",
+            "tag#hcStagePrimary"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#locked"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#operationalStateCalibration"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#operationalStateDefectOverload"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#operationalStateDefectShortCircuit"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#operationalStateMaintenance"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageAActuatorTargetPosition",
+    "Label": "Cool Stage A Actuator Target Position",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageAActuatorValveKick",
+    "Label": "Cool Stage A Actuator Valve Kick",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStagePrimary",
+            "tag#operationalStateMaintenance"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageBActuatorCalibrationMode",
+    "Label": "Cool Stage B Actuator Calibration Mode",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#operationalStateCalibration"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageBActuatorCurrentPosition",
+    "Label": "Cool Stage B Actuator Current Position",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageBActuatorFault",
+    "Label": "Cool Stage B Actuator Fault",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#operationalStateFaulty"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageBActuatorOverridden",
+    "Label": "Cool Stage B Actuator Overridden",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#overrideModeManual"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageBActuatorStatus",
+    "Label": "Cool Stage B Actuator Status",
+    "datapointType": "knx#combinedStatusHVA",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#overrideModeManual"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#closed",
+            "tag#opened"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#forced",
+            "tag#hcStageSecondary"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#locked"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#operationalStateCalibration"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#operationalStateDefectOverload"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#operationalStateDefectShortCircuit"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#operationalStateMaintenance"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageBActuatorTargetPosition",
+    "Label": "Cool Stage B Actuator Target Position",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CoolStageBActuatorValveKick",
+    "Label": "Cool Stage B Actuator Valve Kick",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeCooling",
+            "tag#hcStageSecondary",
+            "tag#operationalStateMaintenance"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CurrentDate",
+    "Label": "Current Date",
+    "datapointType": "knx#date",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_temporal_datevalue_site"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_temporal_datevalue_site"
+    ],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CurrentDateAndTime",
+    "Label": "Current Date and Time",
+    "datapointType": "knx#dateTime",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_temporal_datevalue_site"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_temporal_time_site"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_temporal_datevalue_site",
+      "tag#qk_ph_temporal_time_site"
+    ],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#CurrentTime",
+    "Label": "Current Time",
+    "datapointType": "knx#timeOfDay",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_temporal_time_site"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_temporal_time_site"
+    ],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#FanSpeedCurrent",
+    "Label": "Fan Speed Current",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_fanmotor_angularvelocity_room"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_fanmotor_angularvelocity_room"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#FanSpeedTarget",
+    "Label": "Fan Speed Target",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_fanmotor_angularvelocity_room"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_fanmotor_angularvelocity_room"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageAActuatorCalibrationMode",
+    "Label": "Heat Stage A Actuator Calibration Mode",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#operationalStateCalibration"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageAActuatorCurrentPosition",
+    "Label": "Heat Stage A Actuator Current Position",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageAActuatorFault",
+    "Label": "Heat Stage A Actuator Fault",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#operationalStateFaulty"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageAActuatorOverridden",
+    "Label": "Heat Stage A Actuator Overridden",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#overrideModeManual"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageAActuatorStatus",
+    "Label": "Heat Stage A Actuator Status",
+    "datapointType": "knx#combinedStatusHVA",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#overrideModeManual"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#closed",
+            "tag#opened"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#forced",
+            "tag#hcStagePrimary"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#locked"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#operationalStateCalibration"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#operationalStateDefectOverload"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#operationalStateDefectShortCircuit"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#operationalStateMaintenance"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageAActuatorTargetPosition",
+    "Label": "Heat Stage A Actuator Target Position",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageAActuatorValveKick",
+    "Label": "Heat Stage A Actuator Valve Kick",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStagePrimary",
+            "tag#operationalStateMaintenance"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageBActuatorCalibrationMode",
+    "Label": "Heat Stage B Actuator Calibration Mode",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#operationalStateCalibration"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageBActuatorCurrentPosition",
+    "Label": "Heat Stage B Actuator Current Position",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageBActuatorFault",
+    "Label": "Heat Stage B Actuator Fault",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#operationalStateFaulty"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageBActuatorOverridden",
+    "Label": "Heat Stage B Actuator Overridden",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#overrideModeManual"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageBActuatorStatus",
+    "Label": "Heat Stage B Actuator Status",
+    "datapointType": "knx#combinedStatusHVA",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#overrideModeManual"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#closed",
+            "tag#opened"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#forced",
+            "tag#hcStageSecondary"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#locked"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#operationalStateCalibration"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#operationalStateDefectOverload"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#operationalStateDefectShortCircuit"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#operationalStateMaintenance"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageBActuatorTargetPosition",
+    "Label": "Heat Stage B Actuator Target Position",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_valveactuator_positionvector_pipesection_supplysection"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#HeatStageBActuatorValveKick",
+    "Label": "Heat Stage B Actuator Valve Kick",
+    "datapointType": "knx#bool",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#active",
+            "tag#inactive"
+          ],
+          "tag#relatesToStateType": [
+            "tag#controlModeHeating",
+            "tag#hcStageSecondary",
+            "tag#operationalStateMaintenance"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#OutsideTemperature",
+    "Label": "Outside Temperature",
+    "datapointType": "knx#valueTemp",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_air_temperature_outside"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_air_temperature_outside"
+    ],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#RelationToGMT",
+    "Label": "Relation to GMT",
+    "datapointType": "knx#deltaTimeMin",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_temporal_time_site"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#relativeValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_temporal_time_site"
+    ],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#RoomTemperature",
+    "Label": "Room Temperature",
+    "datapointType": "knx#valueTemp",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_air_temperature_room"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_air_temperature_room"
+    ],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#StaircaseStatus",
+    "Label": "Staircase Status",
+    "datapointType": "knx#switch",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_luminaire_dimmlevel"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#off",
+            "tag#on"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_luminaire_dimmlevel"
+    ],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance"
+    ],
+    "IsStatusOf": [
+      "mac#LightSwitchRequest"
+    ]
+  },
+  {
+    "FunctionPoint": "mac#StaircaseSwitchRequest",
+    "Label": "Staircase Switch Request",
+    "datapointType": "knx#switch",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_luminaire_dimmlevel"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#off",
+            "tag#on"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_luminaire_dimmlevel"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#BlindsMoveUpDown",
+    "Label": "Blinds Move Up Down",
+    "datapointType": "knx#upDown",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#downwards",
+            "tag#upwards"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#BlindsPositionLength",
+    "Label": "Blinds Position Length",
+    "datapointType": "knx#lengthmm",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#BlindsPositionPercentage",
+    "Label": "Blinds Position Percentage",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#BlindsSlatPositionDegrees",
+    "Label": "Blinds Slat Position Degrees",
+    "datapointType": "knx#rotationAngle",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_slatsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_slatsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#BlindsSlatPositionPercentage",
+    "Label": "Blinds Slat Position Percentage",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_slatsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_slatsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#BlindsStatus",
+    "Label": "Blinds Status",
+    "datapointType": "knx#upDown",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#downwards",
+            "tag#upwards"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#BlindsStopStep",
+    "Label": "Blinds Stop Step",
+    "datapointType": "knx#step",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_slatsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#downwards",
+            "tag#stopped",
+            "tag#upwards"
+          ]
+        }
+      },
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#downwards",
+            "tag#stopped",
+            "tag#upwards"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector",
+      "tag#qk_eq_slatsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#BlindsStopTrigger",
+    "Label": "Blinds Stop Trigger",
+    "datapointType": "knx#trigger",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#trigger"
+          ],
+          "tag#hasStateType": [
+            "tag#stopped"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#LightCurrentDimmingValue",
+    "Label": "Light Current Dimming Value",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_luminaire_dimmlevel"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#pv"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_luminaire_dimmlevel"
+    ],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance"
+    ],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#LightCurrentStatus",
+    "Label": "Light Current Status",
+    "datapointType": "knx#switch",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_luminaire_dimmlevel"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#off",
+            "tag#on"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [
+      "tag#qk_eq_luminaire_dimmlevel"
+    ],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance"
+    ],
+    "IsStatusOf": [
+      "mac#LightSwitchRequest"
+    ]
+  },
+  {
+    "FunctionPoint": "mac#ShutterMoveUpDown",
+    "Label": "Shutter Move Up Down",
+    "datapointType": "knx#upDown",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#downwards",
+            "tag#upwards"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#ShutterPositionLength",
+    "Label": "Shutter Position Length",
+    "datapointType": "knx#lengthmm",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#ShutterPositionPercentage",
+    "Label": "Shutter Position Percentage",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#ShutterStatus",
+    "Label": "Shutter Status",
+    "datapointType": "knx#upDown",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#downwards",
+            "tag#upwards"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#ShutterStopStep",
+    "Label": "Shutter Stop Step",
+    "datapointType": "knx#step",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#downwards",
+            "tag#stopped",
+            "tag#upwards"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#ShutterStopTrigger",
+    "Label": "Shutter Stop Trigger",
+    "datapointType": "knx#trigger",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_blindsactuator_positionvector"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#trigger"
+          ],
+          "tag#hasStateType": [
+            "tag#stopped"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance_room"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_blindsactuator_positionvector"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#StaircaseTriggerRequest",
+    "Label": "Staircase Trigger Request",
+    "datapointType": "knx#start",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_luminaire_dimmlevel"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#trigger"
+          ],
+          "tag#hasStateType": [
+            "tag#on"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_luminaire_dimmlevel"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#SwitchCurrentStatus",
+    "Label": "Switch Current Status",
+    "datapointType": "knx#switch",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#situation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#off",
+            "tag#on"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#SwitchRequest",
+    "Label": "Switch Request",
+    "datapointType": "knx#switch",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#off",
+            "tag#on"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#FrostAlarm",
+    "Label": "Frost Alarm",
+    "datapointType": "knx#alarm",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_air_temperature_outside"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#alarm"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#frost",
+            "tag#noFrost"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_air_temperature_outside"
+    ],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#LightAbsoluteSetvalueRequest",
+    "Label": "Light Absolute Setvalue Request",
+    "datapointType": "knx#scaling",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_luminaire_dimmlevel"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#absoluteValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_luminaire_dimmlevel"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#LightRelativeDimmingRequest",
+    "Label": "Light Relative Dimming Request",
+    "datapointType": "knx#controlDimming",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_luminaire_dimmlevel"
+          ],
+          "tag#hasOrigin": [
+            "tag#user"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#cmd"
+          ],
+          "tag#hasPointOperation": [
+            "tag#relativeValue"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_luminaire_dimmlevel"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#RainAlarm",
+    "Label": "Rain Alarm",
+    "datapointType": "knx#alarm",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_rain_volume_outside"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#alarm"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#noRainfall",
+            "tag#rainfall"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_rain_volume_outside"
+    ],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#WindAlarm",
+    "Label": "Wind Alarm",
+    "datapointType": "knx#alarm",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_ph_wind_speed_outside"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#alarm"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#noStorm",
+            "tag#storm"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [],
+    "AdjustsEquipmentQualityKind": [],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [
+      "tag#qk_ph_wind_speed_outside"
+    ],
+    "IsStatusOf": []
+  },
+  {
+    "FunctionPoint": "mac#LightSwitchRequest",
+    "Label": "Light Switch Request",
+    "datapointType": "knx#switch",
+    "OperationKinds": [
+      {
+        "cardinality": "1",
+        "properties": {
+          "core#refersTo": [
+            "tag#qk_eq_luminaire_dimmlevel"
+          ],
+          "tag#hasPointFunctionType": [
+            "tag#activation"
+          ],
+          "tag#hasPointOperation": [
+            "tag#enumeration"
+          ],
+          "tag#hasStateType": [
+            "tag#off",
+            "tag#on"
+          ]
+        }
+      }
+    ],
+    "ActsOnPhenomenonQualityKind": [
+      "tag#qk_ph_light_illuminance"
+    ],
+    "AdjustsEquipmentQualityKind": [
+      "tag#qk_eq_luminaire_dimmlevel"
+    ],
+    "MeasuresEquipmentQualityKind": [],
+    "ObservesPhenomenonQualityKind": [],
+    "IsStatusOf": []
+  }
+]

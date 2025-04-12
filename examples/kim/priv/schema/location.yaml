@@ -1,8 +1,7 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 
 location:
-  title: KNX Location
-  description: A KNX location instance, which can be any specific type of location (Site, Building, Floor, etc.).
+  title: Location
   oneOf:
     - $ref: "#/$defs/Site"
     - $ref: "#/$defs/Building"
@@ -14,7 +13,6 @@ location:
     - $ref: "#/$defs/Outside"
 
 $defs:
-
   Location:
     type: object
     title: Abstract Base Location

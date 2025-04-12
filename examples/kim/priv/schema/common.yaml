@@ -1,15 +1,15 @@
 asyncapi: "3.0.0"
 
 channels:
-  functions-request:
+  functions-req:
     address: functions/req/all
-    title: Functions request
+    title: Functions req
     messages:
-      filtered functions request:
+      filtered functions req:
         payload:
           $ref: "#/components/schemas/filter"
 
-  functions-response:
+  functions-resp:
     address: functions/resp/all
     title: Functions Response
     messages:
@@ -17,7 +17,7 @@ channels:
         payload:
           $ref: "#/components/schemas/functions"
 
-  function-request:
+  function-req:
     address: functions/req/{instance_id}
     title: Function Request
     messages:
@@ -25,7 +25,7 @@ channels:
         payload:
           $ref: "#/components/schemas/empty"
 
-  function-response:
+  function-resp:
     address: functions/resp/{instance_id}
     title: Function Response
     messages:
@@ -33,47 +33,47 @@ channels:
         payload:
           $ref: "#/components/schemas/function"
 
-  datapoints-request:
-    address: datapoints/req/all
-    title: Datapoints Request
+  functionpoints-req:
+    address: functionpoints/req/all
+    title: Functionpoints Request
     messages:
-      filtered datapoints request:
+      filtered functionpoints req:
         payload:
           $ref: "#/components/schemas/filter"
 
-  datapoints-response:
-    address: datapoints/resp/all
-    title: Datapoints Request
+  functionpoints-resp:
+    address: functionpoints/resp/all
+    title: Functionpoints Request
     messages:
-      all datapoint instances:
+      all functionpoint instances:
         payload:
-          $ref: "#/components/schemas/datapoints"
+          $ref: "#/components/schemas/functionpoints"
 
-  datapoint-request:
-    address: datapoint/req/{instance_id}
-    title: Datapoint Request
+  functionpoint-req:
+    address: functionpoint/req/{instance_id}
+    title: Functionpoint Request
     messages:
       empty:
         payload:
           $ref: "#/components/schemas/empty"
 
-  datapoint-response:
-    address: datapoint/resp/{instance_id}
-    title: Datapoint Response
+  functionpoint-resp:
+    address: functionpoint/resp/{instance_id}
+    title: Functionpoint Response
     messages:
-      datapoint instance:
+      functionpoint instance:
         payload:
-          $ref: "#/components/schemas/datapoint"
+          $ref: "#/components/schemas/functionpoint"
 
-  locations-request:
+  locations-req:
     address: locations/req/all
     title: Locations Request
     messages:
-      filtered locations request:
+      filtered locations req:
         payload:
           $ref: "#/components/schemas/filter"
 
-  locations-response:
+  locations-resp:
     address: locations/resp/all
     title: Locations Response
     messages:
@@ -81,7 +81,7 @@ channels:
         payload:
           $ref: "#/components/schemas/locations"
 
-  location-request:
+  location-req:
     address: location/req/{instance_id}
     title: Location Request
     messages:
@@ -89,7 +89,7 @@ channels:
         payload:
           $ref: "#/components/schemas/empty"
 
-  location-response:
+  location-resp:
     address: location/resp/{instance_id}
     title: Location Response
     messages:
@@ -97,35 +97,47 @@ channels:
         payload:
           $ref: "#/components/schemas/location"
 
-  datapoint-write-request:
-    address: datapoint-write/req/{instance_id}
-    title: Datapoint Write Request
+  functionpoint-write-req:
+    address: functionpoint-write/req/{instance_id}
+    title: Functionpoint Write Request
     messages:
-      datapoint write:
+      functionpoint write:
         payload:
-          $ref: "#/components/schemas/datapoint-write"
+          $ref: "#/components/schemas/functionpoint-write"
 
-  datapoint-write-indication:
-    address: datapoint-write/ind/{instance_id}
-    title: Datapoint Write Indication
+  functionpoint-write-ind:
+    address: functionpoint-write/ind/{instance_id}
+    title: Functionpoint Write Indication
     messages:
-      datapoint write:
+      functionpoint write:
         payload:
-          $ref: "#/components/schemas/datapoint-write"
+          $ref: "#/components/schemas/functionpoint-write"
 
 components:
   parameters:
     instance_id:
       description: ID of the instance
+      x-format: uuid
 
   schemas:
     function:
-      $ref: "./function.yaml#/function"
+      $ref: "./generated/application-functions.json#/application_function"
+
+    functionpoint:
+      $ref: "./generated/functionpoints.json#/functionpoint"
+
+    functionpoint-write:
+      $ref: "./generated/functionpoint-writes.json#/functionpoint_write"
 
     functions:
       type: array
       items:
         $ref: "#/components/schemas/function"
+
+    functionpoints:
+      type: array
+      items:
+        $ref: "#/components/schemas/functionpoint"
 
     location:
       $ref: "./location.yaml#/location"
@@ -134,40 +146,6 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/location"
-
-    datapoint:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        type:
-          const: datapoint
-        datapoint_ref:
-          # TODO
-          # $ref: "./definitions.yaml#/$defs/datapoint"
-          type: string
-        title:
-          type: string
-        function_ref:
-          type: string
-          format: uuid
-      required:
-        - id
-        - type
-        - title
-        - datapoint_ref
-        - function_ref
-      additionalProperties: false
-
-    datapoints:
-      type: array
-      items:
-        $ref: "#/components/schemas/datapoint"
-
-    datapoint-write:
-      $ref: "./datapoint-write.json#/datapoint-write"
-      # type: string
 
     filter:
       type: object
@@ -181,3 +159,22 @@ components:
     empty:
       type: object
       additionalProperties: false
+
+    # dpt1_1:
+    #   "$ref": "#/components/schemas/dpt1_1_f1"
+
+    # dpt1_1_f1:
+    #   type: string
+    #   enum: ["on", "off"]
+
+    # dpt2_1_f2:
+    #   type: string
+    #   enum: ["control", "no_control"]
+
+    # dpt2_1:
+    #   type: object
+    #   properties:
+    #     value:
+    #       "$ref": "#/components/schemas/dpt1_1_f1"
+    #     control:
+    #       "$ref": "#/components/schemas/dpt2_1_f2"
