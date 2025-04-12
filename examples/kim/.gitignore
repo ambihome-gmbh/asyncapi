@@ -26,3 +26,4 @@ priv/schema/bundled
 priv/schema/docs
 priv/schema/generated
 .elixir_ls/
+.vscode

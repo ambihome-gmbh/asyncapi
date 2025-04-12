@@ -417,6 +417,12 @@
     },
     "function-req": {
       "address": "functions/req/{instance_id}",
+      "parameters": {
+        "instance_id": {
+          "description": "ID of the instance",
+          "x-format": "uuid"
+        }
+      },
       "title": "Function Request",
       "messages": {
         "empty": {
@@ -430,6 +436,12 @@
     },
     "function-resp": {
       "address": "functions/resp/{instance_id}",
+      "parameters": {
+        "instance_id": {
+          "description": "ID of the instance",
+          "x-format": "uuid"
+        }
+      },
       "title": "Function Response",
       "messages": {
         "function instance": {
@@ -1641,6 +1653,12 @@
     },
     "functionpoint-req": {
       "address": "functionpoint/req/{instance_id}",
+      "parameters": {
+        "instance_id": {
+          "description": "ID of the instance",
+          "x-format": "uuid"
+        }
+      },
       "title": "Functionpoint Request",
       "messages": {
         "empty": {
@@ -1654,6 +1672,12 @@
     },
     "functionpoint-resp": {
       "address": "functionpoint/resp/{instance_id}",
+      "parameters": {
+        "instance_id": {
+          "description": "ID of the instance",
+          "x-format": "uuid"
+        }
+      },
       "title": "Functionpoint Response",
       "messages": {
         "functionpoint instance": {
@@ -3374,6 +3398,12 @@
     },
     "location-req": {
       "address": "location/req/{instance_id}",
+      "parameters": {
+        "instance_id": {
+          "description": "ID of the instance",
+          "x-format": "uuid"
+        }
+      },
       "title": "Location Request",
       "messages": {
         "empty": {
@@ -3387,6 +3417,12 @@
     },
     "location-resp": {
       "address": "location/resp/{instance_id}",
+      "parameters": {
+        "instance_id": {
+          "description": "ID of the instance",
+          "x-format": "uuid"
+        }
+      },
       "title": "Location Response",
       "messages": {
         "location instance": {
@@ -4264,6 +4300,12 @@
     },
     "functionpoint-write-req": {
       "address": "functionpoint-write/req/{instance_id}",
+      "parameters": {
+        "instance_id": {
+          "description": "ID of the instance",
+          "x-format": "uuid"
+        }
+      },
       "title": "Functionpoint Write Request",
       "messages": {
         "functionpoint write": {
@@ -5057,6 +5099,12 @@
     },
     "functionpoint-write-ind": {
       "address": "functionpoint-write/ind/{instance_id}",
+      "parameters": {
+        "instance_id": {
+          "description": "ID of the instance",
+          "x-format": "uuid"
+        }
+      },
       "title": "Functionpoint Write Indication",
       "messages": {
         "functionpoint write": {

@@ -19,6 +19,9 @@ channels:
 
   function-req:
     address: functions/req/{instance_id}
+    parameters:
+      instance_id:
+        "$ref": "#/components/parameters/instance_id"
     title: Function Request
     messages:
       empty:
@@ -27,6 +30,9 @@ channels:
 
   function-resp:
     address: functions/resp/{instance_id}
+    parameters:
+      instance_id:
+        "$ref": "#/components/parameters/instance_id"
     title: Function Response
     messages:
       function instance:
@@ -51,6 +57,9 @@ channels:
 
   functionpoint-req:
     address: functionpoint/req/{instance_id}
+    parameters:
+      instance_id:
+        "$ref": "#/components/parameters/instance_id"
     title: Functionpoint Request
     messages:
       empty:
@@ -59,6 +68,9 @@ channels:
 
   functionpoint-resp:
     address: functionpoint/resp/{instance_id}
+    parameters:
+      instance_id:
+        "$ref": "#/components/parameters/instance_id"
     title: Functionpoint Response
     messages:
       functionpoint instance:
@@ -83,6 +95,9 @@ channels:
 
   location-req:
     address: location/req/{instance_id}
+    parameters:
+      instance_id:
+        "$ref": "#/components/parameters/instance_id"
     title: Location Request
     messages:
       empty:
@@ -91,6 +106,9 @@ channels:
 
   location-resp:
     address: location/resp/{instance_id}
+    parameters:
+      instance_id:
+        "$ref": "#/components/parameters/instance_id"
     title: Location Response
     messages:
       location instance:
@@ -99,6 +117,9 @@ channels:
 
   functionpoint-write-req:
     address: functionpoint-write/req/{instance_id}
+    parameters:
+      instance_id:
+        "$ref": "#/components/parameters/instance_id"
     title: Functionpoint Write Request
     messages:
       functionpoint write:
@@ -107,6 +128,9 @@ channels:
 
   functionpoint-write-ind:
     address: functionpoint-write/ind/{instance_id}
+    parameters:
+      instance_id:
+        "$ref": "#/components/parameters/instance_id"
     title: Functionpoint Write Indication
     messages:
       functionpoint write:

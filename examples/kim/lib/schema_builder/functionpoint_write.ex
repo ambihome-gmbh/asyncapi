@@ -1,6 +1,4 @@
 defmodule SchemaBuilder.FunctionpointWrite do
-  import Enum
-
   def defs(kimfunpoints, dpt_urn_mapping) do
     for funpoint <- kimfunpoints, into: %{} do
       id = funpoint["FunctionPoint"]

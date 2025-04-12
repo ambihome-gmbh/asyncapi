@@ -31,7 +31,7 @@ defmodule Asyncapi do
   end
 
   def validate_parameters(parameter_values, operation, schema) do
-    # dbg(parameter_values)
+    dbg(parameter_values)
     parameter_validation_errors =
       for {name, value} <- parameter_values,
           validation_result = validate_parameter(name, value, operation, schema),
@@ -47,6 +47,7 @@ defmodule Asyncapi do
   end
 
   defp validate_parameter(name, value, operation, schema) do
+    # TODO meta-schema: if paramter used, we also need a parameter-schema in the channel!
     parameter_schema = operation.parameter_schemas[name]
     result = Validator.validate_fragment(schema, parameter_schema, value)
     result
@@ -55,7 +56,9 @@ defmodule Asyncapi do
   def validate_payload(payload, operation, schema) do
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
       :ok -> :ok
-      {:error, msg} -> {:error, :payload_validation_error, msg, operation.id, payload}
+      {:error, msg} ->
+        dbg(payload)
+        {:error, :payload_validation_error, msg, operation.id, payload}
     end
   end
 
