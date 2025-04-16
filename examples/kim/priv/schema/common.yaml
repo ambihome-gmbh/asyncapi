@@ -18,7 +18,7 @@ channels:
           $ref: "#/components/schemas/functions"
 
   function-req:
-    address: functions/req/{instance_id}
+    address: function/req/{instance_id}
     parameters:
       instance_id:
         "$ref": "#/components/parameters/instance_id"
@@ -29,7 +29,7 @@ channels:
           $ref: "#/components/schemas/empty"
 
   function-resp:
-    address: functions/resp/{instance_id}
+    address: function/resp/{instance_id}
     parameters:
       instance_id:
         "$ref": "#/components/parameters/instance_id"
@@ -183,22 +183,3 @@ components:
     empty:
       type: object
       additionalProperties: false
-
-    # dpt1_1:
-    #   "$ref": "#/components/schemas/dpt1_1_f1"
-
-    # dpt1_1_f1:
-    #   type: string
-    #   enum: ["on", "off"]
-
-    # dpt2_1_f2:
-    #   type: string
-    #   enum: ["control", "no_control"]
-
-    # dpt2_1:
-    #   type: object
-    #   properties:
-    #     value:
-    #       "$ref": "#/components/schemas/dpt1_1_f1"
-    #     control:
-    #       "$ref": "#/components/schemas/dpt2_1_f2"

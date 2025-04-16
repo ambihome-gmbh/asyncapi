@@ -48,6 +48,8 @@ defmodule SchemaBuilder do
     used_funpoints = for appfun <- appfuns, funpoint <- appfun.function_points, do: funpoint
     used_kimfunpoints = for funpoint <- kimfunpoints, funpoint["FunctionPoint"] in used_funpoints, do: funpoint
 
+    dbg(used_kimfunpoints)
+
     used_kimfunpoints
     |> SchemaBuilder.Functionpoint.defs(dpt_urn_mapping)
     |> one_of_schema("functionpoint")

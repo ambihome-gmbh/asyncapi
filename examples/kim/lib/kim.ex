@@ -1,8 +1,7 @@
 defmodule KimService do
   use MqttAsyncapi, schema_module: KimSchema
 
-  # alias Asyncapi.Message
-  # alias KimSchema.MessagePayload, as: P
+  alias Asyncapi.Message
   import Asyncapi.Helpers
 
   def start_link(opts \\ []) do
@@ -15,7 +14,7 @@ defmodule KimService do
   end
 
   @impl true
-  def handle_message(_message, state) do
+  def handle_message(%Message{op_id: "functionpoint-req"} = message, state) do
     noreply(state)
   end
 

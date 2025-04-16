@@ -2,8 +2,7 @@
   "locations": [
     {
       "id": "beb9665e-c34a-42ca-b0e4-4e24dc46666d",
-      "type": "location",
-      "location_type_id": "urn:knx:loc.building",
+      "type": "urn:knx:loc.building",
       "name": "Building A",
       "floors": [
         "42f65814-bab9-4122-9924-696ac4922578"
@@ -15,8 +14,7 @@
     },
     {
       "id": "42f65814-bab9-4122-9924-696ac4922578",
-      "type": "location",
-      "location_type_id": "urn:knx:loc.floor",
+      "type": "urn:knx:loc.floor",
       "name": "Ground Floor",
       "rooms": [
         "1b03625b-3680-4e81-aa11-9251bd050b61",
@@ -25,19 +23,22 @@
     },
     {
       "id": "1b03625b-3680-4e81-aa11-9251bd050b61",
-      "type": "location",
-      "location_type_id": "urn:knx:loc.room",
+      "type": "urn:knx:loc.room",
       "name": "Kitchen",
-      "applicationFunctions": [
+      "location_usage": "tag#kitchen",
+      "floor": "42f65814-bab9-4122-9924-696ac4922578",
+      "adjacent_locations": [
+        "20ba9f7f-85ee-4ff6-aa3c-9fbe1a95580b"
+      ],
+      "application_functions": [
         "9fc15a63-37d1-4c6d-9457-bbef0ab44718"
       ]
     },
     {
       "id": "20ba9f7f-85ee-4ff6-aa3c-9fbe1a95580b",
-      "type": "location",
-      "location_type_id": "urn:knx:loc.room",
+      "type": "urn:knx:loc.room",
       "name": "Living Room",
-      "applicationFunctions": [
+      "application_functions": [
         "8338283e-aaf7-4a87-af84-c4b2301cd2b2"
       ]
     }

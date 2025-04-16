@@ -20,3 +20,13 @@ bessere fehlermeldungen in macros. -- schema param to use war falsch (non ex)
 #    ]},
 #   {:child, :undefined, CoboServices.Scenes, {CoboServices.Scenes, :start_link, [[]]}, :permanent, false, 5000,
 #    :worker, [CoboServices.Scenes]}}}
+
+
+
+licht1=0 -> ETS: licht1=0
+licht2=0 -> ETS: licht1=0,licht2=0
+SCN1.add(member: licht1,licht2)
+ETS.allvalues(licht1,licht2) -> SCN.state{SCN1: licht1=0,licht2=0}
+licht1=1 -> ETS: licht1=1,licht2=0
+...
+SCN1.call -> licht1=0,licht2=0 -> KNX

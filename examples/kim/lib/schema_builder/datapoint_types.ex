@@ -78,8 +78,9 @@ defmodule SchemaBuilder.DatapointTypes do
     string
     |> String.trim()
     |> :unicode.characters_to_nfd_binary()
-    # Matches all diacritical marks in Unicode
+    # remove all diacriticals
     |> String.replace(~r/\p{M}/u, "")
+    # replace everything else with an underscore
     |> String.replace(~r/[^a-zA-Z0-9]/, "_")
     |> String.downcase()
   end

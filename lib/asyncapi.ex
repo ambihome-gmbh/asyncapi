@@ -31,7 +31,6 @@ defmodule Asyncapi do
   end
 
   def validate_parameters(parameter_values, operation, schema) do
-    dbg(parameter_values)
     parameter_validation_errors =
       for {name, value} <- parameter_values,
           validation_result = validate_parameter(name, value, operation, schema),
@@ -55,9 +54,11 @@ defmodule Asyncapi do
 
   def validate_payload(payload, operation, schema) do
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
-      :ok -> :ok
+      :ok ->
+        :ok
+
       {:error, msg} ->
-        dbg(payload)
+        dbg(operation.payload_schema)
         {:error, :payload_validation_error, msg, operation.id, payload}
     end
   end

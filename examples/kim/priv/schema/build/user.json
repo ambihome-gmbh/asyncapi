@@ -416,7 +416,7 @@
       "description": "TODO:description"
     },
     "function-req": {
-      "address": "functions/req/{instance_id}",
+      "address": "function/req/{instance_id}",
       "parameters": {
         "instance_id": {
           "description": "ID of the instance",
@@ -435,7 +435,7 @@
       "description": "TODO:description"
     },
     "function-resp": {
-      "address": "functions/resp/{instance_id}",
+      "address": "function/resp/{instance_id}",
       "parameters": {
         "instance_id": {
           "description": "ID of the instance",
@@ -2528,7 +2528,6 @@
               "oneOf": [
                 {
                   "title": "Site",
-                  "description": "A top-level location entity, which may contain buildings and site segments.",
                   "allOf": [
                     {
                       "type": "object",
@@ -2538,26 +2537,20 @@
                           "type": "string",
                           "format": "uuid"
                         },
-                        "type": {
-                          "const": "location"
-                        },
-                        "location_type_id": {
-                          "const": "urn:knx:loc.location"
-                        },
                         "name": {
                           "type": "string"
                         },
                         "number": {
                           "type": "number"
                         },
-                        "adjacentLocations": {
+                        "adjacent_locations": {
                           "type": "array",
                           "items": {
                             "type": "string",
                             "format": "uuid"
                           }
                         },
-                        "applicationFunctions": {
+                        "application_functions": {
                           "type": "array",
                           "items": {
                             "type": "string",
@@ -2585,29 +2578,21 @@
                             "format": "uuid"
                           }
                         },
-                        "address": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "locationUsage": {
-                          "type": "string",
-                          "format": "uuid"
+                        "location_usage": {
+                          "description": "TODO this should be tag#LocationUsage-enum",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "id",
-                        "type",
-                        "location_type_id",
                         "name"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     {
                       "type": "object",
                       "title": "Site Definition",
-                      "description": "Defines the structure and relationships specific to loc#Site.",
                       "properties": {
-                        "location_type_id": {
+                        "type": {
                           "const": "urn:knx:loc.site"
                         },
                         "buildings": {
@@ -2624,14 +2609,12 @@
                             "format": "uuid"
                           }
                         }
-                      },
-                      "additionalProperties": false
+                      }
                     }
                   ]
                 },
                 {
                   "title": "Building",
-                  "description": "A structure within a site that may contain rooms, floors, or other spaces.",
                   "allOf": [
                     {
                       "type": "object",
@@ -2641,26 +2624,20 @@
                           "type": "string",
                           "format": "uuid"
                         },
-                        "type": {
-                          "const": "location"
-                        },
-                        "location_type_id": {
-                          "const": "urn:knx:loc.location"
-                        },
                         "name": {
                           "type": "string"
                         },
                         "number": {
                           "type": "number"
                         },
-                        "adjacentLocations": {
+                        "adjacent_locations": {
                           "type": "array",
                           "items": {
                             "type": "string",
                             "format": "uuid"
                           }
                         },
-                        "applicationFunctions": {
+                        "application_functions": {
                           "type": "array",
                           "items": {
                             "type": "string",
@@ -2688,29 +2665,21 @@
                             "format": "uuid"
                           }
                         },
-                        "address": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "locationUsage": {
-                          "type": "string",
-                          "format": "uuid"
+                        "location_usage": {
+                          "description": "TODO this should be tag#LocationUsage-enum",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "id",
-                        "type",
-                        "location_type_id",
                         "name"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     {
                       "type": "object",
                       "title": "Building Definition",
-                      "description": "Defines the structure and relationships specific to loc#Building.",
                       "properties": {
-                        "location_type_id": {
+                        "type": {
                           "const": "urn:knx:loc.building"
                         },
                         "floors": {
@@ -2727,6 +2696,9 @@
                             "format": "uuid"
                           }
                         },
+                        "address": {
+                          "type": "string"
+                        },
                         "spaces": {
                           "type": "array",
                           "items": {
@@ -2741,7 +2713,6 @@
                 },
                 {
                   "title": "Floor",
-                  "description": "A level or story within a building.",
                   "allOf": [
                     {
                       "type": "object",
@@ -2751,26 +2722,20 @@
                           "type": "string",
                           "format": "uuid"
                         },
-                        "type": {
-                          "const": "location"
-                        },
-                        "location_type_id": {
-                          "const": "urn:knx:loc.location"
-                        },
                         "name": {
                           "type": "string"
                         },
                         "number": {
                           "type": "number"
                         },
-                        "adjacentLocations": {
+                        "adjacent_locations": {
                           "type": "array",
                           "items": {
                             "type": "string",
                             "format": "uuid"
                           }
                         },
-                        "applicationFunctions": {
+                        "application_functions": {
                           "type": "array",
                           "items": {
                             "type": "string",
@@ -2798,36 +2763,28 @@
                             "format": "uuid"
                           }
                         },
-                        "address": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "locationUsage": {
-                          "type": "string",
-                          "format": "uuid"
+                        "location_usage": {
+                          "description": "TODO this should be tag#LocationUsage-enum",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "id",
-                        "type",
-                        "location_type_id",
                         "name"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     {
                       "type": "object",
                       "title": "Floor Definition",
-                      "description": "Defines the structure and relationships specific to loc#Floor.",
                       "properties": {
-                        "location_type_id": {
+                        "type": {
                           "const": "urn:knx:loc.floor"
                         },
-                        "lowerFloor": {
+                        "lower_floor": {
                           "type": "string",
                           "format": "uuid"
                         },
-                        "upperFloor": {
+                        "upper_floor": {
                           "type": "string",
                           "format": "uuid"
                         },
@@ -2845,121 +2802,15 @@
                             "format": "uuid"
                           }
                         }
-                      },
-                      "additionalProperties": false
+                      }
                     }
                   ]
                 },
                 {
                   "title": "Room",
-                  "description": "A physical or logical room within a building or floor.",
                   "allOf": [
                     {
-                      "type": "object",
-                      "title": "Abstract Base Location",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "type": {
-                          "const": "location"
-                        },
-                        "location_type_id": {
-                          "const": "urn:knx:loc.location"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "number": {
-                          "type": "number"
-                        },
-                        "adjacentLocations": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "applicationFunctions": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "locations": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "outsides": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "equipments": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "address": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "locationUsage": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "type",
-                        "location_type_id",
-                        "name"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "title": "Room Definition",
-                      "description": "Defines the structure and relationships specific to loc#Room.",
-                      "properties": {
-                        "location_type_id": {
-                          "const": "urn:knx:loc.room"
-                        },
-                        "rooms": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "roomSegments": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        }
-                      },
-                      "additionalProperties": false
-                    }
-                  ]
-                },
-                {
-                  "title": "Room Segment",
-                  "description": "A subdivided segment of a room.",
-                  "allOf": [
-                    {
-                      "title": "Space",
-                      "description": "A general space in a building that may contain floors or rooms.",
+                      "title": "Abstract Space",
                       "allOf": [
                         {
                           "type": "object",
@@ -2969,26 +2820,20 @@
                               "type": "string",
                               "format": "uuid"
                             },
-                            "type": {
-                              "const": "location"
-                            },
-                            "location_type_id": {
-                              "const": "urn:knx:loc.location"
-                            },
                             "name": {
                               "type": "string"
                             },
                             "number": {
                               "type": "number"
                             },
-                            "adjacentLocations": {
+                            "adjacent_locations": {
                               "type": "array",
                               "items": {
                                 "type": "string",
                                 "format": "uuid"
                               }
                             },
-                            "applicationFunctions": {
+                            "application_functions": {
                               "type": "array",
                               "items": {
                                 "type": "string",
@@ -3016,37 +2861,23 @@
                                 "format": "uuid"
                               }
                             },
-                            "address": {
-                              "type": "string",
-                              "format": "uuid"
-                            },
-                            "locationUsage": {
-                              "type": "string",
-                              "format": "uuid"
+                            "location_usage": {
+                              "description": "TODO this should be tag#LocationUsage-enum",
+                              "type": "string"
                             }
                           },
                           "required": [
                             "id",
-                            "type",
-                            "location_type_id",
                             "name"
-                          ],
-                          "additionalProperties": false
+                          ]
                         },
                         {
                           "type": "object",
                           "title": "Space Definition",
-                          "description": "Defines the structure and relationships specific to loc#Space.",
                           "properties": {
-                            "location_type_id": {
-                              "const": "urn:knx:loc.space"
-                            },
-                            "floors": {
-                              "type": "array",
-                              "items": {
-                                "type": "string",
-                                "format": "uuid"
-                              }
+                            "floor": {
+                              "type": "string",
+                              "format": "uuid"
                             },
                             "rooms": {
                               "type": "array",
@@ -3062,17 +2893,124 @@
                                 "format": "uuid"
                               }
                             }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "title": "Room Definition",
+                      "properties": {
+                        "type": {
+                          "const": "urn:knx:loc.room"
+                        },
+                        "room_segments": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "title": "Room Segment",
+                  "allOf": [
+                    {
+                      "title": "Abstract Space",
+                      "allOf": [
+                        {
+                          "type": "object",
+                          "title": "Abstract Base Location",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "number": {
+                              "type": "number"
+                            },
+                            "adjacent_locations": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            },
+                            "application_functions": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            },
+                            "locations": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            },
+                            "outsides": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            },
+                            "equipments": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            },
+                            "location_usage": {
+                              "description": "TODO this should be tag#LocationUsage-enum",
+                              "type": "string"
+                            }
                           },
-                          "additionalProperties": false
+                          "required": [
+                            "id",
+                            "name"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "title": "Space Definition",
+                          "properties": {
+                            "floor": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "rooms": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            },
+                            "spaces": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uuid"
+                              }
+                            }
+                          }
                         }
                       ]
                     },
                     {
                       "type": "object",
                       "title": "Room Segment Definition",
-                      "description": "Defines the structure and relationships specific to loc#RoomSegment.",
                       "properties": {
-                        "location_type_id": {
+                        "type": {
                           "const": "urn:knx:loc.roomsegment"
                         },
                         "roomSegments": {
@@ -3082,124 +3020,12 @@
                             "format": "uuid"
                           }
                         }
-                      },
-                      "additionalProperties": false
-                    }
-                  ]
-                },
-                {
-                  "title": "Space",
-                  "description": "A general space in a building that may contain floors or rooms.",
-                  "allOf": [
-                    {
-                      "type": "object",
-                      "title": "Abstract Base Location",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "type": {
-                          "const": "location"
-                        },
-                        "location_type_id": {
-                          "const": "urn:knx:loc.location"
-                        },
-                        "name": {
-                          "type": "string"
-                        },
-                        "number": {
-                          "type": "number"
-                        },
-                        "adjacentLocations": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "applicationFunctions": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "locations": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "outsides": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "equipments": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "address": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "locationUsage": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "required": [
-                        "id",
-                        "type",
-                        "location_type_id",
-                        "name"
-                      ],
-                      "additionalProperties": false
-                    },
-                    {
-                      "type": "object",
-                      "title": "Space Definition",
-                      "description": "Defines the structure and relationships specific to loc#Space.",
-                      "properties": {
-                        "location_type_id": {
-                          "const": "urn:knx:loc.space"
-                        },
-                        "floors": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "rooms": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        },
-                        "spaces": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
-                        }
-                      },
-                      "additionalProperties": false
+                      }
                     }
                   ]
                 },
                 {
                   "title": "Site Segment",
-                  "description": "A subdivided part of a site, typically containing one or more buildings.",
                   "allOf": [
                     {
                       "type": "object",
@@ -3209,26 +3035,20 @@
                           "type": "string",
                           "format": "uuid"
                         },
-                        "type": {
-                          "const": "location"
-                        },
-                        "location_type_id": {
-                          "const": "urn:knx:loc.location"
-                        },
                         "name": {
                           "type": "string"
                         },
                         "number": {
                           "type": "number"
                         },
-                        "adjacentLocations": {
+                        "adjacent_locations": {
                           "type": "array",
                           "items": {
                             "type": "string",
                             "format": "uuid"
                           }
                         },
-                        "applicationFunctions": {
+                        "application_functions": {
                           "type": "array",
                           "items": {
                             "type": "string",
@@ -3256,29 +3076,21 @@
                             "format": "uuid"
                           }
                         },
-                        "address": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "locationUsage": {
-                          "type": "string",
-                          "format": "uuid"
+                        "location_usage": {
+                          "description": "TODO this should be tag#LocationUsage-enum",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "id",
-                        "type",
-                        "location_type_id",
                         "name"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     {
                       "type": "object",
                       "title": "Site Segment Definition",
-                      "description": "Defines the structure and relationships specific to loc#SiteSegment.",
                       "properties": {
-                        "location_type_id": {
+                        "type": {
                           "const": "urn:knx:loc.sitesegment"
                         },
                         "buildings": {
@@ -3295,14 +3107,12 @@
                             "format": "uuid"
                           }
                         }
-                      },
-                      "additionalProperties": false
+                      }
                     }
                   ]
                 },
                 {
                   "title": "Outside",
-                  "description": "An external or outdoor area linked to a location.",
                   "allOf": [
                     {
                       "type": "object",
@@ -3312,26 +3122,20 @@
                           "type": "string",
                           "format": "uuid"
                         },
-                        "type": {
-                          "const": "location"
-                        },
-                        "location_type_id": {
-                          "const": "urn:knx:loc.location"
-                        },
                         "name": {
                           "type": "string"
                         },
                         "number": {
                           "type": "number"
                         },
-                        "adjacentLocations": {
+                        "adjacent_locations": {
                           "type": "array",
                           "items": {
                             "type": "string",
                             "format": "uuid"
                           }
                         },
-                        "applicationFunctions": {
+                        "application_functions": {
                           "type": "array",
                           "items": {
                             "type": "string",
@@ -3359,33 +3163,24 @@
                             "format": "uuid"
                           }
                         },
-                        "address": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "locationUsage": {
-                          "type": "string",
-                          "format": "uuid"
+                        "location_usage": {
+                          "description": "TODO this should be tag#LocationUsage-enum",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "id",
-                        "type",
-                        "location_type_id",
                         "name"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     {
                       "type": "object",
                       "title": "Outside Definition",
-                      "description": "Defines the structure and relationships specific to loc#Outside.",
                       "properties": {
-                        "location_type_id": {
+                        "type": {
                           "const": "urn:knx:loc.outside"
                         }
-                      },
-                      "additionalProperties": false
+                      }
                     }
                   ]
                 }
@@ -3431,7 +3226,6 @@
             "oneOf": [
               {
                 "title": "Site",
-                "description": "A top-level location entity, which may contain buildings and site segments.",
                 "allOf": [
                   {
                     "type": "object",
@@ -3441,26 +3235,20 @@
                         "type": "string",
                         "format": "uuid"
                       },
-                      "type": {
-                        "const": "location"
-                      },
-                      "location_type_id": {
-                        "const": "urn:knx:loc.location"
-                      },
                       "name": {
                         "type": "string"
                       },
                       "number": {
                         "type": "number"
                       },
-                      "adjacentLocations": {
+                      "adjacent_locations": {
                         "type": "array",
                         "items": {
                           "type": "string",
                           "format": "uuid"
                         }
                       },
-                      "applicationFunctions": {
+                      "application_functions": {
                         "type": "array",
                         "items": {
                           "type": "string",
@@ -3488,29 +3276,21 @@
                           "format": "uuid"
                         }
                       },
-                      "address": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "locationUsage": {
-                        "type": "string",
-                        "format": "uuid"
+                      "location_usage": {
+                        "description": "TODO this should be tag#LocationUsage-enum",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "id",
-                      "type",
-                      "location_type_id",
                       "name"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
                   {
                     "type": "object",
                     "title": "Site Definition",
-                    "description": "Defines the structure and relationships specific to loc#Site.",
                     "properties": {
-                      "location_type_id": {
+                      "type": {
                         "const": "urn:knx:loc.site"
                       },
                       "buildings": {
@@ -3527,14 +3307,12 @@
                           "format": "uuid"
                         }
                       }
-                    },
-                    "additionalProperties": false
+                    }
                   }
                 ]
               },
               {
                 "title": "Building",
-                "description": "A structure within a site that may contain rooms, floors, or other spaces.",
                 "allOf": [
                   {
                     "type": "object",
@@ -3544,26 +3322,20 @@
                         "type": "string",
                         "format": "uuid"
                       },
-                      "type": {
-                        "const": "location"
-                      },
-                      "location_type_id": {
-                        "const": "urn:knx:loc.location"
-                      },
                       "name": {
                         "type": "string"
                       },
                       "number": {
                         "type": "number"
                       },
-                      "adjacentLocations": {
+                      "adjacent_locations": {
                         "type": "array",
                         "items": {
                           "type": "string",
                           "format": "uuid"
                         }
                       },
-                      "applicationFunctions": {
+                      "application_functions": {
                         "type": "array",
                         "items": {
                           "type": "string",
@@ -3591,29 +3363,21 @@
                           "format": "uuid"
                         }
                       },
-                      "address": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "locationUsage": {
-                        "type": "string",
-                        "format": "uuid"
+                      "location_usage": {
+                        "description": "TODO this should be tag#LocationUsage-enum",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "id",
-                      "type",
-                      "location_type_id",
                       "name"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
                   {
                     "type": "object",
                     "title": "Building Definition",
-                    "description": "Defines the structure and relationships specific to loc#Building.",
                     "properties": {
-                      "location_type_id": {
+                      "type": {
                         "const": "urn:knx:loc.building"
                       },
                       "floors": {
@@ -3630,6 +3394,9 @@
                           "format": "uuid"
                         }
                       },
+                      "address": {
+                        "type": "string"
+                      },
                       "spaces": {
                         "type": "array",
                         "items": {
@@ -3644,7 +3411,6 @@
               },
               {
                 "title": "Floor",
-                "description": "A level or story within a building.",
                 "allOf": [
                   {
                     "type": "object",
@@ -3654,26 +3420,20 @@
                         "type": "string",
                         "format": "uuid"
                       },
-                      "type": {
-                        "const": "location"
-                      },
-                      "location_type_id": {
-                        "const": "urn:knx:loc.location"
-                      },
                       "name": {
                         "type": "string"
                       },
                       "number": {
                         "type": "number"
                       },
-                      "adjacentLocations": {
+                      "adjacent_locations": {
                         "type": "array",
                         "items": {
                           "type": "string",
                           "format": "uuid"
                         }
                       },
-                      "applicationFunctions": {
+                      "application_functions": {
                         "type": "array",
                         "items": {
                           "type": "string",
@@ -3701,36 +3461,28 @@
                           "format": "uuid"
                         }
                       },
-                      "address": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "locationUsage": {
-                        "type": "string",
-                        "format": "uuid"
+                      "location_usage": {
+                        "description": "TODO this should be tag#LocationUsage-enum",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "id",
-                      "type",
-                      "location_type_id",
                       "name"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
                   {
                     "type": "object",
                     "title": "Floor Definition",
-                    "description": "Defines the structure and relationships specific to loc#Floor.",
                     "properties": {
-                      "location_type_id": {
+                      "type": {
                         "const": "urn:knx:loc.floor"
                       },
-                      "lowerFloor": {
+                      "lower_floor": {
                         "type": "string",
                         "format": "uuid"
                       },
-                      "upperFloor": {
+                      "upper_floor": {
                         "type": "string",
                         "format": "uuid"
                       },
@@ -3748,121 +3500,15 @@
                           "format": "uuid"
                         }
                       }
-                    },
-                    "additionalProperties": false
+                    }
                   }
                 ]
               },
               {
                 "title": "Room",
-                "description": "A physical or logical room within a building or floor.",
                 "allOf": [
                   {
-                    "type": "object",
-                    "title": "Abstract Base Location",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "type": {
-                        "const": "location"
-                      },
-                      "location_type_id": {
-                        "const": "urn:knx:loc.location"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "number": {
-                        "type": "number"
-                      },
-                      "adjacentLocations": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "applicationFunctions": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "locations": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "outsides": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "equipments": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "address": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "locationUsage": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "type",
-                      "location_type_id",
-                      "name"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "title": "Room Definition",
-                    "description": "Defines the structure and relationships specific to loc#Room.",
-                    "properties": {
-                      "location_type_id": {
-                        "const": "urn:knx:loc.room"
-                      },
-                      "rooms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "roomSegments": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      }
-                    },
-                    "additionalProperties": false
-                  }
-                ]
-              },
-              {
-                "title": "Room Segment",
-                "description": "A subdivided segment of a room.",
-                "allOf": [
-                  {
-                    "title": "Space",
-                    "description": "A general space in a building that may contain floors or rooms.",
+                    "title": "Abstract Space",
                     "allOf": [
                       {
                         "type": "object",
@@ -3872,26 +3518,20 @@
                             "type": "string",
                             "format": "uuid"
                           },
-                          "type": {
-                            "const": "location"
-                          },
-                          "location_type_id": {
-                            "const": "urn:knx:loc.location"
-                          },
                           "name": {
                             "type": "string"
                           },
                           "number": {
                             "type": "number"
                           },
-                          "adjacentLocations": {
+                          "adjacent_locations": {
                             "type": "array",
                             "items": {
                               "type": "string",
                               "format": "uuid"
                             }
                           },
-                          "applicationFunctions": {
+                          "application_functions": {
                             "type": "array",
                             "items": {
                               "type": "string",
@@ -3919,37 +3559,23 @@
                               "format": "uuid"
                             }
                           },
-                          "address": {
-                            "type": "string",
-                            "format": "uuid"
-                          },
-                          "locationUsage": {
-                            "type": "string",
-                            "format": "uuid"
+                          "location_usage": {
+                            "description": "TODO this should be tag#LocationUsage-enum",
+                            "type": "string"
                           }
                         },
                         "required": [
                           "id",
-                          "type",
-                          "location_type_id",
                           "name"
-                        ],
-                        "additionalProperties": false
+                        ]
                       },
                       {
                         "type": "object",
                         "title": "Space Definition",
-                        "description": "Defines the structure and relationships specific to loc#Space.",
                         "properties": {
-                          "location_type_id": {
-                            "const": "urn:knx:loc.space"
-                          },
-                          "floors": {
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "format": "uuid"
-                            }
+                          "floor": {
+                            "type": "string",
+                            "format": "uuid"
                           },
                           "rooms": {
                             "type": "array",
@@ -3965,17 +3591,124 @@
                               "format": "uuid"
                             }
                           }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "title": "Room Definition",
+                    "properties": {
+                      "type": {
+                        "const": "urn:knx:loc.room"
+                      },
+                      "room_segments": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "title": "Room Segment",
+                "allOf": [
+                  {
+                    "title": "Abstract Space",
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "title": "Abstract Base Location",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "number": {
+                            "type": "number"
+                          },
+                          "adjacent_locations": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          },
+                          "application_functions": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          },
+                          "locations": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          },
+                          "outsides": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          },
+                          "equipments": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          },
+                          "location_usage": {
+                            "description": "TODO this should be tag#LocationUsage-enum",
+                            "type": "string"
+                          }
                         },
-                        "additionalProperties": false
+                        "required": [
+                          "id",
+                          "name"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "title": "Space Definition",
+                        "properties": {
+                          "floor": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "rooms": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          },
+                          "spaces": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "uuid"
+                            }
+                          }
+                        }
                       }
                     ]
                   },
                   {
                     "type": "object",
                     "title": "Room Segment Definition",
-                    "description": "Defines the structure and relationships specific to loc#RoomSegment.",
                     "properties": {
-                      "location_type_id": {
+                      "type": {
                         "const": "urn:knx:loc.roomsegment"
                       },
                       "roomSegments": {
@@ -3985,124 +3718,12 @@
                           "format": "uuid"
                         }
                       }
-                    },
-                    "additionalProperties": false
-                  }
-                ]
-              },
-              {
-                "title": "Space",
-                "description": "A general space in a building that may contain floors or rooms.",
-                "allOf": [
-                  {
-                    "type": "object",
-                    "title": "Abstract Base Location",
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "type": {
-                        "const": "location"
-                      },
-                      "location_type_id": {
-                        "const": "urn:knx:loc.location"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "number": {
-                        "type": "number"
-                      },
-                      "adjacentLocations": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "applicationFunctions": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "locations": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "outsides": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "equipments": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "address": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "locationUsage": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "required": [
-                      "id",
-                      "type",
-                      "location_type_id",
-                      "name"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "title": "Space Definition",
-                    "description": "Defines the structure and relationships specific to loc#Space.",
-                    "properties": {
-                      "location_type_id": {
-                        "const": "urn:knx:loc.space"
-                      },
-                      "floors": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "rooms": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      },
-                      "spaces": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
-                      }
-                    },
-                    "additionalProperties": false
+                    }
                   }
                 ]
               },
               {
                 "title": "Site Segment",
-                "description": "A subdivided part of a site, typically containing one or more buildings.",
                 "allOf": [
                   {
                     "type": "object",
@@ -4112,26 +3733,20 @@
                         "type": "string",
                         "format": "uuid"
                       },
-                      "type": {
-                        "const": "location"
-                      },
-                      "location_type_id": {
-                        "const": "urn:knx:loc.location"
-                      },
                       "name": {
                         "type": "string"
                       },
                       "number": {
                         "type": "number"
                       },
-                      "adjacentLocations": {
+                      "adjacent_locations": {
                         "type": "array",
                         "items": {
                           "type": "string",
                           "format": "uuid"
                         }
                       },
-                      "applicationFunctions": {
+                      "application_functions": {
                         "type": "array",
                         "items": {
                           "type": "string",
@@ -4159,29 +3774,21 @@
                           "format": "uuid"
                         }
                       },
-                      "address": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "locationUsage": {
-                        "type": "string",
-                        "format": "uuid"
+                      "location_usage": {
+                        "description": "TODO this should be tag#LocationUsage-enum",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "id",
-                      "type",
-                      "location_type_id",
                       "name"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
                   {
                     "type": "object",
                     "title": "Site Segment Definition",
-                    "description": "Defines the structure and relationships specific to loc#SiteSegment.",
                     "properties": {
-                      "location_type_id": {
+                      "type": {
                         "const": "urn:knx:loc.sitesegment"
                       },
                       "buildings": {
@@ -4198,14 +3805,12 @@
                           "format": "uuid"
                         }
                       }
-                    },
-                    "additionalProperties": false
+                    }
                   }
                 ]
               },
               {
                 "title": "Outside",
-                "description": "An external or outdoor area linked to a location.",
                 "allOf": [
                   {
                     "type": "object",
@@ -4215,26 +3820,20 @@
                         "type": "string",
                         "format": "uuid"
                       },
-                      "type": {
-                        "const": "location"
-                      },
-                      "location_type_id": {
-                        "const": "urn:knx:loc.location"
-                      },
                       "name": {
                         "type": "string"
                       },
                       "number": {
                         "type": "number"
                       },
-                      "adjacentLocations": {
+                      "adjacent_locations": {
                         "type": "array",
                         "items": {
                           "type": "string",
                           "format": "uuid"
                         }
                       },
-                      "applicationFunctions": {
+                      "application_functions": {
                         "type": "array",
                         "items": {
                           "type": "string",
@@ -4262,33 +3861,24 @@
                           "format": "uuid"
                         }
                       },
-                      "address": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "locationUsage": {
-                        "type": "string",
-                        "format": "uuid"
+                      "location_usage": {
+                        "description": "TODO this should be tag#LocationUsage-enum",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "id",
-                      "type",
-                      "location_type_id",
                       "name"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
                   {
                     "type": "object",
                     "title": "Outside Definition",
-                    "description": "Defines the structure and relationships specific to loc#Outside.",
                     "properties": {
-                      "location_type_id": {
+                      "type": {
                         "const": "urn:knx:loc.outside"
                       }
-                    },
-                    "additionalProperties": false
+                    }
                   }
                 ]
               }
@@ -9154,7 +8744,6 @@
         "oneOf": [
           {
             "title": "Site",
-            "description": "A top-level location entity, which may contain buildings and site segments.",
             "allOf": [
               {
                 "type": "object",
@@ -9164,26 +8753,20 @@
                     "type": "string",
                     "format": "uuid"
                   },
-                  "type": {
-                    "const": "location"
-                  },
-                  "location_type_id": {
-                    "const": "urn:knx:loc.location"
-                  },
                   "name": {
                     "type": "string"
                   },
                   "number": {
                     "type": "number"
                   },
-                  "adjacentLocations": {
+                  "adjacent_locations": {
                     "type": "array",
                     "items": {
                       "type": "string",
                       "format": "uuid"
                     }
                   },
-                  "applicationFunctions": {
+                  "application_functions": {
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -9211,29 +8794,21 @@
                       "format": "uuid"
                     }
                   },
-                  "address": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "locationUsage": {
-                    "type": "string",
-                    "format": "uuid"
+                  "location_usage": {
+                    "description": "TODO this should be tag#LocationUsage-enum",
+                    "type": "string"
                   }
                 },
                 "required": [
                   "id",
-                  "type",
-                  "location_type_id",
                   "name"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "object",
                 "title": "Site Definition",
-                "description": "Defines the structure and relationships specific to loc#Site.",
                 "properties": {
-                  "location_type_id": {
+                  "type": {
                     "const": "urn:knx:loc.site"
                   },
                   "buildings": {
@@ -9250,14 +8825,12 @@
                       "format": "uuid"
                     }
                   }
-                },
-                "additionalProperties": false
+                }
               }
             ]
           },
           {
             "title": "Building",
-            "description": "A structure within a site that may contain rooms, floors, or other spaces.",
             "allOf": [
               {
                 "type": "object",
@@ -9267,26 +8840,20 @@
                     "type": "string",
                     "format": "uuid"
                   },
-                  "type": {
-                    "const": "location"
-                  },
-                  "location_type_id": {
-                    "const": "urn:knx:loc.location"
-                  },
                   "name": {
                     "type": "string"
                   },
                   "number": {
                     "type": "number"
                   },
-                  "adjacentLocations": {
+                  "adjacent_locations": {
                     "type": "array",
                     "items": {
                       "type": "string",
                       "format": "uuid"
                     }
                   },
-                  "applicationFunctions": {
+                  "application_functions": {
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -9314,29 +8881,21 @@
                       "format": "uuid"
                     }
                   },
-                  "address": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "locationUsage": {
-                    "type": "string",
-                    "format": "uuid"
+                  "location_usage": {
+                    "description": "TODO this should be tag#LocationUsage-enum",
+                    "type": "string"
                   }
                 },
                 "required": [
                   "id",
-                  "type",
-                  "location_type_id",
                   "name"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "object",
                 "title": "Building Definition",
-                "description": "Defines the structure and relationships specific to loc#Building.",
                 "properties": {
-                  "location_type_id": {
+                  "type": {
                     "const": "urn:knx:loc.building"
                   },
                   "floors": {
@@ -9353,6 +8912,9 @@
                       "format": "uuid"
                     }
                   },
+                  "address": {
+                    "type": "string"
+                  },
                   "spaces": {
                     "type": "array",
                     "items": {
@@ -9367,7 +8929,6 @@
           },
           {
             "title": "Floor",
-            "description": "A level or story within a building.",
             "allOf": [
               {
                 "type": "object",
@@ -9377,26 +8938,20 @@
                     "type": "string",
                     "format": "uuid"
                   },
-                  "type": {
-                    "const": "location"
-                  },
-                  "location_type_id": {
-                    "const": "urn:knx:loc.location"
-                  },
                   "name": {
                     "type": "string"
                   },
                   "number": {
                     "type": "number"
                   },
-                  "adjacentLocations": {
+                  "adjacent_locations": {
                     "type": "array",
                     "items": {
                       "type": "string",
                       "format": "uuid"
                     }
                   },
-                  "applicationFunctions": {
+                  "application_functions": {
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -9424,36 +8979,28 @@
                       "format": "uuid"
                     }
                   },
-                  "address": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "locationUsage": {
-                    "type": "string",
-                    "format": "uuid"
+                  "location_usage": {
+                    "description": "TODO this should be tag#LocationUsage-enum",
+                    "type": "string"
                   }
                 },
                 "required": [
                   "id",
-                  "type",
-                  "location_type_id",
                   "name"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "object",
                 "title": "Floor Definition",
-                "description": "Defines the structure and relationships specific to loc#Floor.",
                 "properties": {
-                  "location_type_id": {
+                  "type": {
                     "const": "urn:knx:loc.floor"
                   },
-                  "lowerFloor": {
+                  "lower_floor": {
                     "type": "string",
                     "format": "uuid"
                   },
-                  "upperFloor": {
+                  "upper_floor": {
                     "type": "string",
                     "format": "uuid"
                   },
@@ -9471,121 +9018,15 @@
                       "format": "uuid"
                     }
                   }
-                },
-                "additionalProperties": false
+                }
               }
             ]
           },
           {
             "title": "Room",
-            "description": "A physical or logical room within a building or floor.",
             "allOf": [
               {
-                "type": "object",
-                "title": "Abstract Base Location",
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "type": {
-                    "const": "location"
-                  },
-                  "location_type_id": {
-                    "const": "urn:knx:loc.location"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "number": {
-                    "type": "number"
-                  },
-                  "adjacentLocations": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "applicationFunctions": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "locations": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "outsides": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "equipments": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "address": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "locationUsage": {
-                    "type": "string",
-                    "format": "uuid"
-                  }
-                },
-                "required": [
-                  "id",
-                  "type",
-                  "location_type_id",
-                  "name"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "title": "Room Definition",
-                "description": "Defines the structure and relationships specific to loc#Room.",
-                "properties": {
-                  "location_type_id": {
-                    "const": "urn:knx:loc.room"
-                  },
-                  "rooms": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "roomSegments": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  }
-                },
-                "additionalProperties": false
-              }
-            ]
-          },
-          {
-            "title": "Room Segment",
-            "description": "A subdivided segment of a room.",
-            "allOf": [
-              {
-                "title": "Space",
-                "description": "A general space in a building that may contain floors or rooms.",
+                "title": "Abstract Space",
                 "allOf": [
                   {
                     "type": "object",
@@ -9595,26 +9036,20 @@
                         "type": "string",
                         "format": "uuid"
                       },
-                      "type": {
-                        "const": "location"
-                      },
-                      "location_type_id": {
-                        "const": "urn:knx:loc.location"
-                      },
                       "name": {
                         "type": "string"
                       },
                       "number": {
                         "type": "number"
                       },
-                      "adjacentLocations": {
+                      "adjacent_locations": {
                         "type": "array",
                         "items": {
                           "type": "string",
                           "format": "uuid"
                         }
                       },
-                      "applicationFunctions": {
+                      "application_functions": {
                         "type": "array",
                         "items": {
                           "type": "string",
@@ -9642,37 +9077,23 @@
                           "format": "uuid"
                         }
                       },
-                      "address": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "locationUsage": {
-                        "type": "string",
-                        "format": "uuid"
+                      "location_usage": {
+                        "description": "TODO this should be tag#LocationUsage-enum",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "id",
-                      "type",
-                      "location_type_id",
                       "name"
-                    ],
-                    "additionalProperties": false
+                    ]
                   },
                   {
                     "type": "object",
                     "title": "Space Definition",
-                    "description": "Defines the structure and relationships specific to loc#Space.",
                     "properties": {
-                      "location_type_id": {
-                        "const": "urn:knx:loc.space"
-                      },
-                      "floors": {
-                        "type": "array",
-                        "items": {
-                          "type": "string",
-                          "format": "uuid"
-                        }
+                      "floor": {
+                        "type": "string",
+                        "format": "uuid"
                       },
                       "rooms": {
                         "type": "array",
@@ -9688,17 +9109,124 @@
                           "format": "uuid"
                         }
                       }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "title": "Room Definition",
+                "properties": {
+                  "type": {
+                    "const": "urn:knx:loc.room"
+                  },
+                  "room_segments": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "title": "Room Segment",
+            "allOf": [
+              {
+                "title": "Abstract Space",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "title": "Abstract Base Location",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "number": {
+                        "type": "number"
+                      },
+                      "adjacent_locations": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "application_functions": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "locations": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "outsides": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "equipments": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "location_usage": {
+                        "description": "TODO this should be tag#LocationUsage-enum",
+                        "type": "string"
+                      }
                     },
-                    "additionalProperties": false
+                    "required": [
+                      "id",
+                      "name"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "title": "Space Definition",
+                    "properties": {
+                      "floor": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "rooms": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "spaces": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      }
+                    }
                   }
                 ]
               },
               {
                 "type": "object",
                 "title": "Room Segment Definition",
-                "description": "Defines the structure and relationships specific to loc#RoomSegment.",
                 "properties": {
-                  "location_type_id": {
+                  "type": {
                     "const": "urn:knx:loc.roomsegment"
                   },
                   "roomSegments": {
@@ -9708,124 +9236,12 @@
                       "format": "uuid"
                     }
                   }
-                },
-                "additionalProperties": false
-              }
-            ]
-          },
-          {
-            "title": "Space",
-            "description": "A general space in a building that may contain floors or rooms.",
-            "allOf": [
-              {
-                "type": "object",
-                "title": "Abstract Base Location",
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "type": {
-                    "const": "location"
-                  },
-                  "location_type_id": {
-                    "const": "urn:knx:loc.location"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "number": {
-                    "type": "number"
-                  },
-                  "adjacentLocations": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "applicationFunctions": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "locations": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "outsides": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "equipments": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "address": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "locationUsage": {
-                    "type": "string",
-                    "format": "uuid"
-                  }
-                },
-                "required": [
-                  "id",
-                  "type",
-                  "location_type_id",
-                  "name"
-                ],
-                "additionalProperties": false
-              },
-              {
-                "type": "object",
-                "title": "Space Definition",
-                "description": "Defines the structure and relationships specific to loc#Space.",
-                "properties": {
-                  "location_type_id": {
-                    "const": "urn:knx:loc.space"
-                  },
-                  "floors": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "rooms": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "spaces": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  }
-                },
-                "additionalProperties": false
+                }
               }
             ]
           },
           {
             "title": "Site Segment",
-            "description": "A subdivided part of a site, typically containing one or more buildings.",
             "allOf": [
               {
                 "type": "object",
@@ -9835,26 +9251,20 @@
                     "type": "string",
                     "format": "uuid"
                   },
-                  "type": {
-                    "const": "location"
-                  },
-                  "location_type_id": {
-                    "const": "urn:knx:loc.location"
-                  },
                   "name": {
                     "type": "string"
                   },
                   "number": {
                     "type": "number"
                   },
-                  "adjacentLocations": {
+                  "adjacent_locations": {
                     "type": "array",
                     "items": {
                       "type": "string",
                       "format": "uuid"
                     }
                   },
-                  "applicationFunctions": {
+                  "application_functions": {
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -9882,29 +9292,21 @@
                       "format": "uuid"
                     }
                   },
-                  "address": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "locationUsage": {
-                    "type": "string",
-                    "format": "uuid"
+                  "location_usage": {
+                    "description": "TODO this should be tag#LocationUsage-enum",
+                    "type": "string"
                   }
                 },
                 "required": [
                   "id",
-                  "type",
-                  "location_type_id",
                   "name"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "object",
                 "title": "Site Segment Definition",
-                "description": "Defines the structure and relationships specific to loc#SiteSegment.",
                 "properties": {
-                  "location_type_id": {
+                  "type": {
                     "const": "urn:knx:loc.sitesegment"
                   },
                   "buildings": {
@@ -9921,14 +9323,12 @@
                       "format": "uuid"
                     }
                   }
-                },
-                "additionalProperties": false
+                }
               }
             ]
           },
           {
             "title": "Outside",
-            "description": "An external or outdoor area linked to a location.",
             "allOf": [
               {
                 "type": "object",
@@ -9938,26 +9338,20 @@
                     "type": "string",
                     "format": "uuid"
                   },
-                  "type": {
-                    "const": "location"
-                  },
-                  "location_type_id": {
-                    "const": "urn:knx:loc.location"
-                  },
                   "name": {
                     "type": "string"
                   },
                   "number": {
                     "type": "number"
                   },
-                  "adjacentLocations": {
+                  "adjacent_locations": {
                     "type": "array",
                     "items": {
                       "type": "string",
                       "format": "uuid"
                     }
                   },
-                  "applicationFunctions": {
+                  "application_functions": {
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -9985,33 +9379,24 @@
                       "format": "uuid"
                     }
                   },
-                  "address": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "locationUsage": {
-                    "type": "string",
-                    "format": "uuid"
+                  "location_usage": {
+                    "description": "TODO this should be tag#LocationUsage-enum",
+                    "type": "string"
                   }
                 },
                 "required": [
                   "id",
-                  "type",
-                  "location_type_id",
                   "name"
-                ],
-                "additionalProperties": false
+                ]
               },
               {
                 "type": "object",
                 "title": "Outside Definition",
-                "description": "Defines the structure and relationships specific to loc#Outside.",
                 "properties": {
-                  "location_type_id": {
+                  "type": {
                     "const": "urn:knx:loc.outside"
                   }
-                },
-                "additionalProperties": false
+                }
               }
             ]
           }
@@ -10024,7 +9409,6 @@
           "oneOf": [
             {
               "title": "Site",
-              "description": "A top-level location entity, which may contain buildings and site segments.",
               "allOf": [
                 {
                   "type": "object",
@@ -10034,26 +9418,20 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "type": {
-                      "const": "location"
-                    },
-                    "location_type_id": {
-                      "const": "urn:knx:loc.location"
-                    },
                     "name": {
                       "type": "string"
                     },
                     "number": {
                       "type": "number"
                     },
-                    "adjacentLocations": {
+                    "adjacent_locations": {
                       "type": "array",
                       "items": {
                         "type": "string",
                         "format": "uuid"
                       }
                     },
-                    "applicationFunctions": {
+                    "application_functions": {
                       "type": "array",
                       "items": {
                         "type": "string",
@@ -10081,29 +9459,21 @@
                         "format": "uuid"
                       }
                     },
-                    "address": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "locationUsage": {
-                      "type": "string",
-                      "format": "uuid"
+                    "location_usage": {
+                      "description": "TODO this should be tag#LocationUsage-enum",
+                      "type": "string"
                     }
                   },
                   "required": [
                     "id",
-                    "type",
-                    "location_type_id",
                     "name"
-                  ],
-                  "additionalProperties": false
+                  ]
                 },
                 {
                   "type": "object",
                   "title": "Site Definition",
-                  "description": "Defines the structure and relationships specific to loc#Site.",
                   "properties": {
-                    "location_type_id": {
+                    "type": {
                       "const": "urn:knx:loc.site"
                     },
                     "buildings": {
@@ -10120,14 +9490,12 @@
                         "format": "uuid"
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               ]
             },
             {
               "title": "Building",
-              "description": "A structure within a site that may contain rooms, floors, or other spaces.",
               "allOf": [
                 {
                   "type": "object",
@@ -10137,26 +9505,20 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "type": {
-                      "const": "location"
-                    },
-                    "location_type_id": {
-                      "const": "urn:knx:loc.location"
-                    },
                     "name": {
                       "type": "string"
                     },
                     "number": {
                       "type": "number"
                     },
-                    "adjacentLocations": {
+                    "adjacent_locations": {
                       "type": "array",
                       "items": {
                         "type": "string",
                         "format": "uuid"
                       }
                     },
-                    "applicationFunctions": {
+                    "application_functions": {
                       "type": "array",
                       "items": {
                         "type": "string",
@@ -10184,29 +9546,21 @@
                         "format": "uuid"
                       }
                     },
-                    "address": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "locationUsage": {
-                      "type": "string",
-                      "format": "uuid"
+                    "location_usage": {
+                      "description": "TODO this should be tag#LocationUsage-enum",
+                      "type": "string"
                     }
                   },
                   "required": [
                     "id",
-                    "type",
-                    "location_type_id",
                     "name"
-                  ],
-                  "additionalProperties": false
+                  ]
                 },
                 {
                   "type": "object",
                   "title": "Building Definition",
-                  "description": "Defines the structure and relationships specific to loc#Building.",
                   "properties": {
-                    "location_type_id": {
+                    "type": {
                       "const": "urn:knx:loc.building"
                     },
                     "floors": {
@@ -10223,6 +9577,9 @@
                         "format": "uuid"
                       }
                     },
+                    "address": {
+                      "type": "string"
+                    },
                     "spaces": {
                       "type": "array",
                       "items": {
@@ -10237,7 +9594,6 @@
             },
             {
               "title": "Floor",
-              "description": "A level or story within a building.",
               "allOf": [
                 {
                   "type": "object",
@@ -10247,26 +9603,20 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "type": {
-                      "const": "location"
-                    },
-                    "location_type_id": {
-                      "const": "urn:knx:loc.location"
-                    },
                     "name": {
                       "type": "string"
                     },
                     "number": {
                       "type": "number"
                     },
-                    "adjacentLocations": {
+                    "adjacent_locations": {
                       "type": "array",
                       "items": {
                         "type": "string",
                         "format": "uuid"
                       }
                     },
-                    "applicationFunctions": {
+                    "application_functions": {
                       "type": "array",
                       "items": {
                         "type": "string",
@@ -10294,36 +9644,28 @@
                         "format": "uuid"
                       }
                     },
-                    "address": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "locationUsage": {
-                      "type": "string",
-                      "format": "uuid"
+                    "location_usage": {
+                      "description": "TODO this should be tag#LocationUsage-enum",
+                      "type": "string"
                     }
                   },
                   "required": [
                     "id",
-                    "type",
-                    "location_type_id",
                     "name"
-                  ],
-                  "additionalProperties": false
+                  ]
                 },
                 {
                   "type": "object",
                   "title": "Floor Definition",
-                  "description": "Defines the structure and relationships specific to loc#Floor.",
                   "properties": {
-                    "location_type_id": {
+                    "type": {
                       "const": "urn:knx:loc.floor"
                     },
-                    "lowerFloor": {
+                    "lower_floor": {
                       "type": "string",
                       "format": "uuid"
                     },
-                    "upperFloor": {
+                    "upper_floor": {
                       "type": "string",
                       "format": "uuid"
                     },
@@ -10341,121 +9683,15 @@
                         "format": "uuid"
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               ]
             },
             {
               "title": "Room",
-              "description": "A physical or logical room within a building or floor.",
               "allOf": [
                 {
-                  "type": "object",
-                  "title": "Abstract Base Location",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "type": {
-                      "const": "location"
-                    },
-                    "location_type_id": {
-                      "const": "urn:knx:loc.location"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "number": {
-                      "type": "number"
-                    },
-                    "adjacentLocations": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "applicationFunctions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "locations": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "outsides": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "equipments": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "address": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "locationUsage": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "type",
-                    "location_type_id",
-                    "name"
-                  ],
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "title": "Room Definition",
-                  "description": "Defines the structure and relationships specific to loc#Room.",
-                  "properties": {
-                    "location_type_id": {
-                      "const": "urn:knx:loc.room"
-                    },
-                    "rooms": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "roomSegments": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              ]
-            },
-            {
-              "title": "Room Segment",
-              "description": "A subdivided segment of a room.",
-              "allOf": [
-                {
-                  "title": "Space",
-                  "description": "A general space in a building that may contain floors or rooms.",
+                  "title": "Abstract Space",
                   "allOf": [
                     {
                       "type": "object",
@@ -10465,26 +9701,20 @@
                           "type": "string",
                           "format": "uuid"
                         },
-                        "type": {
-                          "const": "location"
-                        },
-                        "location_type_id": {
-                          "const": "urn:knx:loc.location"
-                        },
                         "name": {
                           "type": "string"
                         },
                         "number": {
                           "type": "number"
                         },
-                        "adjacentLocations": {
+                        "adjacent_locations": {
                           "type": "array",
                           "items": {
                             "type": "string",
                             "format": "uuid"
                           }
                         },
-                        "applicationFunctions": {
+                        "application_functions": {
                           "type": "array",
                           "items": {
                             "type": "string",
@@ -10512,37 +9742,23 @@
                             "format": "uuid"
                           }
                         },
-                        "address": {
-                          "type": "string",
-                          "format": "uuid"
-                        },
-                        "locationUsage": {
-                          "type": "string",
-                          "format": "uuid"
+                        "location_usage": {
+                          "description": "TODO this should be tag#LocationUsage-enum",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "id",
-                        "type",
-                        "location_type_id",
                         "name"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     {
                       "type": "object",
                       "title": "Space Definition",
-                      "description": "Defines the structure and relationships specific to loc#Space.",
                       "properties": {
-                        "location_type_id": {
-                          "const": "urn:knx:loc.space"
-                        },
-                        "floors": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "uuid"
-                          }
+                        "floor": {
+                          "type": "string",
+                          "format": "uuid"
                         },
                         "rooms": {
                           "type": "array",
@@ -10558,17 +9774,124 @@
                             "format": "uuid"
                           }
                         }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "object",
+                  "title": "Room Definition",
+                  "properties": {
+                    "type": {
+                      "const": "urn:knx:loc.room"
+                    },
+                    "room_segments": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "title": "Room Segment",
+              "allOf": [
+                {
+                  "title": "Abstract Space",
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "title": "Abstract Base Location",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "number": {
+                          "type": "number"
+                        },
+                        "adjacent_locations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        },
+                        "application_functions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        },
+                        "locations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        },
+                        "outsides": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        },
+                        "equipments": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        },
+                        "location_usage": {
+                          "description": "TODO this should be tag#LocationUsage-enum",
+                          "type": "string"
+                        }
                       },
-                      "additionalProperties": false
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "title": "Space Definition",
+                      "properties": {
+                        "floor": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "rooms": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        },
+                        "spaces": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      }
                     }
                   ]
                 },
                 {
                   "type": "object",
                   "title": "Room Segment Definition",
-                  "description": "Defines the structure and relationships specific to loc#RoomSegment.",
                   "properties": {
-                    "location_type_id": {
+                    "type": {
                       "const": "urn:knx:loc.roomsegment"
                     },
                     "roomSegments": {
@@ -10578,124 +9901,12 @@
                         "format": "uuid"
                       }
                     }
-                  },
-                  "additionalProperties": false
-                }
-              ]
-            },
-            {
-              "title": "Space",
-              "description": "A general space in a building that may contain floors or rooms.",
-              "allOf": [
-                {
-                  "type": "object",
-                  "title": "Abstract Base Location",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "type": {
-                      "const": "location"
-                    },
-                    "location_type_id": {
-                      "const": "urn:knx:loc.location"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "number": {
-                      "type": "number"
-                    },
-                    "adjacentLocations": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "applicationFunctions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "locations": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "outsides": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "equipments": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "address": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "locationUsage": {
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "type",
-                    "location_type_id",
-                    "name"
-                  ],
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "title": "Space Definition",
-                  "description": "Defines the structure and relationships specific to loc#Space.",
-                  "properties": {
-                    "location_type_id": {
-                      "const": "urn:knx:loc.space"
-                    },
-                    "floors": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "rooms": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    },
-                    "spaces": {
-                      "type": "array",
-                      "items": {
-                        "type": "string",
-                        "format": "uuid"
-                      }
-                    }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               ]
             },
             {
               "title": "Site Segment",
-              "description": "A subdivided part of a site, typically containing one or more buildings.",
               "allOf": [
                 {
                   "type": "object",
@@ -10705,26 +9916,20 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "type": {
-                      "const": "location"
-                    },
-                    "location_type_id": {
-                      "const": "urn:knx:loc.location"
-                    },
                     "name": {
                       "type": "string"
                     },
                     "number": {
                       "type": "number"
                     },
-                    "adjacentLocations": {
+                    "adjacent_locations": {
                       "type": "array",
                       "items": {
                         "type": "string",
                         "format": "uuid"
                       }
                     },
-                    "applicationFunctions": {
+                    "application_functions": {
                       "type": "array",
                       "items": {
                         "type": "string",
@@ -10752,29 +9957,21 @@
                         "format": "uuid"
                       }
                     },
-                    "address": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "locationUsage": {
-                      "type": "string",
-                      "format": "uuid"
+                    "location_usage": {
+                      "description": "TODO this should be tag#LocationUsage-enum",
+                      "type": "string"
                     }
                   },
                   "required": [
                     "id",
-                    "type",
-                    "location_type_id",
                     "name"
-                  ],
-                  "additionalProperties": false
+                  ]
                 },
                 {
                   "type": "object",
                   "title": "Site Segment Definition",
-                  "description": "Defines the structure and relationships specific to loc#SiteSegment.",
                   "properties": {
-                    "location_type_id": {
+                    "type": {
                       "const": "urn:knx:loc.sitesegment"
                     },
                     "buildings": {
@@ -10791,14 +9988,12 @@
                         "format": "uuid"
                       }
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               ]
             },
             {
               "title": "Outside",
-              "description": "An external or outdoor area linked to a location.",
               "allOf": [
                 {
                   "type": "object",
@@ -10808,26 +10003,20 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "type": {
-                      "const": "location"
-                    },
-                    "location_type_id": {
-                      "const": "urn:knx:loc.location"
-                    },
                     "name": {
                       "type": "string"
                     },
                     "number": {
                       "type": "number"
                     },
-                    "adjacentLocations": {
+                    "adjacent_locations": {
                       "type": "array",
                       "items": {
                         "type": "string",
                         "format": "uuid"
                       }
                     },
-                    "applicationFunctions": {
+                    "application_functions": {
                       "type": "array",
                       "items": {
                         "type": "string",
@@ -10855,33 +10044,24 @@
                         "format": "uuid"
                       }
                     },
-                    "address": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "locationUsage": {
-                      "type": "string",
-                      "format": "uuid"
+                    "location_usage": {
+                      "description": "TODO this should be tag#LocationUsage-enum",
+                      "type": "string"
                     }
                   },
                   "required": [
                     "id",
-                    "type",
-                    "location_type_id",
                     "name"
-                  ],
-                  "additionalProperties": false
+                  ]
                 },
                 {
                   "type": "object",
                   "title": "Outside Definition",
-                  "description": "Defines the structure and relationships specific to loc#Outside.",
                   "properties": {
-                    "location_type_id": {
+                    "type": {
                       "const": "urn:knx:loc.outside"
                     }
-                  },
-                  "additionalProperties": false
+                  }
                 }
               ]
             }
