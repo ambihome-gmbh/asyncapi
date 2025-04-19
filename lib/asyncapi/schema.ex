@@ -17,6 +17,7 @@ defmodule Asyncapi.Schema do
                   |> dbg
 
       def __mix_recompile__?() do
+        dbg(:recompile_checker)
         new_hash =
           @schema_file_glob
           |> Path.wildcard()
