@@ -27,9 +27,9 @@ defmodule MultiStack.MixProject do
   end
 
   # TODO @BM - ist das OK?
-  defp mod(:dev), do: {MultiStack.Application, []}
+  defp mod(:dev), do: {MultiStackApplication, []}
   defp mod(_), do: []
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:test), do: ["lib", "test/multi_stack/support"]
   defp elixirc_paths(_), do: ["lib"]
 end

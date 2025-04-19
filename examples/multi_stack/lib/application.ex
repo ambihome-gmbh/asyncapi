@@ -1,4 +1,4 @@
-defmodule MultiStack.Application do
+defmodule MultiStackApplication do
   @moduledoc false
 
   use Application
