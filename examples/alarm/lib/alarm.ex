@@ -11,6 +11,7 @@ defmodule AlarmService do
 
   @impl true
   def init(_opts) do
+    raise("TODO: payload+params: string maps, folder structure like multistack, no message-structs")
     # TODO
     # {alarm_type, _opts} = Keyword.pop(opts, :alarm_type)
     alarm_type = "alarm_incursion"

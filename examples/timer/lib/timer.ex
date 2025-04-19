@@ -25,6 +25,8 @@ defmodule TimerService do
 
   @impl true
   def init(_opts) do
+    raise("TODO: payload+params: string maps, folder structure like multistack, no message-structs")
+    
     {:ok, %{timers: %{}, geo: @temp_dummy_geo}}
   end
 

@@ -11,6 +11,8 @@ defmodule BakingService do
 
   @impl true
   def init(_opts) do
+    raise("TODO: payload+params: string maps, folder structure like multistack, no message-structs")
+    
     {:ok, %{stack: []}}
   end
 

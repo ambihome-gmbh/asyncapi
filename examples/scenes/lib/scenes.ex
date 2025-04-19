@@ -13,6 +13,8 @@ defmodule ScenesService do
 
   @impl true
   def init(_) do
+    raise("TODO: payload+params: string maps, folder structure like multistack, no message-structs")
+    
     {:ok, %{scenes: load_scenes(), snaps: load_snaps()}}
   end
 
