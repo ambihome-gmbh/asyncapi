@@ -1,3 +1,4 @@
 import Config
 
-config :asyncapi, broker: Asyncapi.Broker.Dummy
+import_config "#{config_env()}.exs"
+

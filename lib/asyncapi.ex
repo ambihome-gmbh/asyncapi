@@ -58,7 +58,6 @@ defmodule Asyncapi do
         :ok
 
       {:error, msg} ->
-        dbg(operation.payload_schema)
         {:error, :payload_validation_error, msg, operation.id, payload}
     end
   end

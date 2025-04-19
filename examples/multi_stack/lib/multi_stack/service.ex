@@ -1,8 +1,7 @@
-defmodule MultiStackService do
-  use MqttAsyncapi, schema_module: MultiStackSchema
+defmodule MultiStack.Service do
+  use MqttAsyncapi, schema_module: MultiStack.Schema
 
   alias Asyncapi.Message
-  alias MultiStackSchema.MessagePayload, as: P
   import Asyncapi.Helpers
 
   def start_link(opts \\ []) do
@@ -16,13 +15,15 @@ defmodule MultiStackService do
 
   @impl true
   def handle_message(%Message{op_id: "create"} = message, state) do
-    %{payload: %{name: name}} = message
+    %{payload: %{"name" => name}} = message
 
     stack_id = Uniq.UUID.uuid6()
 
+    # dbg({:create, state.stacks, stack_id, name})
+
     response = %Message{
       op_id: "create_response",
-      payload: %P.CreateResponse{name: name, id: stack_id}
+      payload: %{name: name, id: stack_id}
     }
 
     reply(
@@ -34,16 +35,20 @@ defmodule MultiStackService do
   @impl true
   def handle_message(%Message{op_id: "push"} = message, state) do
     %{
-      payload: %P.Push{value: value},
-      params: %{stack_id: stack_id}
+      payload: %{"value" => value},
+      params: %{"stack_id" => stack_id}
     } = message
+
+    # dbg({:push, state.stacks, stack_id, value})
 
     noreply(%{state | stacks: update_in(state.stacks, [stack_id, :data], &[value | &1])})
   end
 
   @impl true
   def handle_message(%Message{op_id: "pop"} = message, state) do
-    %{params: %{stack_id: stack_id}} = message
+    %{params: %{"stack_id" => stack_id}} = message
+
+    # dbg({:pop, state.stacks, stack_id})
 
     # NOTE: crashes if no stack with stack_id
     {value, new_stack} =
@@ -54,8 +59,8 @@ defmodule MultiStackService do
 
     response = %Message{
       op_id: "pop_response",
-      payload: %P.PopResponse{value: value},
-      params: %{stack_id: stack_id}
+      payload: %{value: value},
+      params: %{"stack_id" => stack_id}
     }
 
     reply(

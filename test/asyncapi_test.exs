@@ -6,7 +6,6 @@ defmodule AsyncApiTest do
   use ExUnit.Case
 
   alias Asyncapi.Message
-  alias SampleSchema.MessagePayload, as: P
 
   setup do
     [asyncapi: SampleSchema.get_asyncapi()]
@@ -23,22 +22,22 @@ defmodule AsyncApiTest do
   # TODO use schema module
   @m_1 %Message{
     params: %{},
-    payload: %P.P1{},
+    payload: %{},
     op_id: "P1"
   }
   @m_2 %Message{
     params: %{},
-    payload: %P.P2{p_isrequired: "foo"},
+    payload: %{"p_isrequired" => "foo"},
     op_id: "P2"
   }
   @m_3 %Message{
-    params: %{p1: "pv1"},
-    payload: %P.P3{},
+    params: %{"p1" => "pv1"},
+    payload: %{},
     op_id: "P3"
   }
   @m_4 %Message{
-    params: %{p1: "pv1", p2: "pv2"},
-    payload: %P.P4{p_isrequired: "foo"},
+    params: %{"p1" => "pv1", "p2" => "pv2"},
+    payload: %{"p_isrequired" => "foo"},
     op_id: "P4"
   }
 
@@ -48,7 +47,7 @@ defmodule AsyncApiTest do
   }
   @mqtt_2 %{
     topic: "P2",
-    payload: %{"p_isrequired" => "foo", "p" => nil, "p_hasdefault" => 4711}
+    payload: %{"p_isrequired" => "foo"}
   }
   @mqtt_3 %{
     topic: "P3/pv1",
@@ -56,7 +55,7 @@ defmodule AsyncApiTest do
   }
   @mqtt_4 %{
     topic: "P4/pv1/P44/pv2",
-    payload: %{"p_isrequired" => "foo", "p" => nil, "p_hasdefault" => 4711}
+    payload: %{"p_isrequired" => "foo"}
   }
 
   test "from_mqtt_message, valid", %{asyncapi: asyncapi} do
@@ -121,7 +120,7 @@ defmodule AsyncApiTest do
   test "to_mqtt_message, invalid", %{asyncapi: asyncapi} do
     assert assert_raise RuntimeError, ~s/{:error, {:missing_parameters, ["p1"]}}/, fn ->
              Message.to_mqtt_message!(
-               %Message{params: %{}, payload: %P.P3{}, op_id: "P3"},
+               %Message{params: %{}, payload: %{}, op_id: "P3"},
                asyncapi
              )
            end
@@ -130,7 +129,7 @@ defmodule AsyncApiTest do
              Message.to_mqtt_message!(
                %Message{
                  params: %{"p1" => "pv1", "x" => "x"},
-                 payload: %P.P3{},
+                 payload: %{},
                  op_id: "P3"
                },
                asyncapi

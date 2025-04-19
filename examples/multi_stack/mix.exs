@@ -6,7 +6,7 @@ defmodule MultiStack.MixProject do
       app: :multi_stack,
       version: "0.1.0",
       elixir: "~> 1.18",
-      start_permanent: Mix.env() == :prod,
+      start_permanent: Mix.env() == :dev,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env())
     ]
@@ -14,7 +14,8 @@ defmodule MultiStack.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: mod(Mix.env())
     ]
   end
 
@@ -24,6 +25,10 @@ defmodule MultiStack.MixProject do
       {:asyncapi, path: "../.."}
     ]
   end
+
+  # TODO @BM - ist das OK?
+  defp mod(:dev), do: {MultiStack.Application, []}
+  defp mod(_), do: []
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]

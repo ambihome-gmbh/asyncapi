@@ -22,20 +22,20 @@ defmodule ParserTest do
     assert %{payload: {:literal, "string"}} = parse_step("f->t: o/'string'")
 
     assert %{
-             params: %{p1: {:reference, "r"}, p2: {:literal, 1}},
+             params: %{"p1" => {:reference, "r"}, "p2" => {:literal, 1}},
              to: "t",
              from: "f",
              payload: %{
-               bnd: {:binding, "bind"},
-               flt: {:literal, 1.2},
-               int: {:literal, 1},
-               ref: {:reference, "ref"},
-               str: {:literal, "tst"},
-               estr: {:literal, ""},
-               nul: {:literal, nil},
-               bol: {:literal, true},
-               lst: {:list, [{:literal, 1}, {:literal, "a"}]},
-               elst: {:list, []}
+               "bnd" => {:binding, "bind"},
+               "flt" => {:literal, 1.2},
+               "int" => {:literal, 1},
+               "ref" => {:reference, "ref"},
+               "str" => {:literal, "tst"},
+               "estr" => {:literal, ""},
+               "nul" => {:literal, nil},
+               "bol" => {:literal, true},
+               "lst" => {:list, [{:literal, 1}, {:literal, "a"}]},
+               "elst" => {:list, []}
              },
              operation: "op",
              arrow: :async

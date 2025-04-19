@@ -2,6 +2,13 @@ defmodule Asyncapi.TestHelper do
   use ExUnit.Case
   import Enum
 
+  defp fetch!(map, key, error_msg) do
+    case Map.fetch(map, key) do
+      :error -> raise("#{error_msg}: #{inspect(key)} not in #{inspect(map)}")
+      {:ok, value} -> value
+    end
+  end
+
   defmacro generate_tests(service, schema_module, broker) do
     asyncapi = Macro.expand(schema_module, __CALLER__).get_asyncapi()
     testcases = Map.fetch!(asyncapi.schema.schema, "x-testcases")
@@ -167,10 +174,12 @@ defmodule Asyncapi.TestHelper do
               "Binding not found: #{inspect(k)} in #{inspect(received)} --> #{inspect(binding_name)}"
             )
 
-            Map.put(acc, binding_name, Map.fetch!(received, k))
+            Map.put(acc, binding_name, fetch!(received, k, "todo_err_msg_wrap_fetch_put_binding"))
 
           _ ->
-            ExUnit.Assertions.assert(v == Map.fetch!(received, k))
+            ExUnit.Assertions.assert(
+              v == fetch!(received, k, "key not found")
+            )
 
             acc
         end
@@ -188,10 +197,17 @@ defmodule Asyncapi.TestHelper do
   def deref(map_, bindings) do
     Map.new(map_, fn {key, {type, value}} ->
       case type do
-        :reference -> {key, Map.fetch!(bindings, value)}
-        :binding -> {key, {type, value}}
-        :list -> {key, map(value, fn {:literal, v} -> v end)}
-        _ -> {key, value}
+        :reference ->
+          {key, fetch!(bindings, value, "todo_err_msg_wrap_fetch_binding")}
+
+        :binding ->
+          {key, {type, value}}
+
+        :list ->
+          {key, map(value, fn {:literal, v} -> v end)}
+
+        _ ->
+          {key, value}
       end
     end)
   end

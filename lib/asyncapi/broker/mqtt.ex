@@ -1,6 +1,9 @@
 defmodule Asyncapi.Broker.MQTT do
+  require Logger
+  
   def connect(asyncapi) do
     opts = [host: asyncapi.server.host, port: asyncapi.server.port]
+    dbg({:connect, opts})
     {:ok, mqtt_pid} = :emqtt.start_link(opts)
     {:ok, _props} = :emqtt.connect(mqtt_pid)
     Enum.each(asyncapi.subscriptions, &subscribe!(mqtt_pid, &1, 0))
@@ -16,7 +19,7 @@ defmodule Asyncapi.Broker.MQTT do
     case :emqtt.subscribe(pid, {topic, qos}) do
       {:ok, _props, [reason]} when reason in [0x00, 0x01, 0x02] ->
         # TO-DO-2
-        # Logger.debug("[#{inspect(user_module)}] subscribed: #{topic}")
+        Logger.debug("[#{inspect(user_module)}] subscribed: #{topic}")
         :ok
 
       {:ok, _props, reasons} ->

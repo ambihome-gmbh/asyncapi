@@ -20,9 +20,7 @@ defmodule Asyncapi.Message do
         :ok,
         %__MODULE__{
           op_id: operation.id,
-          params: to_atom_map(params),
-          # NOTE: achtung geht nur wenn beide mit exakt gleicher version arbeiten, evtl besser drop
-          # payload: struct!(operation.payload_module_name, to_atom_map(payload))
+          params: params,
           payload: payload
         }
       }
@@ -42,11 +40,8 @@ defmodule Asyncapi.Message do
         _ -> payload
       end
 
-    # payload = to_string_map(payload)
     payload = payload |> Jason.encode!() |> Jason.decode!()
-    params = to_string_map(params)
-
-    # dbg({op_id, payload})
+    # params = to_string_map(params)
 
     with {:ok, operation} <- fetch_operation(operations, op_id),
          :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(params, operation),
@@ -82,11 +77,7 @@ defmodule Asyncapi.Message do
     reduce(params, address, fn {p, v}, topic -> String.replace(topic, "{#{p}}", v) end)
   end
 
-  defp to_atom_map(map_) do
-    Map.new(map_, fn {k, v} -> {String.to_atom(k), v} end)
-  end
-
-  defp to_string_map(map_) do
-    Map.new(map_, fn {k, v} -> {"#{k}", v} end)
-  end
+  # defp to_string_map(map_) do
+  #   Map.new(map_, fn {k, v} -> {"#{k}", v} end)
+  # end
 end

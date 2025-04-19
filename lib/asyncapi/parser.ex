@@ -248,7 +248,7 @@ defmodule Asyncapi.Parser do
       kv_pair_list,
       %{},
       fn
-        {:kv_pair, [k, v]}, acc -> Map.put(acc, String.to_atom(k), v)
+        {:kv_pair, [k, v]}, acc -> Map.put(acc, k, v)
       end
     )
   end

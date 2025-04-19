@@ -75,12 +75,12 @@ defmodule MqttAsyncapi do
     asyncapi = schema_module.get_asyncapi()
 
     # TO-DO-2 -> broker wrapper
-    # Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
+    Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, broker_state} = @broker.connect(asyncapi)
 
     # TO-DO-2 -> broker wrapper
-    # Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
+    Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, user_state} = user_module.init(opts)
 
