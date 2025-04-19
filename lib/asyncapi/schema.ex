@@ -1,46 +1,8 @@
 defmodule Asyncapi.Schema do
-  # def get_module_datas(schema) do
-  #   for {_, operation} <- schema.operations, operation.payload_schema["type"] == "object" do
-  #     # TODO meta-schema
-  #     if Map.get(operation.payload_schema, "additionalProperties", true) == true do
-  #       raise("additionalProperties has to be set to false in schema! #{inspect(operation)}")
-  #     end
-
-  #     struct_keys =
-  #       for {prop_name, prop_schema} <- operation.payload_schema["properties"] do
-  #         {
-  #           String.to_atom(prop_name),
-  #           Map.get(prop_schema, "default")
-  #         }
-  #       end
-
-  #     enforce_keys =
-  #       operation.payload_schema |> Map.get("required", []) |> Enum.map(&String.to_atom/1)
-
-  #     {operation.payload_module_name, struct_keys, enforce_keys}
-  #   end
-  # end
 
   defmacro __using__(opts) do
     schema_path = Keyword.fetch!(opts, :schema_path)
     schema = Asyncapi.load(schema_path, __CALLER__.module)
-
-    # module_datas = get_module_datas(schema)
-
-    # modules =
-    #   module_datas
-    #   # TODO meta-schema: for one message name there must be only one message payload (otherwise we would still be generating multiple modules here!)
-    #   |> Enum.uniq
-    #   |> Enum.map(fn {module_name, struct_keys, enforce_keys} ->
-    #     IO.puts("generating module #{module_name}")
-
-    #     quote do
-    #       defmodule unquote(module_name) do
-    #         @enforce_keys unquote(enforce_keys)
-    #         defstruct unquote(struct_keys)
-    #       end
-    #     end
-    #   end)
 
     quote do
       @schema_file_glob unquote(schema_path)
@@ -52,6 +14,7 @@ defmodule Asyncapi.Schema do
                   |> Enum.map(&File.stat!(&1))
                   |> inspect()
                   |> :erlang.md5()
+                  |> dbg
 
       def __mix_recompile__?() do
         new_hash =
@@ -65,8 +28,6 @@ defmodule Asyncapi.Schema do
 
         new_hash != @schem_hash
       end
-
-      # unquote(modules)
 
       def get_asyncapi() do
         unquote(Macro.escape(schema))
