@@ -14,9 +14,9 @@ defmodule Asyncapi.Schema do
                   |> Enum.map(&File.stat!(&1))
                   |> inspect()
                   |> :erlang.md5()
-                  |> dbg
 
       def __mix_recompile__?() do
+        # TODO @BM this does not seem to work!
         dbg(:recompile_checker)
         new_hash =
           @schema_file_glob
