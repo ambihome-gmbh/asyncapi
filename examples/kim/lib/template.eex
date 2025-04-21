@@ -1,0 +1,35 @@
+defmodule <%= name %>.Service do
+  use MqttAsyncapi, schema_module: <%= name %>.Schema
+
+  alias Asyncapi.Message
+  import Asyncapi.Helpers
+
+  def start_link(opts \\ []) do
+    MqttAsyncapi.start_link(__MODULE__, opts)
+  end
+
+  @impl true
+  def init(_opts) do
+    {:ok, %{}}
+  end
+
+  <%= for {op_name, parameters} <- operations do %>
+  @impl true
+  def handle_message(%Message{op_id: "<%= op_name %>"} = message, state) do
+    <%= if parameters != [] do %>
+    %{params: %{
+      <%= for param <- parameters do %>
+        "<%= param %>" => <%= param %>,
+      <% end %>
+    }} = message
+    <% end %>
+    %{payload: %{}} = message
+    noreply(state)
+  end
+  <% end %>
+
+  @impl true
+  def handle_info(_info, state) do
+    noreply(state)
+  end
+end

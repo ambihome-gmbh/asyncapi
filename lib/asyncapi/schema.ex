@@ -17,7 +17,7 @@ defmodule Asyncapi.Schema do
 
       def __mix_recompile__?() do
         # TODO @BM this does not seem to work!
-        dbg(:recompile_checker)
+        # dbg(:recompile_checker)
         new_hash =
           @schema_file_glob
           |> Path.wildcard()
@@ -25,7 +25,7 @@ defmodule Asyncapi.Schema do
           |> inspect()
           |> :erlang.md5()
 
-        # TODO bundle
+        # TODO bundle schema? here?
 
         new_hash != @schem_hash
       end

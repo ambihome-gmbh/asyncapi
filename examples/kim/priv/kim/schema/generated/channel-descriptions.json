@@ -1,0 +1,61 @@
+{
+  "asyncapi": "3.0.0",
+  "channels": {
+    "function-req": {
+      "description": "TODO:description"
+    }
+,
+    "function-resp": {
+      "description": "TODO:description"
+    }
+,
+    "functionpoint-req": {
+      "description": "TODO:description"
+    }
+,
+    "functionpoint-resp": {
+      "description": "TODO:description"
+    }
+,
+    "functionpoint-write-ind": {
+      "description": "TODO:description"
+    }
+,
+    "functionpoint-write-req": {
+      "description": "TODO:description"
+    }
+,
+    "functionpoints-req": {
+      "description": "TODO:description"
+    }
+,
+    "functionpoints-resp": {
+      "description": "TODO:description"
+    }
+,
+    "functions-req": {
+      "description": "TODO:description"
+    }
+,
+    "functions-resp": {
+      "description": "TODO:description"
+    }
+,
+    "location-req": {
+      "description": "TODO:description"
+    }
+,
+    "location-resp": {
+      "description": "TODO:description"
+    }
+,
+    "locations-req": {
+      "description": "TODO:description"
+    }
+,
+    "locations-resp": {
+      "description": "TODO:description"
+    }
+
+  }
+}

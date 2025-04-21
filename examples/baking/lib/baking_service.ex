@@ -12,7 +12,7 @@ defmodule BakingService do
   @impl true
   def init(_opts) do
     raise("TODO: payload+params: string maps, folder structure like multistack, no message-structs")
-    
+
     {:ok, %{stack: []}}
   end
 
@@ -39,14 +39,14 @@ defmodule BakingService do
   end
 end
 
-{:error,
- {{:undef,
-   [
-     {nil, :get_asyncapi, [], []},
-     {MqttAsyncapi, :init, 1, [file: ~c"lib/mqtt_asyncapi.ex", line: 75]},
-     {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2229]},
-     {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2184]},
-     {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 329]}
-   ]},
-  {:child, :undefined, BakingService, {BakingService, :start_link, [[]]}, :permanent, false, 5000,
-   :worker, [BakingService]}}}
+# {:error,
+#  {{:undef,
+#    [
+#      {nil, :get_asyncapi, [], []},
+#      {MqttAsyncapi, :init, 1, [file: ~c"lib/mqtt_asyncapi.ex", line: 75]},
+#      {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2229]},
+#      {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2184]},
+#      {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 329]}
+#    ]},
+#   {:child, :undefined, BakingService, {BakingService, :start_link, [[]]}, :permanent, false, 5000,
+#    :worker, [BakingService]}}}
