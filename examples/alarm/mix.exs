@@ -5,7 +5,7 @@ defmodule Alarm.MixProject do
     [
       app: :alarm,
       version: "0.1.0",
-      elixir: "~> 1.18",
+      elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env())
@@ -18,6 +18,7 @@ defmodule Alarm.MixProject do
 
   defp deps do
     [
+      {:ecto, "~> 3.11"},
       {:uniq, "~> 0.6"},
       {:asyncapi, path: "../.."}
     ]

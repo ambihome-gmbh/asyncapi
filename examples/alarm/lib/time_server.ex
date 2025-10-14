@@ -28,23 +28,3 @@ defmodule TimeServer do
     {:noreply, state}
   end
 end
-
-# {:error, :payload_validation_error,
-#  [
-#    {"Schema does not allow additional properties.", "#/config/monitored"},
-#    {"Schema does not allow additional properties.", "#/config/actions"},
-#    {"Schema does not allow additional properties.", "#/config/timeout"},
-#    {"Schema does not allow additional properties.", "#/config/mails"},
-#    {"Required properties timeout, mails, monitored, actions were not present.", "#/config"},
-#    {"Value is not allowed in enum.", "#/sm_state"},
-#    {"Type mismatch. Expected String but got Unknown.", "#/sm_state"}
-#  ], "state",
-#  %{
-#    "alarm_condition" => false,
-#    "alarm_sources" => ["ch1", "ch2"],
-#    "alarm_type" => "alarm_incursion",
-#    "config" => %{monitored: [], actions: ["SEND_MAILS"], timeout: 30, mails: []},
-#    "perpetrators" => [],
-#    "ready_state" => ["MONITORED_EMPTY"],
-#    "sm_state" => :state_disarmed
-#  }}

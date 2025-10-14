@@ -32,7 +32,7 @@ defmodule Datapoints do
   @impl true
   def handle_message(%Message{op_id: "dp_write_ind"} = message, state) do
     # TODO wie op_id wenn mehrere passen (wie hier)
-    %{payload: %{id: dp_id, value: value}} = message
+    %{payload: %{"id" => dp_id, "value" => value}} = message
 
     # dbg({:ets, :insert, {dp_id, value}})
 

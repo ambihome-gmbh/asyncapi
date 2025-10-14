@@ -53,6 +53,8 @@ defmodule Asyncapi do
   end
 
   def validate_payload(payload, operation, schema) do
+    # HACK
+    payload = payload |> Jason.encode!(payload) |> Jason.decode!()
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
       :ok ->
         :ok

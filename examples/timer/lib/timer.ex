@@ -52,6 +52,7 @@ defmodule TimerService do
         raise "internal error: timer not found"
 
       {:ok, timer} ->
+        # -- TODO use dp-wrapper
         response = %Message{
           op_id: "dp_write_req",
           payload: %{"id" => timer["channel"], "value" => timer["value"]}

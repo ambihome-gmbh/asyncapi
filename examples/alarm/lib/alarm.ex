@@ -3,7 +3,6 @@ defmodule AlarmService do
 
   alias Asyncapi.Message
   import Asyncapi.Helpers
-  alias AlarmSchema.MessagePayload, as: P
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -11,7 +10,6 @@ defmodule AlarmService do
 
   @impl true
   def init(_opts) do
-    raise("TODO: payload+params: string maps, folder structure like multistack, no message-structs")
     # TODO
     # {alarm_type, _opts} = Keyword.pop(opts, :alarm_type)
     alarm_type = "alarm_incursion"
@@ -36,13 +34,14 @@ defmodule AlarmService do
   end
 
   @impl true
-  def handle_message(%Message{params: %{alarm_type: alarm_type}}, state) when alarm_type != state.alarm_type do
+  def handle_message(%Message{params: %{"alarm_type" => alarm_type}}, state) when alarm_type != state.alarm_type do
     noreply(state)
   end
 
   @impl true
+  # TODO Datapoints new
   def handle_message(%Message{op_id: "dp_write_ind"} = message, state) do
-    %{id: id, value: value} = message.payload
+    %{"id" => id, "value" => value} = message.payload
 
     case Map.has_key?(state.alarm_sources, id) do
       true -> dispatch_event(:event_alarm_source_updated, put_in(state, [:alarm_sources, id, :value], value))
@@ -66,10 +65,10 @@ defmodule AlarmService do
     dispatch_event(:event_timeout, state)
   end
 
-  # TODO use payload struct
   defp configure(config_payload, %{sm_state: :state_disarmed} = state) do
+    config = Alarm.Config.from_payload(config_payload)
     # TODO ensure monitored has only alarm sources
-    new_state = update_state(%{state | config: Map.from_struct(config_payload)})
+    new_state = update_state(%{state | config: config})
     response = info_message(new_state)
 
     reply(response, new_state)
@@ -138,13 +137,13 @@ defmodule AlarmService do
   defp info_message(state) do
     %Message{
       op_id: "state",
-      params: %{alarm_type: state.alarm_type},
+      params: %{"alarm_type" => state.alarm_type},
       payload: %{state | alarm_sources: Map.keys(state.alarm_sources)}
     }
   end
 
   defp error_message(_state, reason) do
     dbg("ERROR TODO")
-    %Message{op_id: "error", payload: %{reason: reason}}
+    %Message{op_id: "error", payload: %{"reason" => reason}}
   end
 end
