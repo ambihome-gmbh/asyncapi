@@ -30,7 +30,8 @@ defmodule Asyncapi.TestHelper do
       for testcase <- testcases do
         parsed_sequence = Enum.map(testcase["sequence"], &Asyncapi.Parser.parse_step/1)
 
-        IO.puts(Enum.join(testcase["sequence"], "\n"))
+        IO.puts("\n--> Running test case: #{testcase["name"]}")
+        # IO.puts(Enum.join(testcase["sequence"], "\n"))
 
         test testcase["name"], context do
           IO.puts("\n")

@@ -1,6 +1,7 @@
 defmodule Project do
   def get_alarm_sources() do
     source_ids = ["ch1", "ch2"]
+    # TODO depracated function!
     values = Datapoints.get_all_values(source_ids)
 
     for {channel_id, value} <- values, into: %{} do

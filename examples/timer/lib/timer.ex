@@ -3,7 +3,6 @@ defmodule TimerService do
 
   alias Asyncapi.Message
   import Asyncapi.Helpers
-  alias TimerSchema.MessagePayload, as: P
 
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
@@ -25,8 +24,6 @@ defmodule TimerService do
 
   @impl true
   def init(_opts) do
-    raise("TODO: payload+params: string maps, folder structure like multistack, no message-structs")
-    
     {:ok, %{timers: %{}, geo: @temp_dummy_geo}}
   end
 
@@ -34,16 +31,16 @@ defmodule TimerService do
   def handle_message(%Message{} = message, state) do
     case message.op_id do
       "create" -> create_or_update(state, message.payload)
-      "update" -> create_or_update(state, message.payload, message.params.timer_id)
-      "activate" -> set_flag(state, message.params.timer_id, :active, true)
-      "deactivate" -> set_flag(state, message.params.timer_id, :active, false)
-      "delete" -> set_flag(state, message.params.timer_id, :deleted, true)
+      "update" -> create_or_update(state, message.payload, message.params["timer_id"])
+      "activate" -> set_flag(state, message.params["timer_id"], "active", true)
+      "deactivate" -> set_flag(state, message.params["timer_id"], "active", false)
+      "delete" -> set_flag(state, message.params["timer_id"], "deleted", true)
       _ -> noreply(state)
     end
   end
 
   @impl true
-  def handle_info({:timeout, %{id: timer_id}}, state) do
+  def handle_info({:timeout, %{"id" => timer_id}}, state) do
     fire(state, timer_id)
   end
 
@@ -57,7 +54,7 @@ defmodule TimerService do
       {:ok, timer} ->
         response = %Message{
           op_id: "dp_write_req",
-          payload: %P.DpWrite{id: timer.channel, value: timer.value}
+          payload: %{"id" => timer["channel"], "value" => timer["value"]}
         }
 
         maybe_create_cron(state, timer)
@@ -67,7 +64,7 @@ defmodule TimerService do
   end
 
   defp create_or_update(state, payload, timer_id \\ Uniq.UUID.uuid6()) do
-    timer = payload |> Map.from_struct() |> Map.put(:id, timer_id)
+    timer = Map.put(payload, "id", timer_id)
     update_(state, timer)
   end
 
@@ -90,23 +87,23 @@ defmodule TimerService do
 
   defp fetch_timer(state, timer_id) do
     case Map.get(state.timers, timer_id) do
-      nil -> {:error, :unknown_timer}
-      %{deleted: true} -> {:error, :attempt_to_access_deleted_timer}
+      nil -> {:error, "unknown_timer"}
+      %{"deleted" => true} -> {:error, "attempt_to_access_deleted_timer"}
       timer -> {:ok, timer}
     end
   end
 
   defp error(state, msg) do
-    reply(%Message{op_id: "error", payload: %{message: msg}}, state)
+    reply(%Message{op_id: "error", payload: %{"message" => msg}}, state)
   end
 
   defp delete_pending_cron(state, timer) do
-    TimeServer.delete_cron(timer.id)
+    TimeServer.delete_cron(timer["id"])
     state
   end
 
-  defp maybe_create_cron(state, %{active: false}), do: state
-  defp maybe_create_cron(state, %{deleted: true}), do: state
+  defp maybe_create_cron(state, %{"active" => false}), do: state
+  defp maybe_create_cron(state, %{"deleted" => true}), do: state
   defp maybe_create_cron(state, timer), do: create_cron(state, timer)
 
   defp create_cron(state, timer) do
@@ -118,13 +115,13 @@ defmodule TimerService do
 
   # -- TODO --> database
   defp put_timer(state, timer) do
-    put_in(state, [:timers, timer.id], timer)
+    put_in(state, [:timers, timer["id"]], timer)
   end
 
   # get_all_states
   # get_state
 
   defp info_state_message(timer) do
-    %Message{op_id: "state", params: %{timer_id: timer.id}, payload: timer}
+    %Message{op_id: "state", params: %{"timer_id" => timer["id"]}, payload: timer}
   end
 end

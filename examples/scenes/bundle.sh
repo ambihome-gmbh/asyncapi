@@ -11,3 +11,5 @@ asyncapi validate bundled/datapoints_service.json
 asyncapi pretty bundled/user.json
 asyncapi pretty bundled/service.json
 asyncapi pretty bundled/datapoints_service.json
+
+

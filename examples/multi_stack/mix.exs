@@ -5,7 +5,7 @@ defmodule MultiStack.MixProject do
     [
       app: :multi_stack,
       version: "0.1.0",
-      elixir: "~> 1.18",
+      elixir: "~> 1.15",
       start_permanent: Mix.env() == :dev,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env())

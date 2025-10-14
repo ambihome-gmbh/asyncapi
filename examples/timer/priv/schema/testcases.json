@@ -4,7 +4,7 @@
         {
             "name": "wip",
             "sequence": [
-                "user->>service: create/{type: 'absolute_time', time: '00:00:00Z', channel: 'ch1', value: '1', weekdays: [0], active: true}",
+                "user->>service: create/{type: 'absolute_time', time: '00:00:00Z', channel: 'ch1', value: '1', random_offset: 0, random_type: 'not_applicable', weekdays: [0], active: true}",
                 "service->>internal: delete_cron",
                 "service->internal: get_day_of_year",
                 "internal->service: ok/1",

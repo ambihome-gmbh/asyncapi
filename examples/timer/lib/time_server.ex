@@ -9,11 +9,11 @@ defmodule TimeServer do
 
   def create_cron_from_timer_config(config, geo) do
     crontab = config_to_crontab(config, geo)
-    GenServer.cast(__MODULE__, {:create_cron, %{crontab: crontab, id: config.id}})
+    GenServer.cast(__MODULE__, {:create_cron, %{"crontab" => crontab, "id" => config["id"]}})
   end
 
   def delete_cron(id) do
-    GenServer.cast(__MODULE__, {:delete_cron, %{id: id}})
+    GenServer.cast(__MODULE__, {:delete_cron, %{"id" => id}})
   end
 
   def utc_today() do
@@ -57,24 +57,24 @@ defmodule TimeServer do
 
   def config_to_crontab(config, geo \\ nil)
 
-  def config_to_crontab(%{type: "absolute_time"} = config, _geo) do
+  def config_to_crontab(%{"type" => "absolute_time"} = config, _geo) do
     %{
-      weekdays: weekdays,
-      time: time,
-      random_offset: random_offset,
-      random_type: random_type
+      "weekdays" => weekdays,
+      "time" => time,
+      "random_offset" => random_offset,
+      "random_type" => random_type
     } = config
 
     get_crontab(time, random(random_offset, random_type), weekdays)
   end
 
-  def config_to_crontab(%{type: "sun"} = config, sun_times) do
+  def config_to_crontab(%{"type" => "sun"} = config, sun_times) do
     %{
-      weekdays: weekdays,
-      sun_event: event,
-      absolute_offset: offset,
-      random_offset: random_offset,
-      random_type: random_type
+      "weekdays" => weekdays,
+      "sun_event" => event,
+      "absolute_offset" => offset,
+      "random_offset" => random_offset,
+      "random_type" => random_type
     } = config
 
     full_offset = offset + random(random_offset, random_type)

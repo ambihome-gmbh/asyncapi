@@ -1,1 +1,214 @@
-{"asyncapi":"3.0.0","info":{"title":"Sample API","version":"0.0.1","description":"description","x-modulename":"SampleApi"},"defaultContentType":"application/json","servers":{"production":{"host":"127.0.0.1","protocol":"mqtt","description":"Test broker","variables":{"port":{"default":"1883","enum":["1883"]}}}},"channels":{"P1":{"address":"P1","title":"P1-channel","messages":{"some-message":{"name":"P1","payload":{"type":"object","additionalProperties":false,"properties":{}}}},"description":"no parameters, empty payload"},"P2":{"address":"P2","title":"P2-channel","messages":{"some-message":{"name":"P2","payload":{"type":"object","additionalProperties":false,"properties":{"p_hasdefault":{"type":"integer","default":4711},"p_isrequired":{"type":"string"},"p":{"type":["string","null"]}},"required":["p_isrequired"]}}},"description":"no parameters, some payload"},"P3":{"address":"P3/{p1}","title":"P3-channel","messages":{"some-message":{"name":"P3","payload":{"type":"object","additionalProperties":false,"properties":{}}}},"description":"single parameter, no payload","parameters":{"p1":{"description":"description of p1","enum":["pv1","pv2","pv3"]}}},"P4":{"address":"P4/{p1}/P44/{p2}","title":"P4-channel","messages":{"some-message":{"name":"P4","payload":{"type":"object","additionalProperties":false,"properties":{"p_hasdefault":{"type":"integer","default":4711},"p_isrequired":{"type":"string"},"p":{"type":["string","null"]}},"required":["p_isrequired"]}}},"description":"two parameters, payload","parameters":{"p1":{"description":"description of p1","enum":["pv1","pv2","pv3"]},"p2":{"description":"description of p2"}}}},"operations":{"P1":{"action":"receive","channel":{"$ref":"#/channels/P1"}},"P2":{"action":"receive","channel":{"$ref":"#/channels/P2"}},"P3":{"action":"receive","channel":{"$ref":"#/channels/P3"}},"P4":{"action":"receive","channel":{"$ref":"#/channels/P4"}}},"components":{"parameters":{"p1":{"description":"description of p1","enum":["pv1","pv2","pv3"]},"p2":{"description":"description of p2"}},"schemas":{"empty_payload":{"type":"object","additionalProperties":false,"properties":{}},"some_payload":{"type":"object","additionalProperties":false,"properties":{"p_hasdefault":{"type":"integer","default":4711},"p_isrequired":{"type":"string"},"p":{"type":["string","null"]}},"required":["p_isrequired"]}}}}
+{
+    "asyncapi": "3.0.0",
+    "info": {
+        "title": "Sample API",
+        "version": "0.0.1",
+        "description": "description",
+        "x-modulename": "SampleApi"
+    },
+    "defaultContentType": "application/json",
+    "servers": {
+        "production": {
+            "host": "127.0.0.1",
+            "protocol": "mqtt",
+            "description": "Test broker",
+            "variables": {
+                "port": {
+                    "default": "1883",
+                    "enum": [
+                        "1883"
+                    ]
+                }
+            }
+        }
+    },
+    "channels": {
+        "P1": {
+            "address": "P1",
+            "title": "P1-channel",
+            "messages": {
+                "some-message": {
+                    "name": "P1",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {}
+                    }
+                }
+            },
+            "description": "no parameters, empty payload"
+        },
+        "P2": {
+            "address": "P2",
+            "title": "P2-channel",
+            "messages": {
+                "some-message": {
+                    "name": "P2",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "p_hasdefault": {
+                                "type": "integer",
+                                "default": 4711
+                            },
+                            "p_isrequired": {
+                                "type": "string"
+                            },
+                            "p": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "p_isrequired"
+                        ]
+                    }
+                }
+            },
+            "description": "no parameters, some payload"
+        },
+        "P3": {
+            "address": "P3/{p1}",
+            "title": "P3-channel",
+            "messages": {
+                "some-message": {
+                    "name": "P3",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {}
+                    }
+                }
+            },
+            "description": "single parameter, no payload",
+            "parameters": {
+                "p1": {
+                    "description": "description of p1",
+                    "enum": [
+                        "pv1",
+                        "pv2",
+                        "pv3"
+                    ]
+                }
+            }
+        },
+        "P4": {
+            "address": "P4/{p1}/P44/{p2}",
+            "title": "P4-channel",
+            "messages": {
+                "some-message": {
+                    "name": "P4",
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "p_hasdefault": {
+                                "type": "integer",
+                                "default": 4711
+                            },
+                            "p_isrequired": {
+                                "type": "string"
+                            },
+                            "p": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "p_isrequired"
+                        ]
+                    }
+                }
+            },
+            "description": "two parameters, payload",
+            "parameters": {
+                "p1": {
+                    "description": "description of p1",
+                    "enum": [
+                        "pv1",
+                        "pv2",
+                        "pv3"
+                    ]
+                },
+                "p2": {
+                    "description": "description of p2"
+                }
+            }
+        }
+    },
+    "operations": {
+        "P1": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/P1"
+            }
+        },
+        "P2": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/P2"
+            }
+        },
+        "P3": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/P3"
+            }
+        },
+        "P4": {
+            "action": "receive",
+            "channel": {
+                "$ref": "#/channels/P4"
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "p1": {
+                "description": "description of p1",
+                "enum": [
+                    "pv1",
+                    "pv2",
+                    "pv3"
+                ]
+            },
+            "p2": {
+                "description": "description of p2"
+            }
+        },
+        "schemas": {
+            "empty_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+            },
+            "some_payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "p_hasdefault": {
+                        "type": "integer",
+                        "default": 4711
+                    },
+                    "p_isrequired": {
+                        "type": "string"
+                    },
+                    "p": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "p_isrequired"
+                ]
+            }
+        }
+    }
+}

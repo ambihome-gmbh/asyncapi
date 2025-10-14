@@ -46,20 +46,20 @@ defmodule TimeToCrontabTest do
 
   test "config to crontab" do
     config_abs = %{
-      weekdays: [0, 1, 2, 5, 6],
-      type: "absolute_time",
-      time: "00:30:00Z",
-      random_offset: 60,
-      random_type: "testmode_sub"
+      "weekdays" => [0, 1, 2, 5, 6],
+      "type" => "absolute_time",
+      "time" => "00:30:00Z",
+      "random_offset" => 60,
+      "random_type" => "testmode_sub"
     }
 
     config_sun = %{
-      weekdays: [0, 1, 2, 5, 6],
-      type: "sun",
-      sun_event: "sunset",
-      absolute_offset: -60,
-      random_offset: 30,
-      random_type: "testmode_add"
+      "weekdays" => [0, 1, 2, 5, 6],
+      "type" => "sun",
+      "sun_event" => "sunset",
+      "absolute_offset" => -60,
+      "random_offset" => 30,
+      "random_type" => "testmode_add"
     }
 
     assert "30 23 * * 0,1,4,5,6" == config_to_crontab(config_abs)

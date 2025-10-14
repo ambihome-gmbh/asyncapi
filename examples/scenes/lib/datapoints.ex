@@ -3,6 +3,15 @@ defmodule Datapoints do
 
   alias Asyncapi.Message
 
+  def create_fp_write_requests(snapshot) do
+    for {member_id, value} <- snapshot do
+      %Message{
+        op_id: "dp_write_req",
+        payload: %{"id" => member_id, "value" => value}
+      }
+    end
+  end
+
   def get(dp_id) do
     case :ets.lookup(:datapoints, dp_id) do
       [{^dp_id, value}] -> {:ok, value}
@@ -19,6 +28,10 @@ defmodule Datapoints do
     end
   end
 
+  def get_status_for_channel_ids(dp_ids) do
+    {:ok, get_all_values(dp_ids)}
+  end
+
   def start_link(opts \\ []) do
     MqttAsyncapi.start_link(__MODULE__, opts)
   end
@@ -32,7 +45,7 @@ defmodule Datapoints do
   @impl true
   def handle_message(%Message{op_id: "dp_write_ind"} = message, state) do
     # TODO wie op_id wenn mehrere passen (wie hier)
-    %{payload: %{id: dp_id, value: value}} = message
+    %{payload: %{"id" => dp_id, "value" => value}} = message
 
     # dbg({:ets, :insert, {dp_id, value}})
 
