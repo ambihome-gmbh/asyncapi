@@ -77,8 +77,7 @@ defmodule AsyncApiTest do
     # assert @mqtt_1 = Message.to_mqtt_message!(@m_1, asyncapi)
     # assert @mqtt_2 = Message.to_mqtt_message!(@m_2, asyncapi)
     # assert @mqtt_3 = Message.to_mqtt_message!(@m_3, asyncapi)
-    msg = Message.to_mqtt_message!(@m_4, asyncapi)
-    dbg(msg)
+    _msg = Message.to_mqtt_message!(@m_4, asyncapi)
   end
 
   test "from_mqtt_message, invalid", %{asyncapi: asyncapi} do

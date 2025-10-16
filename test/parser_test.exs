@@ -1,7 +1,7 @@
 defmodule ParserTest do
   use ExUnit.Case
 
-  import Asyncapi.Parser
+  import Asyncapi.SequenceParser
 
   test "step" do
     assert %{
@@ -14,12 +14,17 @@ defmodule ParserTest do
            } ==
              parse_step("from->to: operation")
 
+    assert %{operation: "kebab-case-operation"} = parse_step("from->to: kebab-case-operation")
+
     assert %{payload: {:literal, 1}} = parse_step("f->t: o/1")
     assert %{payload: {:literal, 1.2}} = parse_step("f->t: o/1.2")
     assert %{payload: {:literal, nil}} = parse_step("f->t: o/nil")
     assert %{payload: {:literal, true}} = parse_step("f->t: o/true")
     assert %{payload: {:literal, false}} = parse_step("f->t: o/false")
     assert %{payload: {:literal, "string"}} = parse_step("f->t: o/'string'")
+
+    assert %{payload: %{"k" => {:literal, "v"}}} = parse_step("f->t: o/{k: 'v'}")
+    assert %{payload: %{"k" => %{"j" => {:literal, "v"}}}} = parse_step("f->t: o/{k: {j: 'v'}}")
 
     assert %{
              params: %{"p1" => {:reference, "r"}, "p2" => {:literal, 1}},

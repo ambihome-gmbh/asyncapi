@@ -26,7 +26,7 @@ defmodule Asyncapi.MixProject do
       {:jason, "~> 1.4"},
       {:ex_json_schema, "~> 0.10.2", runtime: false},
       {:nimble_csv, "~> 0.1"},
-      {:nimble_parsec, "~> 1.0"},
+      {:abnf_parsec, "~> 2.0", runtime: false},
       {:recase, "~> 0.5"},
       {:emqtt,
        git: "https://github.com/emqx/emqtt.git",
