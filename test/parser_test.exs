@@ -24,7 +24,11 @@ defmodule ParserTest do
     assert %{payload: {:literal, "string"}} = parse_step("f->t: o/'string'")
 
     assert %{payload: %{"k" => {:literal, "v"}}} = parse_step("f->t: o/{k: 'v'}")
-    assert %{payload: %{"k" => %{"j" => {:literal, "v"}}}} = parse_step("f->t: o/{k: {j: 'v'}}")
+
+    assert %{
+             payload: %{"k" => {:map, %{"j" => {:literal, "v"}}}}
+           } =
+             parse_step("f->t: o/{k: {j: 'v'}}")
 
     assert %{
              params: %{"p1" => {:reference, "r"}, "p2" => {:literal, 1}},

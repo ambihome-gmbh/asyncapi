@@ -149,7 +149,7 @@ defmodule Asyncapi.SequenceParser do
   end
 
   defp shape_value(map: [kv_list: kv_pairs]) do
-    kvpairs_to_map(kv_pairs)
+    {:map, kvpairs_to_map(kv_pairs)}
   end
 
   defp shape_value(unexpected) do

@@ -53,7 +53,7 @@ defmodule Asyncapi do
   end
 
   def validate_payload(payload, operation, schema) do
-    # HACK
+    # TODO HACK removed atom keys
     payload = payload |> Jason.encode!(payload) |> Jason.decode!()
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
       :ok ->
@@ -99,9 +99,12 @@ defmodule Asyncapi do
   end
 
   defp load_channel(channel, schema, schema_module) do
-    # NOTE: asyncapi allows multiple message, but we support only exactly one
-    # TODO meta-schema
-    [{message_key, message}] = to_list(channel["messages"])
+    messages = to_list(channel["messages"])
+
+    if length(messages) != 1,
+      do: raise("only exactly one message per channel is supported for now. TODO meta-schema.")
+
+    [{message_key, message}] = messages
 
     message_name =
       case message["name"] do

@@ -52,9 +52,16 @@ defmodule Asyncapi.TestHelper do
                 internal_message_tag = String.to_atom(step.operation)
 
                 internal_message =
-                  if payload == %{},
-                    do: internal_message_tag,
-                    else: {internal_message_tag, payload}
+                  case payload do
+                    %{"__bytearray__" => bytearray} ->
+                      {internal_message_tag, :erlang.list_to_binary(bytearray)}
+
+                    %{} = payload when map_size(payload) == 0 ->
+                      internal_message_tag
+
+                    _ ->
+                      {internal_message_tag, payload}
+                  end
 
                 if arrow == :async do
                   send(context.service_pid, internal_message)
@@ -163,6 +170,11 @@ defmodule Asyncapi.TestHelper do
   end
 
   @doc false
+  def match(acc, received, %{"__bytearray__" => bytearray} = _step) do
+    ExUnit.Assertions.assert(received == :erlang.list_to_binary(bytearray))
+    acc
+  end
+
   def match(acc, received, step) do
     bindings = acc.bindings
 
@@ -178,9 +190,7 @@ defmodule Asyncapi.TestHelper do
             Map.put(acc, binding_name, fetch!(received, k, "todo_err_msg_wrap_fetch_put_binding"))
 
           _ ->
-            ExUnit.Assertions.assert(
-              v == fetch!(received, k, "key not found")
-            )
+            ExUnit.Assertions.assert(v == fetch!(received, k, "key [#{k}]not found [#{inspect(received)}]"))
 
             acc
         end
@@ -205,7 +215,11 @@ defmodule Asyncapi.TestHelper do
           {key, {type, value}}
 
         :list ->
+          # TODO why no deref here?
           {key, map(value, fn {:literal, v} -> v end)}
+
+        :map ->
+          {key, deref(value, bindings)}
 
         _ ->
           {key, value}

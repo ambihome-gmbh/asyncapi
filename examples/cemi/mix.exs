@@ -1,11 +1,11 @@
-defmodule Timer.MixProject do
+defmodule Cemi.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :timer,
+      app: :cemi,
       version: "0.1.0",
-      elixir: "~> 1.15",
+      elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env())
@@ -19,7 +19,8 @@ defmodule Timer.MixProject do
   defp deps do
     [
       {:uniq, "~> 0.6"},
-      {:asyncapi, path: "../.."}
+      {:asyncapi, path: "../.."},
+      {:knx_cemi, path: "../../../__knx/knx_cemi"}
     ]
   end
 
