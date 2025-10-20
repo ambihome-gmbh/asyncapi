@@ -1,7 +1,0 @@
-- jedes panel hat eine eigene identitaet
-    - statisch, nicht von cognito oder sehr lange valide
-- was bedeutet no-cloud-mode
-    - keine daten in die cloud
-        - dann koennte man identitaet von cognito holen
-    - system soll auch funktionieren ohne internet
-        - dann kann man kein token von cognito holen (aber panel funzt noch)

@@ -1,1 +1,0 @@
-- status_of is not really supported in KIM OWL (only SS-S is set!)
