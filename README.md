@@ -78,16 +78,23 @@ docker stop nanomq
 
 ### Prio 1
 
+- [ ] notify if there is a handler for an op that is not received in schema
+- [ ] muss generierte testcases taggen koennen (skip, nur diese ausfuehren, jetzt muss filename aendern!)
+- [ ] document how to take full controll of an internal service like the time server (like in timer-service)
+- [ ] testcases aus schema raus, direkt in test die seq machen. damit dann interpolation moeglich
+- [ ] muss erkennen, dass messages die zu user gehen nur ops haben duerfen die in testschema received werden!
 - [x] nano-mq per system-call weg (brauchts nicht mehr mit dummy-broker)
 - struct generator
+    - [ ] WARUM HABE ICH MICH ENTSCHIEDEN DEN WIEDER RAUSZUNEHMEN?
     - [x] muss recompilen wenn neue APIs in config gibt oder wenn sich diese geaendert haben
     - [ ] muss automatisch bundlen
     - [ ] @BM redefine module warning
     - [x] SchemaModule.MessagePayload.<message-name>
+- [ ] recompile funktioniert nicht
 - [ ] handling of invalid messages from outside, cant just raise ->TO-DO-1
 - [ ] when an internal message is the last in a sequence, it may not be received before test ends!
 - [ ] `quote` option `location` (um bessere fehlermeldungen in test zu haben)
-- [ ] nested maps
+- [x] nested maps
     - [ ] damit: timer-service: offset: {type, num} state random_offset, random_type
 
 ### Prio 2

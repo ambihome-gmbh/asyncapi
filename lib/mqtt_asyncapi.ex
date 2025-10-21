@@ -72,6 +72,13 @@ defmodule MqttAsyncapi do
   def init(opts) do
     {user_module, opts} = Keyword.pop(opts, :user_module)
     {schema_module, opts} = Keyword.pop(opts, :schema_module)
+
+    if not Code.ensure_loaded?(schema_module) do
+      # TODO why do I get a match error when this raises?
+      # ** (MatchError) no match of right hand side value ...
+      raise("schema module #{inspect(schema_module)} not loaded")
+    end
+
     asyncapi = schema_module.get_asyncapi()
 
     # TO-DO-2 -> broker wrapper

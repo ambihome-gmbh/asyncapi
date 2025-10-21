@@ -30,15 +30,16 @@ defmodule Asyncapi.TestHelper do
       for testcase <- testcases do
         parsed_sequence = Enum.map(testcase["sequence"], &Asyncapi.SequenceParser.parse_step/1)
 
-        IO.puts("\n--> Running test case: #{testcase["name"]}")
+        # IO.puts("\n--> Running test case: #{testcase["name"]}")
         # IO.puts(Enum.join(testcase["sequence"], "\n"))
 
         test testcase["name"], context do
-          IO.puts("\n")
           sequence = unquote(Macro.escape(parsed_sequence))
+          # IO.puts("\n--> Running test case:") # TODO cant access that here #{testcase["name"]}")
 
           Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
             Asyncapi.TestHelper.display_step(step)
+            Process.sleep(1)
 
             # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
             payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
@@ -129,8 +130,15 @@ defmodule Asyncapi.TestHelper do
             end
           end)
 
-          Process.sleep(10)
-          # :erlang.process_info(self(), :messages) |> dbg
+          Process.sleep(100)
+
+          case :erlang.process_info(self(), :messages) do
+            {:messages, []} ->
+              IO.puts("end of test case. no remaining messages")
+
+            {:messages, remaining_messages} ->
+              IO.puts("end of test case. remaining messages: #{inspect(remaining_messages)}")
+          end
         end
       end
     end
@@ -154,9 +162,11 @@ defmodule Asyncapi.TestHelper do
     # },
     # params = Enum.map_join(step.params, ",", fn {k, v} -> "#{k}: #{v}" end)
 
-    IO.puts(
-      "#{step.from}->#{step.to}: #{step.operation}[#{inspect(step.params)}]/#{inspect(step.payload)}"
-    )
+    # IO.puts(
+    #   "#{step.from}->#{step.to}: #{step.operation}[#{inspect(step.params)}]/#{inspect(step.payload)}"
+    # )
+
+    IO.puts("#{step.from}->#{step.to}: #{step.operation}")
   end
 
   def all_deref?(map_) do
@@ -190,7 +200,9 @@ defmodule Asyncapi.TestHelper do
             Map.put(acc, binding_name, fetch!(received, k, "todo_err_msg_wrap_fetch_put_binding"))
 
           _ ->
-            ExUnit.Assertions.assert(v == fetch!(received, k, "key [#{k}]not found [#{inspect(received)}]"))
+            ExUnit.Assertions.assert(
+              v == fetch!(received, k, "key [#{k}]not found [#{inspect(received)}]")
+            )
 
             acc
         end
