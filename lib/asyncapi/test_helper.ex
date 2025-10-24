@@ -1,6 +1,7 @@
 defmodule Asyncapi.TestHelper do
   use ExUnit.Case
   import Enum
+  require Logger
 
   defp fetch!(map, key, error_msg) do
     case Map.fetch(map, key) do
@@ -10,7 +11,6 @@ defmodule Asyncapi.TestHelper do
   end
 
   defmacro generate_tests(service, schema_module, opts) do
-    # AH-1700/asyncapi-give-a-clear-error-message-when-schema-module-is-not-defined
     if not Code.ensure_loaded?(Macro.expand(schema_module, __CALLER__)) do
       raise("schema module #{inspect(schema_module)} not loaded")
     end
@@ -26,6 +26,8 @@ defmodule Asyncapi.TestHelper do
             asyncapi: Macro.escape(asyncapi),
             testcases: Macro.escape(testcases)
           ] do
+      require Logger
+
       setup do
         asyncapi = unquote(Macro.escape(asyncapi))
         broker = unquote(Keyword.fetch!(opts, :broker))
@@ -46,15 +48,13 @@ defmodule Asyncapi.TestHelper do
 
         test testcase["name"], context do
           sequence = unquote(Macro.escape(parsed_sequence))
-          # TODO -> log
-          # IO.puts("\n--> Running test case: #{unquote(testcase["name"])}")
+          Logger.info("--> Running test case: #{unquote(testcase["name"])}")
 
           # wait for messages created at startup (e.g. group reads from project service)
           Process.sleep(50)
 
           Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
-            # TODO -> log
-            # Asyncapi.TestHelper.display_step(step)
+            Asyncapi.TestHelper.display_step(step)
             Process.sleep(1)
 
             # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
@@ -171,19 +171,9 @@ defmodule Asyncapi.TestHelper do
   end
 
   def display_step(step) do
-    # TODO resolve the tuples in payload and params
-    # payload: %{
-    #   id: {:literal, "x"},
-    #   name: {:literal, "S1"},
-    #   member_channels: {:list, [literal: "ch1", literal: "ch2"]}
-    # },
-    # params = Enum.map_join(step.params, ",", fn {k, v} -> "#{k}: #{v}" end)
-
-    # IO.puts(
-    #   "#{step.from}->#{step.to}: #{step.operation}[#{inspect(step.params)}]/#{inspect(step.payload)}"
-    # )
-
-    IO.puts("#{step.from}->#{step.to}: #{step.operation}")
+    # TODO payload/params not yet deferenced, therefore cant really be displayed
+    # "#{step.from}->#{step.to}: #{step.operation}[#{inspect(step.params)}]/#{inspect(step.payload)}"
+    Logger.info("#{step.from}->#{step.to}: #{step.operation}")
   end
 
   def all_deref?(map_) do

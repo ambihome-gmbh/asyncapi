@@ -28,6 +28,7 @@ like swagger/openapi but async.
 ### Sequence diagram testing DSL
 
 TODO: document how to take full controll of an internal service like the time server (like in timer-service)
+TODO: document that one has to use capture-log to see sequence on failure
 
 ```
 A->>B: <op-id>[<params>]/<payload>

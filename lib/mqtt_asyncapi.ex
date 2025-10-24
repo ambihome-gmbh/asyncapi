@@ -40,7 +40,6 @@ defmodule MqttAsyncapi do
   def start_link(user_module, opts) do
     schema_module = user_module.get_schema_module()
 
-    # AH-1700/asyncapi-give-a-clear-error-message-when-schema-module-is-not-defined
     if not Code.ensure_loaded?(schema_module) do
       raise("schema module #{inspect(schema_module)} not loaded")
     end
@@ -80,8 +79,6 @@ defmodule MqttAsyncapi do
     {schema_module, opts} = Keyword.pop(opts, :schema_module)
 
     if not Code.ensure_loaded?(schema_module) do
-      # TODO why do I get a match error when this raises?
-      # ** (MatchError) no match of right hand side value ...
       raise("schema module #{inspect(schema_module)} not loaded")
     end
 
