@@ -19,7 +19,6 @@ defmodule MqttAsyncapi do
       @behaviour MqttAsyncapi
       require Logger
 
-      # TODO give a clear warning here if schema_module is not set
       def get_schema_module(), do: unquote(Keyword.fetch!(opts, :schema_module))
 
       def child_spec(opts) do
@@ -41,6 +40,11 @@ defmodule MqttAsyncapi do
   def start_link(user_module, opts) do
     schema_module = user_module.get_schema_module()
 
+    # AH-1700/asyncapi-give-a-clear-error-message-when-schema-module-is-not-defined
+    if not Code.ensure_loaded?(schema_module) do
+      raise("schema module #{inspect(schema_module)} not loaded")
+    end
+
     GenServer.start_link(
       __MODULE__,
       [
@@ -52,6 +56,7 @@ defmodule MqttAsyncapi do
     )
   end
 
+   # TODO naming!
   def send(op_id, payload, state) do
     publish(
       %Message{op_id: op_id, payload: payload},
@@ -59,6 +64,7 @@ defmodule MqttAsyncapi do
     )
   end
 
+  # TODO naming!
   def sendp(op_id, payload, params, state) do
     publish(
       %Message{op_id: op_id, payload: payload, params: params},
@@ -81,12 +87,12 @@ defmodule MqttAsyncapi do
 
     asyncapi = schema_module.get_asyncapi()
 
-    # TO-DO-2 -> broker wrapper
+    # AH-1702/asyncapi-logging -> broker wrapper?
     Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, broker_state} = @broker.connect(asyncapi)
 
-    # TO-DO-2 -> broker wrapper
+    # AH-1702/asyncapi-logging -> broker wrapper?
     Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, user_state} = user_module.init(opts)
@@ -104,7 +110,7 @@ defmodule MqttAsyncapi do
   @impl GenServer
   def handle_info({:publish, mqtt_message}, state) do
     mqtt_message_decoded = Message.decode_mqtt_message(mqtt_message)
-    # TO-DO-2
+    # AH-1702/asyncapi-logging
     # Logger.debug("[#{inspect(state.user_module)}] recv #{inspect(mqtt_message_decoded)}")
 
     new_user_state =
@@ -146,7 +152,6 @@ defmodule MqttAsyncapi do
   end
 
   defp publish(%Message{} = message, state) do
-    # TO-DO-3
     mqtt_message = Message.to_mqtt_message!(message, state.asyncapi)
     mqtt_message_encoded = Message.encode_mqtt_message(mqtt_message)
     state.broker.module.publish(state.broker, mqtt_message_encoded)

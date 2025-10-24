@@ -1,6 +1,6 @@
 defmodule Asyncapi.Broker.MQTT do
   require Logger
-  
+
   def connect(asyncapi) do
     opts = [host: asyncapi.server.host, port: asyncapi.server.port]
     dbg({:connect, opts})
@@ -18,7 +18,7 @@ defmodule Asyncapi.Broker.MQTT do
   defp subscribe!(pid, topic, qos, user_module \\ "TO-DO") do
     case :emqtt.subscribe(pid, {topic, qos}) do
       {:ok, _props, [reason]} when reason in [0x00, 0x01, 0x02] ->
-        # TO-DO-2
+        # AH-1702/asyncapi-logging
         Logger.debug("[#{inspect(user_module)}] subscribed: #{topic}")
         :ok
 

@@ -10,11 +10,9 @@ defmodule Asyncapi do
       |> Map.values()
       |> filter(&Regex.match?(&1.regex, topic))
 
-    # TODO this or further up should raise on error here!?
     case matching_operations do
       [] -> {:error, :no_matching_operation}
       [operation] -> {:ok, operation}
-      # TODO this should be ensured in a static check!
       [_, _ | _] -> {:error, :ambiguous_operation}
     end
   end
@@ -46,14 +44,14 @@ defmodule Asyncapi do
   end
 
   defp validate_parameter(name, value, operation, schema) do
-    # TODO meta-schema: if paramter used, we also need a parameter-schema in the channel!
     parameter_schema = operation.parameter_schemas[name]
     result = Validator.validate_fragment(schema, parameter_schema, value)
     result
   end
 
   def validate_payload(payload, operation, schema) do
-    # TODO HACK remove atom keys
+    # AH-1698/asyncapi-struct-generator
+    # HACK
     payload = payload |> Jason.encode!() |> Jason.decode!()
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
       :ok ->
@@ -81,7 +79,6 @@ defmodule Asyncapi do
       |> filter(&(&1.action == "receive"))
       |> map(&Regex.replace(~r/\{([^}]*)\}/, &1.address, "+"))
 
-    # TODO stage should be selected from actual mix-stage.
     if not (!!schema.schema["servers"]["production"]),
       do: raise("need a server/production. TODO meta-schema.")
 

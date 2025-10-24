@@ -1,37 +1,20 @@
 defmodule Asyncapi.Schema do
-
   defmacro __using__(opts) do
-    schema_path = Keyword.fetch!(opts, :schema_path)
-    schema = Asyncapi.load(schema_path, __CALLER__.module)
+    schema_file = Keyword.fetch!(opts, :schema_path)
 
     quote do
-      @schema_file_glob unquote(schema_path)
-                        |> Path.dirname()
-                        |> Path.join("../**")
+      schema_root = Application.compile_env!(:asyncapi, :schema_root)
+      @schema_path Path.join(schema_root, unquote(schema_file))
+      @asyncapi_schema Asyncapi.load(@schema_path, __MODULE__)
 
-      @schem_hash @schema_file_glob
-                  |> Path.wildcard()
-                  |> Enum.map(&File.stat!(&1))
-                  |> inspect()
-                  |> :erlang.md5()
-
+      @schema_hash @schema_path |> File.read!() |> :erlang.md5()
       def __mix_recompile__?() do
-        # TODO @BM this does not seem to work!
-        # dbg(:recompile_checker)
-        new_hash =
-          @schema_file_glob
-          |> Path.wildcard()
-          |> Enum.map(&File.stat!(&1))
-          |> inspect()
-          |> :erlang.md5()
-
-        # TODO bundle schema? here?
-
-        new_hash != @schem_hash
+        new_hash = @schema_path |> File.read!() |> :erlang.md5()
+        new_hash != @schema_hash
       end
 
       def get_asyncapi() do
-        unquote(Macro.escape(schema))
+        @asyncapi_schema
       end
     end
   end

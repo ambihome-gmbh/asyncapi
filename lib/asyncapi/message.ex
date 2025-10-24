@@ -25,7 +25,7 @@ defmodule Asyncapi.Message do
         }
       }
     else
-      # TO-DO-1
+      # -> AH-1696/asyncapi-how-to-handle-invalid-incoming-messages
       error -> error
     end
   end
@@ -34,13 +34,15 @@ defmodule Asyncapi.Message do
     %{schema: schema, operations: operations} = asyncapi
     %{op_id: op_id, params: params, payload: payload} = message
 
+    # AH-1698/asyncapi-struct-generator
+    # HACK - so that I can send atom keys and values!
+    params = params |> Jason.encode!() |> Jason.decode!()
+    payload = payload |> Jason.encode!() |> Jason.decode!()
+
     with {:ok, operation} <- fetch_operation(operations, op_id),
          :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(params, operation),
          :ok <- Asyncapi.validate_parameters(params, operation, schema),
          :ok <- Asyncapi.validate_payload(payload, operation, schema) do
-      # TODO recursively set defaults from schema!
-      # dbg(operation.payload_schema)
-
       %{
         topic: interpolate_parameters(operation.address, params),
         payload: payload,

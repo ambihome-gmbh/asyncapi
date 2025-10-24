@@ -9,36 +9,52 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  defmacro generate_tests(service, schema_module, broker) do
+  defmacro generate_tests(service, schema_module, opts) do
+    # AH-1700/asyncapi-give-a-clear-error-message-when-schema-module-is-not-defined
+    if not Code.ensure_loaded?(Macro.expand(schema_module, __CALLER__)) do
+      raise("schema module #{inspect(schema_module)} not loaded")
+    end
+
     asyncapi = Macro.expand(schema_module, __CALLER__).get_asyncapi()
     testcases = Map.fetch!(asyncapi.schema.schema, "x-testcases")
 
     quote unquote: false,
+          location: :keep,
           bind_quoted: [
             service: service,
-            broker: broker,
+            opts: Macro.escape(opts),
             asyncapi: Macro.escape(asyncapi),
             testcases: Macro.escape(testcases)
           ] do
       setup do
         asyncapi = unquote(Macro.escape(asyncapi))
-        {:ok, broker_state} = unquote(broker).connect(asyncapi)
-        {:ok, service_pid} = start_supervised(unquote(service))
-        {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
+        broker = unquote(Keyword.fetch!(opts, :broker))
+        service_args = unquote(Keyword.get(opts, :service_args, []))
+        {:ok, broker_state} = broker.connect(asyncapi)
+
+        case start_supervised({unquote(service), service_args}) do
+          {:ok, service_pid} ->
+            {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
+
+          {:error, reason} ->
+            raise("Failed to start service #{inspect(unquote(service))}: #{inspect(reason)}")
+        end
       end
 
       for testcase <- testcases do
         parsed_sequence = Enum.map(testcase["sequence"], &Asyncapi.SequenceParser.parse_step/1)
 
-        # IO.puts("\n--> Running test case: #{testcase["name"]}")
-        # IO.puts(Enum.join(testcase["sequence"], "\n"))
-
         test testcase["name"], context do
           sequence = unquote(Macro.escape(parsed_sequence))
-          # IO.puts("\n--> Running test case:") # TODO cant access that here #{testcase["name"]}")
+          # TODO -> log
+          # IO.puts("\n--> Running test case: #{unquote(testcase["name"])}")
+
+          # wait for messages created at startup (e.g. group reads from project service)
+          Process.sleep(50)
 
           Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
-            Asyncapi.TestHelper.display_step(step)
+            # TODO -> log
+            # Asyncapi.TestHelper.display_step(step)
             Process.sleep(1)
 
             # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
@@ -132,6 +148,7 @@ defmodule Asyncapi.TestHelper do
 
           Process.sleep(100)
 
+          # TODO assert empty?
           case :erlang.process_info(self(), :messages) do
             {:messages, []} ->
               IO.puts("end of test case. no remaining messages")
