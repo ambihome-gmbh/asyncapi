@@ -87,6 +87,14 @@ defmodule Asyncapi.SequenceParser do
     end
   end
 
+  def parse_step2(str) do
+    case parse(str) do
+      {:ok, ast, "", _c, _l, _o} -> {:ok, shape(ast)}
+      {:ok, _ast, rest, _c, _l, _o} -> {:error, "unconsumed: #{inspect(rest)}"}
+      {:error, msg, rest, _c, _l, _o} -> {:error, "#{msg} at #{inspect(rest)}"}
+    end
+  end
+
   defp shape([
          {:actor, [ident: [from]]},
          {:arrow, [arr]},

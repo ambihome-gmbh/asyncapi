@@ -1,5 +1,5 @@
 defmodule SampleSchema do
-  use Asyncapi.Schema, schema_path: "test/schema/schema.json"
+  use Asyncapi.Schema, schema_path: "schema.json"
 end
 
 defmodule AsyncApiTest do
@@ -72,7 +72,6 @@ defmodule AsyncApiTest do
     assert @mqtt_4 = Message.to_mqtt_message!(@m_4, asyncapi)
   end
 
-  @tag :wip
   test "to_mqtt_message, defaults", %{asyncapi: asyncapi} do
     # assert @mqtt_1 = Message.to_mqtt_message!(@m_1, asyncapi)
     # assert @mqtt_2 = Message.to_mqtt_message!(@m_2, asyncapi)

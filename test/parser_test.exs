@@ -3,6 +3,32 @@ defmodule ParserTest do
 
   import Asyncapi.SequenceParser
 
+  @tag :wip
+  test "multiline" do
+    assert [
+             %{from: "from1", to: "to1", operation: "op1"},
+             %{from: "from2", to: "to2", operation: "op2"}
+           ] =
+             parse_multiline!("""
+             from1->to1: op1
+             from2->to2: op2
+             """)
+  end
+
+  def parse_multiline!(sequence) do
+    sequence
+    |> String.split("\n")
+    |> Enum.map(&String.trim/1)
+    |> Enum.filter(&(&1 != ""))
+    |> Enum.map(&parse_step2/1)
+    |> Enum.with_index()
+    |> Enum.reduce([], fn
+      {{:ok, step}, _idx}, acc -> [step | acc]
+      {{:error, msg}, idx}, _acc -> raise("Error at line #{idx + 1}: #{msg}")
+    end)
+    |> Enum.reverse()
+  end
+
   test "step" do
     assert %{
              from: "from",
