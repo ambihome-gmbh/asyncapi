@@ -61,21 +61,8 @@ defmodule MqttAsyncapi do
     )
   end
 
-  # TODO naming!
-  def send(op_id, payload, state) do
-    publish(
-      %Message{op_id: op_id, payload: payload},
-      state
-    )
-  end
-
-  # TODO naming!
-  def sendp(op_id, payload, params, state) do
-    publish(
-      %Message{op_id: op_id, payload: payload, params: params},
-      state
-    )
-  end
+  # publish exposed for test-helper only
+  def publish_(message, state), do: publish(message, state)
 
   # ---
 

@@ -122,7 +122,10 @@ defmodule Asyncapi.TestHelper do
                   assert Asyncapi.TestHelper.all_deref?(params),
                          "Params not fully dereferenced: #{inspect(params)}"
 
-                  MqttAsyncapi.sendp(step.operation, payload, params, context.state)
+                  MqttAsyncapi.publish_(
+                    %Asyncapi.Message{op_id: step.operation, payload: payload, params: params},
+                    context.state
+                  )
 
                   acc
 
@@ -251,7 +254,7 @@ defmodule Asyncapi.TestHelper do
           {key, {type, value}}
 
         :list ->
-          # TODO why no deref here?
+          # AH-1728/asyncapi-deref-in-lists
           {key, map(value, fn {:literal, v} -> v end)}
 
         :map ->
