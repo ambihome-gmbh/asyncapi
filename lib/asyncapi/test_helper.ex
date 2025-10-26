@@ -53,10 +53,6 @@ defmodule Asyncapi.TestHelper do
 
             Logger.info("--> Running test case: #{unquote(name)}")
 
-            # wait for messages created at startup (e.g. group reads from project service)
-            # TODO nicht mehr notwendig wenn Asyncapi handle-continue kann
-            Process.sleep(50)
-
             Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
               Asyncapi.TestHelper.display_step(step)
               Process.sleep(1)
@@ -150,7 +146,7 @@ defmodule Asyncapi.TestHelper do
               end
             end)
 
-            Process.sleep(100)
+            Process.sleep(1)
             assert {:messages, []} == :erlang.process_info(self(), :messages)
           end
         end
