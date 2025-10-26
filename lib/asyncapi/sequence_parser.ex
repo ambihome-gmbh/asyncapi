@@ -95,6 +95,20 @@ defmodule Asyncapi.SequenceParser do
     end
   end
 
+  def parse_multiline!(sequence, name) do
+    sequence
+    |> String.split("\n")
+    |> Enum.map(&String.trim/1)
+    |> Enum.filter(&(&1 != ""))
+    |> Enum.map(&parse_step2/1)
+    |> Enum.with_index()
+    |> Enum.reduce([], fn
+      {{:ok, step}, _idx}, acc -> [step | acc]
+      {{:error, msg}, idx}, _acc -> raise("Error in testcase #{name} at line #{idx + 1}: #{msg}")
+    end)
+    |> Enum.reverse()
+  end
+
   defp shape([
          {:actor, [ident: [from]]},
          {:arrow, [arr]},

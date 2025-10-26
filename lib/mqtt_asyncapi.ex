@@ -55,7 +55,7 @@ defmodule MqttAsyncapi do
     )
   end
 
-   # TODO naming!
+  # TODO naming!
   def send(op_id, payload, state) do
     publish(
       %Message{op_id: op_id, payload: payload},

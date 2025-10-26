@@ -10,154 +10,175 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  defmacro generate_tests(service, schema_module, opts) do
-    if not Code.ensure_loaded?(Macro.expand(schema_module, __CALLER__)) do
-      raise("schema module #{inspect(schema_module)} not loaded")
+  defmacro generate_tests(service_, schema_module_, opts_) do
+    schema_module = Macro.expand(schema_module_, __CALLER__)
+
+    if not Code.ensure_loaded?(schema_module) do
+      raise("schema module #{inspect(schema_module)} not loaded.")
     end
 
-    asyncapi = Macro.expand(schema_module, __CALLER__).get_asyncapi()
-    testcases = Map.fetch!(asyncapi.schema.schema, "x-testcases")
+    opts = Macro.expand(opts_, __CALLER__)
+    # testcases_ast = Keyword.fetch!(opts, :testcases)
+    # testcases_expanded = Macro.prewalk(testcases_, &Macro.expand(&1, __CALLER__))
+    # testcases_expanded = Macro.prewalk(testcases_ast, fn node ->
+    #   Macro.expand(node, __CALLER__)
+    # end)
+    # dbg(__CALLER__, limit: :infinity)
+    # {testcases, _} = Code.eval_quoted(testcases_ast, [], __CALLER__)
 
-    quote unquote: false,
-          location: :keep,
-          bind_quoted: [
-            service: service,
-            opts: Macro.escape(opts),
-            asyncapi: Macro.escape(asyncapi),
-            testcases: Macro.escape(testcases)
-          ] do
+    testcases =
+      case Keyword.fetch(opts, :testcases_module) do
+        {:ok, mod_ast} ->
+          testcases_module = Macro.expand(mod_ast, __CALLER__)
+
+          Code.ensure_loaded?(testcases_module) ||
+            raise "module #{inspect(testcases_module)} not loaded"
+
+          testcases_module.all()
+
+        :error ->
+          raise("testcases module missing")
+      end
+
+    testcases_parsed =
+      Enum.map(testcases, fn %{name: name, sequence: seq} ->
+        %{name: name, sequence: Asyncapi.SequenceParser.parse_multiline!(seq, name)}
+      end)
+
+    tests =
+      for %{name: name, sequence: seq} <- testcases_parsed do
+        quote do
+          test unquote(name), context do
+            sequence = unquote(Macro.escape(seq))
+
+            Logger.info("--> Running test case: #{unquote(name)}")
+
+            # wait for messages created at startup (e.g. group reads from project service)
+            # TODO nicht mehr notwendig wenn Asyncapi handle-continue kann
+            Process.sleep(50)
+
+            Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
+              Asyncapi.TestHelper.display_step(step)
+              Process.sleep(1)
+
+              # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
+              payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
+              params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
+
+              case step do
+                %{from: "internal", to: "service", arrow: arrow} ->
+                  Asyncapi.TestHelper.check_for_unexpected_messages()
+                  assert step.params == %{}, "params not allowed for intenal messages"
+
+                  internal_message_tag = String.to_atom(step.operation)
+
+                  internal_message =
+                    case payload do
+                      %{"__bytearray__" => bytearray} ->
+                        {internal_message_tag, :erlang.list_to_binary(bytearray)}
+
+                      %{} = payload when map_size(payload) == 0 ->
+                        internal_message_tag
+
+                      _ ->
+                        {internal_message_tag, payload}
+                    end
+
+                  if arrow == :async do
+                    send(context.service_pid, internal_message)
+                  else
+                    GenServer.reply({context.service_pid, acc.last_call_tag}, internal_message)
+                  end
+
+                  %{acc | last_call_tag: nil}
+
+                %{from: "service", to: "internal", arrow: arrow} ->
+                  assert step.params == %{}, "params not allowed for intenal messages"
+
+                  {internal_message, call_tag} =
+                    if arrow == :async do
+                      assert_receive({:"$gen_cast", internal_message})
+                      {internal_message, nil}
+                    else
+                      service_pid = context.service_pid
+                      assert_receive({:"$gen_call", {^service_pid, tag}, internal_message})
+                      {internal_message, tag}
+                    end
+
+                  {internal_message_tag, internal_message_payload} =
+                    case internal_message do
+                      {operation, payload} -> {operation, payload}
+                      operation -> {operation, %{}}
+                    end
+
+                  assert step.operation == "#{internal_message_tag}"
+
+                  acc
+                  |> Map.put(:last_call_tag, call_tag)
+                  |> Asyncapi.TestHelper.match(internal_message_payload, payload)
+
+                %{to: "service", arrow: :async} ->
+                  Asyncapi.TestHelper.check_for_unexpected_messages()
+
+                  assert Asyncapi.TestHelper.all_deref?(payload),
+                         "Payload not fully dereferenced: #{inspect(payload)}"
+
+                  assert Asyncapi.TestHelper.all_deref?(params),
+                         "Params not fully dereferenced: #{inspect(params)}"
+
+                  MqttAsyncapi.sendp(step.operation, payload, params, context.state)
+
+                  acc
+
+                %{from: "service", arrow: :async} ->
+                  assert_receive({:publish, mqtt_message})
+
+                  assert {:ok, asyncapi_message} =
+                           Asyncapi.Message.from_mqtt_message(
+                             Asyncapi.Message.decode_mqtt_message(mqtt_message),
+                             context.state.asyncapi
+                           )
+
+                  assert step.operation == asyncapi_message.op_id
+
+                  acc
+                  |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
+                  |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
+
+                _ ->
+                  raise("Unsupported step: #{inspect(step)} -- sync when only async supported??")
+              end
+            end)
+
+            Process.sleep(100)
+            assert {:messages, []} == :erlang.process_info(self(), :messages)
+          end
+        end
+      end
+
+    quote location: :keep do
       require Logger
 
       setup do
-        asyncapi = unquote(Macro.escape(asyncapi))
-        broker = unquote(Keyword.fetch!(opts, :broker))
-        service_args = unquote(Keyword.get(opts, :service_args, []))
+        service = unquote(service_)
+        asyncapi = unquote(schema_module).get_asyncapi()
+
+        opts = unquote(opts_)
+        broker = Keyword.fetch!(opts, :broker)
+        service_args = Keyword.get(opts, :service_args, [])
+
         {:ok, broker_state} = broker.connect(asyncapi)
 
-        case start_supervised({unquote(service), service_args}) do
+        case start_supervised({service, service_args}) do
           {:ok, service_pid} ->
             {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
 
           {:error, reason} ->
-            raise("Failed to start service #{inspect(unquote(service))}: #{inspect(reason)}")
+            raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
         end
       end
 
-      for testcase <- testcases do
-        parsed_sequence = Enum.map(testcase["sequence"], &Asyncapi.SequenceParser.parse_step/1)
-
-        test testcase["name"], context do
-          sequence = unquote(Macro.escape(parsed_sequence))
-          Logger.info("--> Running test case: #{unquote(testcase["name"])}")
-
-          # wait for messages created at startup (e.g. group reads from project service)
-          Process.sleep(50)
-
-          Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
-            Asyncapi.TestHelper.display_step(step)
-            Process.sleep(1)
-
-            # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
-            payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
-            params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
-
-            case step do
-              %{from: "internal", to: "service", arrow: arrow} ->
-                Asyncapi.TestHelper.check_for_unexpected_messages()
-                assert step.params == %{}, "params not allowed for intenal messages"
-
-                internal_message_tag = String.to_atom(step.operation)
-
-                internal_message =
-                  case payload do
-                    %{"__bytearray__" => bytearray} ->
-                      {internal_message_tag, :erlang.list_to_binary(bytearray)}
-
-                    %{} = payload when map_size(payload) == 0 ->
-                      internal_message_tag
-
-                    _ ->
-                      {internal_message_tag, payload}
-                  end
-
-                if arrow == :async do
-                  send(context.service_pid, internal_message)
-                else
-                  GenServer.reply({context.service_pid, acc.last_call_tag}, internal_message)
-                end
-
-                %{acc | last_call_tag: nil}
-
-              %{from: "service", to: "internal", arrow: arrow} ->
-                assert step.params == %{}, "params not allowed for intenal messages"
-
-                {internal_message, call_tag} =
-                  if arrow == :async do
-                    assert_receive({:"$gen_cast", internal_message})
-                    {internal_message, nil}
-                  else
-                    service_pid = context.service_pid
-                    assert_receive({:"$gen_call", {^service_pid, tag}, internal_message})
-                    {internal_message, tag}
-                  end
-
-                {internal_message_tag, internal_message_payload} =
-                  case internal_message do
-                    {operation, payload} -> {operation, payload}
-                    operation -> {operation, %{}}
-                  end
-
-                assert step.operation == "#{internal_message_tag}"
-
-                acc
-                |> Map.put(:last_call_tag, call_tag)
-                |> Asyncapi.TestHelper.match(internal_message_payload, payload)
-
-              %{to: "service", arrow: :async} ->
-                Asyncapi.TestHelper.check_for_unexpected_messages()
-
-                assert Asyncapi.TestHelper.all_deref?(payload),
-                       "Payload not fully dereferenced: #{inspect(payload)}"
-
-                assert Asyncapi.TestHelper.all_deref?(params),
-                       "Params not fully dereferenced: #{inspect(params)}"
-
-                MqttAsyncapi.sendp(step.operation, payload, params, context.state)
-
-                acc
-
-              %{from: "service", arrow: :async} ->
-                assert_receive({:publish, mqtt_message})
-
-                assert {:ok, asyncapi_message} =
-                         Asyncapi.Message.from_mqtt_message(
-                           Asyncapi.Message.decode_mqtt_message(mqtt_message),
-                           context.state.asyncapi
-                         )
-
-                assert step.operation == asyncapi_message.op_id
-
-                acc
-                |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
-                |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
-
-              _ ->
-                raise("Unsupported step: #{inspect(step)} -- sync when only async supported??")
-            end
-          end)
-
-          Process.sleep(100)
-
-          # TODO assert empty?
-          case :erlang.process_info(self(), :messages) do
-            {:messages, []} ->
-              IO.puts("end of test case. no remaining messages")
-
-            {:messages, remaining_messages} ->
-              IO.puts("end of test case. remaining messages: #{inspect(remaining_messages)}")
-          end
-        end
-      end
+      unquote_splicing(tests)
     end
   end
 

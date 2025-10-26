@@ -53,6 +53,7 @@ defmodule Asyncapi do
     # AH-1698/asyncapi-struct-generator
     # HACK
     payload = payload |> Jason.encode!() |> Jason.decode!()
+
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
       :ok ->
         :ok
