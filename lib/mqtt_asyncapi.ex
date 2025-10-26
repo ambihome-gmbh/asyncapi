@@ -11,6 +11,8 @@ defmodule MqttAsyncapi do
               {:noreply, state :: term} | {:reply, [reply_message :: Message.t()], state :: term}
   @callback handle_info(term, state :: term) ::
               {:noreply, state :: term} | {:reply, [reply_message :: Message.t()], state :: term}
+  @callback handle_continue(arg :: term, state :: term()) ::
+              {:noreply, state :: term} | {:reply, [reply_message :: Message.t()], state :: term}
 
   @broker Application.compile_env(:asyncapi, :broker)
 
@@ -27,11 +29,15 @@ defmodule MqttAsyncapi do
 
       @impl true
       def handle_info(info, state) do
-        Logger.warning("unhandled: handle_info: #{inspect(info)}")
-        {:noreply, state}
+        raise("MISSING handle_info/2 in #{inspect(__MODULE__)}/info: #{inspect(info)}")
       end
 
-      defoverridable handle_info: 2
+      @impl true
+      def handle_continue(_info, state) do
+        raise("MISSING handle_continue/2 in #{inspect(__MODULE__)}")
+      end
+
+      defoverridable handle_info: 2, handle_continue: 2
     end
   end
 
@@ -92,7 +98,17 @@ defmodule MqttAsyncapi do
     # AH-1702/asyncapi-logging -> broker wrapper?
     Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
-    {:ok, user_state} = user_module.init(opts)
+    {:ok, user_state, continue} =
+      case user_module.init(opts) do
+        {:ok, user_state} ->
+          {:ok, user_state, :no_continue}
+
+        {:ok, user_state, {:continue, continue_arg}} ->
+          {:ok, user_state, {:continue, continue_arg}}
+
+        unexpected ->
+          raise("invalid return from #{inspect(user_module)}.init/1: #{inspect(unexpected)}")
+      end
 
     state = %{
       broker: broker_state,
@@ -101,7 +117,11 @@ defmodule MqttAsyncapi do
       asyncapi: asyncapi
     }
 
-    {:ok, state}
+    if continue != :no_continue do
+      {:ok, state, continue}
+    else
+      {:ok, state}
+    end
   end
 
   @impl GenServer
@@ -134,6 +154,16 @@ defmodule MqttAsyncapi do
     new_user_state =
       message
       |> state.user_module.handle_info(state.user_state)
+      |> process_reply(state)
+
+    {:noreply, %{state | user_state: new_user_state}}
+  end
+
+  @impl GenServer
+  def handle_continue(continue_arg, state) do
+    new_user_state =
+      continue_arg
+      |> state.user_module.handle_continue(state.user_state)
       |> process_reply(state)
 
     {:noreply, %{state | user_state: new_user_state}}
