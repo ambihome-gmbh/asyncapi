@@ -10,7 +10,7 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  def start_service(service, schema, broker) do
+  def start_service(service, schema, broker, opts \\ []) do
     asyncapi = schema.get_asyncapi()
 
     case broker do
@@ -25,8 +25,9 @@ defmodule Asyncapi.TestHelper do
     end
 
     {:ok, broker_state} = broker.connect(asyncapi)
+    service_args = Keyword.get(opts, :service_args, [])
 
-    case start_supervised({service, []}) do
+    case start_supervised({service, service_args}) do
       {:ok, service_pid} ->
         {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
 
