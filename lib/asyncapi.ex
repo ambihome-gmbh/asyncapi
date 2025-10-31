@@ -97,7 +97,11 @@ defmodule Asyncapi do
   end
 
   defp load_channel(channel, schema, schema_module) do
-    messages = to_list(channel["messages"])
+    messages =
+      case channel["messages"] do
+        nil -> raise("channel #{inspect channel} of #{schema_module} must have messages. TODO meta-schema.")
+        messages -> to_list(messages)
+      end
 
     if length(messages) != 1,
       do: raise("only exactly one message per channel is supported for now. TODO meta-schema.")

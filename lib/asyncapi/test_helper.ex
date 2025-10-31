@@ -18,13 +18,6 @@ defmodule Asyncapi.TestHelper do
     end
 
     opts = Macro.expand(opts_, __CALLER__)
-    # testcases_ast = Keyword.fetch!(opts, :testcases)
-    # testcases_expanded = Macro.prewalk(testcases_, &Macro.expand(&1, __CALLER__))
-    # testcases_expanded = Macro.prewalk(testcases_ast, fn node ->
-    #   Macro.expand(node, __CALLER__)
-    # end)
-    # dbg(__CALLER__, limit: :infinity)
-    # {testcases, _} = Code.eval_quoted(testcases_ast, [], __CALLER__)
 
     testcases =
       case Keyword.fetch(opts, :testcases_module) do
@@ -40,6 +33,7 @@ defmodule Asyncapi.TestHelper do
           raise("testcases module missing")
       end
 
+    # AH-1712/asyncapi-sanity-checker
     testcases_parsed =
       Enum.map(testcases, fn %{name: name, sequence: seq} ->
         %{name: name, sequence: Asyncapi.SequenceParser.parse_multiline!(seq, name)}
@@ -48,6 +42,7 @@ defmodule Asyncapi.TestHelper do
     tests =
       for %{name: name, sequence: seq} <- testcases_parsed do
         quote do
+          @tag capture_log: true
           test unquote(name), context do
             sequence = unquote(Macro.escape(seq))
 
