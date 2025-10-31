@@ -1,6 +1,7 @@
 cd priv/schema
+mkdir -p bundled
 
-asyncapi bundle user.json common.json testcases.json -o bundled/user.json  
+asyncapi bundle user.json common.json -o bundled/user.json
 asyncapi bundle service.json common.json -o bundled/service.json
 
 asyncapi validate bundled/user.json

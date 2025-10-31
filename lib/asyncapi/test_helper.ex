@@ -10,6 +10,145 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
+  def start_service(service, schema, broker) do
+    asyncapi = schema.get_asyncapi()
+
+    case broker do
+      Asyncapi.Broker.Dummy ->
+        start_supervised!(DummyBroker)
+
+      Asyncapi.Broker.MQTT ->
+        :ok
+
+      _ ->
+        raise("unknown broker")
+    end
+
+    {:ok, broker_state} = broker.connect(asyncapi)
+
+    case start_supervised({service, []}) do
+      {:ok, service_pid} ->
+        {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
+
+      {:error, reason} ->
+        raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
+    end
+  end
+
+  defmacro assert_sequence(context, sequence) do
+    quote do
+      require Logger
+
+      context = unquote(context)
+
+      # AH-1712/asyncapi-sanity-checker
+      sequence =
+        Asyncapi.SequenceParser.parse_multiline!(unquote(sequence), context.test)
+
+      Logger.info("--> Running test case: #{context.test}")
+
+      Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
+        Asyncapi.TestHelper.display_step(step)
+        Process.sleep(1)
+
+        # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
+        payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
+        params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
+
+        case step do
+          %{from: "internal", to: "service", arrow: arrow} ->
+            Asyncapi.TestHelper.check_for_unexpected_messages()
+            assert step.params == %{}, "params not allowed for intenal messages"
+
+            internal_message_tag = String.to_atom(step.operation)
+
+            internal_message =
+              case payload do
+                %{"__bytearray__" => bytearray} ->
+                  {internal_message_tag, :erlang.list_to_binary(bytearray)}
+
+                %{} = payload when map_size(payload) == 0 ->
+                  internal_message_tag
+
+                _ ->
+                  {internal_message_tag, payload}
+              end
+
+            if arrow == :async do
+              send(context.service_pid, internal_message)
+            else
+              GenServer.reply({context.service_pid, acc.last_call_tag}, internal_message)
+            end
+
+            %{acc | last_call_tag: nil}
+
+          %{from: "service", to: "internal", arrow: arrow} ->
+            assert step.params == %{}, "params not allowed for intenal messages"
+
+            {internal_message, call_tag} =
+              if arrow == :async do
+                assert_receive({:"$gen_cast", internal_message})
+                {internal_message, nil}
+              else
+                service_pid = context.service_pid
+                assert_receive({:"$gen_call", {^service_pid, tag}, internal_message})
+                {internal_message, tag}
+              end
+
+            {internal_message_tag, internal_message_payload} =
+              case internal_message do
+                {operation, payload} -> {operation, payload}
+                operation -> {operation, %{}}
+              end
+
+            assert step.operation == "#{internal_message_tag}"
+
+            acc
+            |> Map.put(:last_call_tag, call_tag)
+            |> Asyncapi.TestHelper.match(internal_message_payload, payload)
+
+          %{to: "service", arrow: :async} ->
+            Asyncapi.TestHelper.check_for_unexpected_messages()
+
+            assert Asyncapi.TestHelper.all_deref?(payload),
+                   "Payload not fully dereferenced: #{inspect(payload)}"
+
+            assert Asyncapi.TestHelper.all_deref?(params),
+                   "Params not fully dereferenced: #{inspect(params)}"
+
+            MqttAsyncapi.publish_(
+              %Asyncapi.Message{op_id: step.operation, payload: payload, params: params},
+              context.state
+            )
+
+            acc
+
+          %{from: "service", arrow: :async} ->
+            assert_receive({:publish, mqtt_message})
+
+            assert {:ok, asyncapi_message} =
+                     Asyncapi.Message.from_mqtt_message(
+                       Asyncapi.Message.decode_mqtt_message(mqtt_message),
+                       context.state.asyncapi
+                     )
+
+            assert step.operation == asyncapi_message.op_id
+
+            acc
+            |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
+            |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
+
+          _ ->
+            raise("Unsupported step: #{inspect(step)} -- sync when only async supported??")
+        end
+      end)
+
+      Process.sleep(1)
+      assert {:messages, []} == :erlang.process_info(self(), :messages)
+    end
+  end
+
+  @deprecated "Move to assert_sequence/2"
   defmacro generate_tests(service_, schema_module_, opts_) do
     schema_module = Macro.expand(schema_module_, __CALLER__)
 
@@ -33,119 +172,12 @@ defmodule Asyncapi.TestHelper do
           raise("testcases module missing")
       end
 
-    # AH-1712/asyncapi-sanity-checker
-    testcases_parsed =
-      Enum.map(testcases, fn %{name: name, sequence: seq} ->
-        %{name: name, sequence: Asyncapi.SequenceParser.parse_multiline!(seq, name)}
-      end)
-
     tests =
-      for %{name: name, sequence: seq} <- testcases_parsed do
+      for %{name: name, sequence: seq} <- testcases do
         quote do
           @tag capture_log: true
           test unquote(name), context do
-            sequence = unquote(Macro.escape(seq))
-
-            Logger.info("--> Running test case: #{unquote(name)}")
-
-            Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
-              Asyncapi.TestHelper.display_step(step)
-              Process.sleep(1)
-
-              # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
-              payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
-              params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
-
-              case step do
-                %{from: "internal", to: "service", arrow: arrow} ->
-                  Asyncapi.TestHelper.check_for_unexpected_messages()
-                  assert step.params == %{}, "params not allowed for intenal messages"
-
-                  internal_message_tag = String.to_atom(step.operation)
-
-                  internal_message =
-                    case payload do
-                      %{"__bytearray__" => bytearray} ->
-                        {internal_message_tag, :erlang.list_to_binary(bytearray)}
-
-                      %{} = payload when map_size(payload) == 0 ->
-                        internal_message_tag
-
-                      _ ->
-                        {internal_message_tag, payload}
-                    end
-
-                  if arrow == :async do
-                    send(context.service_pid, internal_message)
-                  else
-                    GenServer.reply({context.service_pid, acc.last_call_tag}, internal_message)
-                  end
-
-                  %{acc | last_call_tag: nil}
-
-                %{from: "service", to: "internal", arrow: arrow} ->
-                  assert step.params == %{}, "params not allowed for intenal messages"
-
-                  {internal_message, call_tag} =
-                    if arrow == :async do
-                      assert_receive({:"$gen_cast", internal_message})
-                      {internal_message, nil}
-                    else
-                      service_pid = context.service_pid
-                      assert_receive({:"$gen_call", {^service_pid, tag}, internal_message})
-                      {internal_message, tag}
-                    end
-
-                  {internal_message_tag, internal_message_payload} =
-                    case internal_message do
-                      {operation, payload} -> {operation, payload}
-                      operation -> {operation, %{}}
-                    end
-
-                  assert step.operation == "#{internal_message_tag}"
-
-                  acc
-                  |> Map.put(:last_call_tag, call_tag)
-                  |> Asyncapi.TestHelper.match(internal_message_payload, payload)
-
-                %{to: "service", arrow: :async} ->
-                  Asyncapi.TestHelper.check_for_unexpected_messages()
-
-                  assert Asyncapi.TestHelper.all_deref?(payload),
-                         "Payload not fully dereferenced: #{inspect(payload)}"
-
-                  assert Asyncapi.TestHelper.all_deref?(params),
-                         "Params not fully dereferenced: #{inspect(params)}"
-
-                  MqttAsyncapi.publish_(
-                    %Asyncapi.Message{op_id: step.operation, payload: payload, params: params},
-                    context.state
-                  )
-
-                  acc
-
-                %{from: "service", arrow: :async} ->
-                  assert_receive({:publish, mqtt_message})
-
-                  assert {:ok, asyncapi_message} =
-                           Asyncapi.Message.from_mqtt_message(
-                             Asyncapi.Message.decode_mqtt_message(mqtt_message),
-                             context.state.asyncapi
-                           )
-
-                  assert step.operation == asyncapi_message.op_id
-
-                  acc
-                  |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
-                  |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
-
-                _ ->
-                  raise("Unsupported step: #{inspect(step)} -- sync when only async supported??")
-              end
-            end)
-
-            Process.sleep(1)
-            assert {:messages, []} == :erlang.process_info(self(), :messages)
+            unquote(__MODULE__).assert_sequence(context, unquote(seq))
           end
         end
       end
