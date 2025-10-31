@@ -1,20 +1,28 @@
-defmodule StackTest do
+defmodule ServiceTest do
   use ExUnit.Case
   require Asyncapi.TestHelper
 
-  @broker Application.compile_env(:asyncapi, :broker)
-
   setup do
-    # TODO use registry to be able to mock multiple internal services
     Process.register(self(), TimeServer)
-    Asyncapi.TestHelper.start_broker()
-    :ok
+
+    Asyncapi.TestHelper.start_service(
+      Baking,
+      Baking.TestUserSchema,
+      Asyncapi.Broker.Dummy
+    )
   end
 
-  Asyncapi.TestHelper.generate_tests(
-    Baking,
-    Baking.TestUserSchema,
-    testcases_module: Baking.TestCases,
-    broker: @broker
-  )
+  test "bake a cake", context do
+    Asyncapi.TestHelper.assert_sequence(context, """
+    user->>service: start_baking
+    service->>internal: schedule_timeout
+    service->>internal: schedule_cron
+    internal->>service: peek
+    service->>user: baking_not_done
+    internal->>service: peek
+    service->>user: baking_not_done
+    internal->>service: timeout
+    service->>user: baking_done
+    """)
+  end
 end

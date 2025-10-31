@@ -1,18 +1,27 @@
-defmodule StackTest do
+defmodule ServiceTest do
   use ExUnit.Case
   require Asyncapi.TestHelper
 
-  @broker Application.compile_env(:asyncapi, :broker)
-
   setup do
-    Asyncapi.TestHelper.start_broker()
-    :ok
+    Asyncapi.TestHelper.start_service(
+      Stack,
+      Stack.TestUserSchema,
+      Asyncapi.Broker.Dummy
+    )
   end
 
-  Asyncapi.TestHelper.generate_tests(
-    Stack,
-    Stack.TestUserSchema,
-    testcases_module: Stack.TestCases,
-    broker: @broker
-  )
+  test "push, pop", context do
+    Asyncapi.TestHelper.assert_sequence(context, """
+     user->>service: push/{value: 42}
+    user->>service: pop
+    service->>user: pop_response/{value: 42}
+    """)
+  end
+
+  test "pop from empty", context do
+    Asyncapi.TestHelper.assert_sequence(context, """
+    user->>service: pop
+    service->>user: pop_response/{value: nil}
+    """)
+  end
 end
