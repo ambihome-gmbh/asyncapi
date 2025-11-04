@@ -14,8 +14,8 @@ defmodule Asyncapi.TestHelper do
       GenServer.call(server, {__MODULE__, :next}, :infinity)
     end
 
-    def send(server, callback) do
-      GenServer.call(server, {__MODULE__, :send, callback}, :infinity)
+    def send(server, type, target, message) do
+      GenServer.call(server, {__MODULE__, :send, type, target, message}, :infinity)
     end
 
     @impl true
@@ -34,8 +34,13 @@ defmodule Asyncapi.TestHelper do
       {:reply, reply, state}
     end
 
-    def handle_call({__MODULE__, :send, callback}, _from, state) do
-      {:reply, callback.(), state}
+    def handle_call({__MODULE__, :send, type, target, message}, _from, state) do
+      case type do
+        :async -> send(target, message)
+        :sync -> GenServer.reply(target, message)
+      end
+
+      {:reply, :ok, state}
     end
 
     def handle_call(msg, from, state) do
@@ -125,13 +130,16 @@ defmodule Asyncapi.TestHelper do
 
             pid = Map.fetch!(context.service_args, String.to_existing_atom(internal_key))
 
-            Internal.send(pid, fn ->
-              if arrow == :async do
-                send(context.service_pid, internal_message)
-              else
-                GenServer.reply({context.service_pid, acc.last_call_tag}, internal_message)
-              end
-            end)
+            if arrow == :async do
+              Internal.send(pid, :async, context.service_pid, internal_message)
+            else
+              Internal.send(
+                pid,
+                :sync,
+                {context.service_pid, acc.last_call_tag},
+                internal_message
+              )
+            end
 
             %{acc | last_call_tag: nil}
 
