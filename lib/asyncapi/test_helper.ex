@@ -3,6 +3,51 @@ defmodule Asyncapi.TestHelper do
   import Enum
   require Logger
 
+  defmodule Internal do
+    use GenServer
+
+    def start_link(init_arg) do
+      GenServer.start_link(__MODULE__, init_arg)
+    end
+
+    def next(server) do
+      GenServer.call(server, {__MODULE__, :next}, :infinity)
+    end
+
+    def send(server, callback) do
+      GenServer.call(server, {__MODULE__, :send, callback}, :infinity)
+    end
+
+    @impl true
+    def init(_) do
+      {:ok, :queue.new()}
+    end
+
+    @impl true
+    def handle_call({__MODULE__, :next}, _from, state) do
+      {reply, state} =
+        case :queue.out(state) do
+          {:empty, queue} -> {nil, queue}
+          {{:value, item}, queue} -> {item, queue}
+        end
+
+      {:reply, reply, state}
+    end
+
+    def handle_call({__MODULE__, :send, callback}, _from, state) do
+      {:reply, callback.(), state}
+    end
+
+    def handle_call(msg, from, state) do
+      {:noreply, :queue.in({:call, from, msg}, state)}
+    end
+
+    @impl true
+    def handle_cast(msg, state) do
+      {:noreply, :queue.in({:cast, msg}, state)}
+    end
+  end
+
   defp fetch!(map, key, error_msg) do
     case Map.fetch(map, key) do
       :error -> raise("#{error_msg}: #{inspect(key)} not in #{inspect(map)}")
@@ -29,7 +74,10 @@ defmodule Asyncapi.TestHelper do
 
     case start_supervised({service, service_args}) do
       {:ok, service_pid} ->
-        {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
+        {:ok,
+         state: %{asyncapi: asyncapi, broker: broker_state},
+         service_pid: service_pid,
+         service_args: Map.new(service_args)}
 
       {:error, reason} ->
         raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
@@ -57,7 +105,7 @@ defmodule Asyncapi.TestHelper do
         params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
 
         case step do
-          %{from: "internal", to: "service", arrow: arrow} ->
+          %{from: "internal_" <> internal_key, to: "service", arrow: arrow} ->
             Asyncapi.TestHelper.check_for_unexpected_messages()
             assert step.params == %{}, "params not allowed for intenal messages"
 
@@ -75,24 +123,32 @@ defmodule Asyncapi.TestHelper do
                   {internal_message_tag, payload}
               end
 
-            if arrow == :async do
-              send(context.service_pid, internal_message)
-            else
-              GenServer.reply({context.service_pid, acc.last_call_tag}, internal_message)
-            end
+            pid = Map.fetch!(context.service_args, String.to_existing_atom(internal_key))
+
+            Internal.send(pid, fn ->
+              if arrow == :async do
+                send(context.service_pid, internal_message)
+              else
+                GenServer.reply({context.service_pid, acc.last_call_tag}, internal_message)
+              end
+            end)
 
             %{acc | last_call_tag: nil}
 
-          %{from: "service", to: "internal", arrow: arrow} ->
+          %{from: "service", to: "internal_" <> internal_key, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for intenal messages"
+
+            pid = Map.fetch!(context.service_args, String.to_existing_atom(internal_key))
+
+            msg = Internal.next(pid)
 
             {internal_message, call_tag} =
               if arrow == :async do
-                assert_receive({:"$gen_cast", internal_message})
+                assert {:cast, internal_message} = msg
                 {internal_message, nil}
               else
                 service_pid = context.service_pid
-                assert_receive({:"$gen_call", {^service_pid, tag}, internal_message})
+                assert {:call, {^service_pid, tag}, internal_message} = msg
                 {internal_message, tag}
               end
 

@@ -9,19 +9,20 @@ defmodule Baking do
   end
 
   @impl true
-  def init(_opts) do
-    {:ok, %{}}
+  def init(opts) do
+    time_server = Keyword.get(opts, :time_server, TimeServer)
+    {:ok, %{time_server: time_server}}
   end
 
   @impl true
   def handle_message(%Message{op_id: "start_baking"}, state) do
-    TimeServer.schedule_timeout(self(), %{
+    TimeServer.schedule_timeout(state.time_server, self(), %{
       after: 30,
       after_unit: :milliseconds,
       callback: :timeout
     })
 
-    TimeServer.schedule_cron(self(), %{cron: "some cron", callback: :peek})
+    TimeServer.schedule_cron(state.time_server, self(), %{cron: "some cron", callback: :peek})
     noreply(state)
   end
 

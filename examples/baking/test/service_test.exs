@@ -3,25 +3,28 @@ defmodule ServiceTest do
   require Asyncapi.TestHelper
 
   setup do
-    Process.register(self(), TimeServer)
+    {:ok, pid} = start_supervised(Asyncapi.TestHelper.Internal)
 
     Asyncapi.TestHelper.start_service(
       Baking,
       Baking.TestUserSchema,
-      Asyncapi.Broker.Dummy
+      Asyncapi.Broker.Dummy,
+      service_args: [
+        time_server: pid
+      ]
     )
   end
 
   test "bake a cake", context do
     Asyncapi.TestHelper.assert_sequence(context, """
     user->>service: start_baking
-    service->>internal: schedule_timeout
-    service->>internal: schedule_cron
-    internal->>service: peek
+    service->>internal_time_server: schedule_timeout
+    service->>internal_time_server: schedule_cron
+    internal_time_server->>service: peek
     service->>user: baking_not_done
-    internal->>service: peek
+    internal_time_server->>service: peek
     service->>user: baking_not_done
-    internal->>service: timeout
+    internal_time_server->>service: timeout
     service->>user: baking_done
     """)
   end
