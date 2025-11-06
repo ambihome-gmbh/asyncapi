@@ -69,7 +69,7 @@ defmodule Asyncapi.TestHelperTest do
         Baking,
         Baking.TestUserSchema,
         Asyncapi.Broker.Dummy,
-        service_args: [
+        service_opts: [
           time_server: pid
         ]
       )
@@ -97,7 +97,7 @@ defmodule Asyncapi.TestHelperTest do
         Baking,
         Baking.TestUserSchema,
         Asyncapi.Broker.Dummy,
-        service_args: [
+        service_opts: [
           time_server: pid
         ]
       )
