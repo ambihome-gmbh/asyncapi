@@ -18,6 +18,7 @@ defmodule Asyncapi.TestHelper do
         start_supervised!(DummyBroker)
 
       Asyncapi.Broker.MQTT ->
+        # TODO: maybe ensure broker is running!?
         :ok
 
       _ ->
@@ -25,9 +26,9 @@ defmodule Asyncapi.TestHelper do
     end
 
     {:ok, broker_state} = broker.connect(asyncapi)
-    service_args = Keyword.get(opts, :service_args, [])
+    service_opts = Keyword.get(opts, :service_opts, [])
 
-    case start_supervised({service, service_args}) do
+    case start_supervised({service, service_opts}) do
       {:ok, service_pid} ->
         {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
 
@@ -133,7 +134,11 @@ defmodule Asyncapi.TestHelper do
                        context.state.asyncapi
                      )
 
-            assert step.operation == asyncapi_message.op_id
+            # assert step.operation == asyncapi_message.op_id
+            if step.operation != asyncapi_message.op_id do
+              dbg(asyncapi_message)
+              assert step.operation == asyncapi_message.op_id
+            end
 
             acc
             |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
@@ -149,65 +154,65 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  @deprecated "Move to assert_sequence/2"
-  defmacro generate_tests(service_, schema_module_, opts_) do
-    schema_module = Macro.expand(schema_module_, __CALLER__)
+  # @deprecated "Move to assert_sequence/2"
+  # defmacro generate_tests(service_, schema_module_, opts_) do
+  #   schema_module = Macro.expand(schema_module_, __CALLER__)
 
-    if not Code.ensure_loaded?(schema_module) do
-      raise("schema module #{inspect(schema_module)} not loaded.")
-    end
+  #   if not Code.ensure_loaded?(schema_module) do
+  #     raise("schema module #{inspect(schema_module)} not loaded.")
+  #   end
 
-    opts = Macro.expand(opts_, __CALLER__)
+  #   opts = Macro.expand(opts_, __CALLER__)
 
-    testcases =
-      case Keyword.fetch(opts, :testcases_module) do
-        {:ok, mod_ast} ->
-          testcases_module = Macro.expand(mod_ast, __CALLER__)
+  #   testcases =
+  #     case Keyword.fetch(opts, :testcases_module) do
+  #       {:ok, mod_ast} ->
+  #         testcases_module = Macro.expand(mod_ast, __CALLER__)
 
-          Code.ensure_loaded?(testcases_module) ||
-            raise "module #{inspect(testcases_module)} not loaded"
+  #         Code.ensure_loaded?(testcases_module) ||
+  #           raise "module #{inspect(testcases_module)} not loaded"
 
-          testcases_module.all()
+  #         testcases_module.all()
 
-        :error ->
-          raise("testcases module missing")
-      end
+  #       :error ->
+  #         raise("testcases module missing")
+  #     end
 
-    tests =
-      for %{name: name, sequence: seq} <- testcases do
-        quote do
-          @tag capture_log: true
-          test unquote(name), context do
-            unquote(__MODULE__).assert_sequence(context, unquote(seq))
-          end
-        end
-      end
+  #   tests =
+  #     for %{name: name, sequence: seq} <- testcases do
+  #       quote do
+  #         @tag capture_log: true
+  #         test unquote(name), context do
+  #           unquote(__MODULE__).assert_sequence(context, unquote(seq))
+  #         end
+  #       end
+  #     end
 
-    quote location: :keep do
-      require Logger
+  #   quote location: :keep do
+  #     require Logger
 
-      setup do
-        service = unquote(service_)
-        asyncapi = unquote(schema_module).get_asyncapi()
+  #     setup do
+  #       service = unquote(service_)
+  #       asyncapi = unquote(schema_module).get_asyncapi()
 
-        opts = unquote(opts_)
-        broker = Keyword.fetch!(opts, :broker)
-        service_args = Keyword.get(opts, :service_args, [])
+  #       opts = unquote(opts_)
+  #       broker = Keyword.fetch!(opts, :broker)
+  #       service_opts = Keyword.get(opts, :service_opts, [])
 
-        {:ok, broker_state} = broker.connect(asyncapi)
+  #       {:ok, broker_state} = broker.connect(asyncapi)
 
-        case start_supervised({service, service_args}) do
-          {:ok, service_pid} ->
-            {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
+  #       case start_supervised({service, service_opts}) do
+  #         {:ok, service_pid} ->
+  #           {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
 
-          {:error, reason} ->
-            raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
-        end
-      end
+  #         {:error, reason} ->
+  #           raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
+  #       end
+  #     end
 
-      unquote_splicing(tests)
-    end
-  end
+  #     unquote_splicing(tests)
+  #   end
+  # end
 
   @compile {:no_warn_undefined, ExUnit.Assertions}
 

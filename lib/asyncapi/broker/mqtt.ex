@@ -3,6 +3,7 @@ defmodule Asyncapi.Broker.MQTT do
 
   def connect(asyncapi) do
     opts = [host: asyncapi.server.host, port: asyncapi.server.port]
+    # AH-1702/asyncapi-logging
     dbg({:connect, opts})
     {:ok, mqtt_pid} = :emqtt.start_link(opts)
     {:ok, _props} = :emqtt.connect(mqtt_pid)
