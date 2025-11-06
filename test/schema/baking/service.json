@@ -1,0 +1,95 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "Stack API",
+    "version": "0.0.1",
+    "description": "API for a stack with push and pop operations"
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "production": {
+      "host": "127.0.0.1",
+      "protocol": "mqtt",
+      "description": "Test broker",
+      "variables": {
+        "port": {
+          "description": "MQTT port",
+          "default": "1883",
+          "enum": [
+            "1883"
+          ]
+        }
+      }
+    }
+  },
+  "channels": {
+    "start_baking": {
+      "address": "start_baking",
+      "messages": {
+        "start_baking-message": {
+          "name": "start_baking",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {}
+          }
+        }
+      }
+    },
+    "baking_done": {
+      "address": "baking_done",
+      "messages": {
+        "baking_done-message": {
+          "name": "baking_done",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {}
+          }
+        }
+      }
+    },
+    "baking_not_done": {
+      "address": "baking_not_done",
+      "messages": {
+        "baking_not_done-message": {
+          "name": "baking_not_done",
+          "payload": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {}
+          }
+        }
+      }
+    }
+  },
+  "operations": {
+    "start_baking": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/start_baking"
+      }
+    },
+    "baking_done": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/baking_done"
+      }
+    },
+    "baking_not_done": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/baking_not_done"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "empty_payload": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      }
+    }
+  }
+}
