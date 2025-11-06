@@ -83,7 +83,7 @@ defmodule Asyncapi.TestHelper do
         {:ok,
          state: %{asyncapi: asyncapi, broker: broker_state},
          service_pid: service_pid,
-         service_args: Map.new(service_args)}
+         service_opts: Map.new(service_opts)}
 
       {:error, reason} ->
         raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
@@ -129,7 +129,7 @@ defmodule Asyncapi.TestHelper do
                   {internal_message_tag, payload}
               end
 
-            pid = Map.fetch!(context.service_args, String.to_existing_atom(internal_key))
+            pid = Map.fetch!(context.service_opts, String.to_existing_atom(internal_key))
 
             if arrow == :async do
               Internal.send(pid, :async, context.service_pid, internal_message)
@@ -147,7 +147,7 @@ defmodule Asyncapi.TestHelper do
           %{from: "service", to: "internal_" <> internal_key, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for intenal messages"
 
-            pid = Map.fetch!(context.service_args, String.to_existing_atom(internal_key))
+            pid = Map.fetch!(context.service_opts, String.to_existing_atom(internal_key))
 
             msg = Internal.next(pid)
 
