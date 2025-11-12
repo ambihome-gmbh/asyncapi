@@ -37,7 +37,12 @@ defmodule MqttAsyncapi do
         raise("MISSING handle_continue/2 in #{inspect(__MODULE__)}/info: #{inspect(info)}")
       end
 
-      defoverridable handle_info: 2, handle_continue: 2
+      @impl true
+      def handle_message(msg, state) do
+        raise("MISSING handle_message/2 in #{inspect(__MODULE__)}/msg: #{inspect(msg)}")
+      end
+
+      defoverridable handle_message: 2, handle_info: 2, handle_continue: 2
     end
   end
 
