@@ -113,8 +113,7 @@ defmodule Asyncapi.TestHelper do
 
         case step do
           %{from: "internal_" <> internal_key, to: "service", arrow: arrow} ->
-            Asyncapi.TestHelper.check_for_unexpected_messages()
-            assert step.params == %{}, "params not allowed for intenal messages"
+            assert step.params == %{}, "params not allowed for internal messages"
 
             internal_message_tag = String.to_atom(step.operation)
 
@@ -131,6 +130,8 @@ defmodule Asyncapi.TestHelper do
               end
 
             pid = Map.fetch!(context.service_opts, String.to_existing_atom(internal_key))
+
+            assert nil == Internal.next(pid)
 
             if arrow == :async do
               Internal.send(pid, :async, context.service_pid, internal_message)
@@ -178,7 +179,7 @@ defmodule Asyncapi.TestHelper do
             |> Asyncapi.TestHelper.match(internal_message_payload, payload)
 
           %{to: "service", arrow: :async} ->
-            Asyncapi.TestHelper.check_for_unexpected_messages()
+            Asyncapi.TestHelper.assert_no_unexpected_messages()
 
             assert Asyncapi.TestHelper.all_deref?(payload),
                    "Payload not fully dereferenced: #{inspect(payload)}"
@@ -217,17 +218,16 @@ defmodule Asyncapi.TestHelper do
       end)
 
       Process.sleep(1)
-      # AH-1791/asyncapi-check-for-unexpected-messages-with-internal-genserver
-      assert {:messages, []} == :erlang.process_info(self(), :messages)
+      Asyncapi.TestHelper.assert_no_unexpected_messages()
+
+      for {_key, pid} <- context.service_opts do
+        assert nil == Internal.next(pid)
+      end
     end
   end
 
-  # AH-1791/asyncapi-check-for-unexpected-messages-with-internal-genserver
-  def check_for_unexpected_messages() do
-    case :erlang.process_info(self(), :messages) do
-      {:messages, []} -> nil
-      {:messages, messages} -> dbg({:unexpected_messages_todo, messages})
-    end
+  def assert_no_unexpected_messages() do
+    assert {:messages, []} == :erlang.process_info(self(), :messages)
   end
 
   def display_step(step) do
