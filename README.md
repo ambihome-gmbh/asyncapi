@@ -29,6 +29,11 @@ like swagger/openapi but async.
 
 TODO: document how to take full controll of an internal service like the time server (like in timer-service)
 TODO: document that one has to use capture-log to see sequence on failure
+TODO: document the convention that internal-server-pids are given in service_opts and names have to match in service-code and the test-sequence
+TODO: document:  assert is_atom(internal_message_tag),
+    so we have to do GenServer.cast(server, {:schedule_timeout, {pid, timeout, tag}})
+    instead of GenServer.cast(server, {:schedule_timeout, pid, timeout, tag})
+TODO: document: seq must start after init, use handle_continue. send_after(..., >0) does not work also
 
 ```
 A->>B: <op-id>[<params>]/<payload>

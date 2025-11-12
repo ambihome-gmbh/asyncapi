@@ -167,6 +167,9 @@ defmodule Asyncapi.TestHelper do
                 operation -> {operation, %{}}
               end
 
+            assert is_atom(internal_message_tag),
+                   "internal_message_tag not an atom: #{inspect(internal_message_tag)}"
+
             assert step.operation == "#{internal_message_tag}"
 
             acc
@@ -198,7 +201,6 @@ defmodule Asyncapi.TestHelper do
                        context.state.asyncapi
                      )
 
-            # assert step.operation == asyncapi_message.op_id
             if step.operation != asyncapi_message.op_id do
               dbg(asyncapi_message)
               assert step.operation == asyncapi_message.op_id
@@ -214,72 +216,14 @@ defmodule Asyncapi.TestHelper do
       end)
 
       Process.sleep(1)
+      # AH-1791/asyncapi-check-for-unexpected-messages-with-internal-genserver
       assert {:messages, []} == :erlang.process_info(self(), :messages)
     end
   end
 
-  # @deprecated "Move to assert_sequence/2"
-  # defmacro generate_tests(service_, schema_module_, opts_) do
-  #   schema_module = Macro.expand(schema_module_, __CALLER__)
-
-  #   if not Code.ensure_loaded?(schema_module) do
-  #     raise("schema module #{inspect(schema_module)} not loaded.")
-  #   end
-
-  #   opts = Macro.expand(opts_, __CALLER__)
-
-  #   testcases =
-  #     case Keyword.fetch(opts, :testcases_module) do
-  #       {:ok, mod_ast} ->
-  #         testcases_module = Macro.expand(mod_ast, __CALLER__)
-
-  #         Code.ensure_loaded?(testcases_module) ||
-  #           raise "module #{inspect(testcases_module)} not loaded"
-
-  #         testcases_module.all()
-
-  #       :error ->
-  #         raise("testcases module missing")
-  #     end
-
-  #   tests =
-  #     for %{name: name, sequence: seq} <- testcases do
-  #       quote do
-  #         @tag capture_log: true
-  #         test unquote(name), context do
-  #           unquote(__MODULE__).assert_sequence(context, unquote(seq))
-  #         end
-  #       end
-  #     end
-
-  #   quote location: :keep do
-  #     require Logger
-
-  #     setup do
-  #       service = unquote(service_)
-  #       asyncapi = unquote(schema_module).get_asyncapi()
-
-  #       opts = unquote(opts_)
-  #       broker = Keyword.fetch!(opts, :broker)
-  #       service_opts = Keyword.get(opts, :service_opts, [])
-
-  #       {:ok, broker_state} = broker.connect(asyncapi)
-
-  #       case start_supervised({service, service_opts}) do
-  #         {:ok, service_pid} ->
-  #           {:ok, state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid}
-
-  #         {:error, reason} ->
-  #           raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
-  #       end
-  #     end
-
-  #     unquote_splicing(tests)
-  #   end
-  # end
-
   @compile {:no_warn_undefined, ExUnit.Assertions}
 
+  # AH-1791/asyncapi-check-for-unexpected-messages-with-internal-genserver
   def check_for_unexpected_messages() do
     case :erlang.process_info(self(), :messages) do
       {:messages, []} -> nil
