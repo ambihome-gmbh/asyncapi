@@ -1,5 +1,6 @@
 defmodule Asyncapi.TestHelper do
   use ExUnit.Case
+  import ExUnit.Assertions
   import Enum
   require Logger
 
@@ -221,8 +222,6 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  @compile {:no_warn_undefined, ExUnit.Assertions}
-
   # AH-1791/asyncapi-check-for-unexpected-messages-with-internal-genserver
   def check_for_unexpected_messages() do
     case :erlang.process_info(self(), :messages) do
@@ -249,7 +248,7 @@ defmodule Asyncapi.TestHelper do
 
   @doc false
   def match(acc, received, %{"__bytearray__" => bytearray} = _step) do
-    ExUnit.Assertions.assert(received == :erlang.list_to_binary(bytearray))
+    assert received == :erlang.list_to_binary(bytearray)
     acc
   end
 
@@ -260,17 +259,13 @@ defmodule Asyncapi.TestHelper do
       reduce(step, bindings, fn {k, v}, acc ->
         case v do
           {:binding, binding_name} ->
-            ExUnit.Assertions.assert(
-              Map.has_key?(received, k),
-              "Binding not found: #{inspect(k)} in #{inspect(received)} --> #{inspect(binding_name)}"
-            )
+            assert Map.has_key?(received, k),
+                   "Binding not found: #{inspect(k)} in #{inspect(received)} --> #{inspect(binding_name)}"
 
             Map.put(acc, binding_name, fetch!(received, k, "todo_err_msg_wrap_fetch_put_binding"))
 
           _ ->
-            ExUnit.Assertions.assert(
-              v == fetch!(received, k, "key [#{k}]not found [#{inspect(received)}]")
-            )
+            assert v == fetch!(received, k, "key [#{k}]not found [#{inspect(received)}]")
 
             acc
         end
