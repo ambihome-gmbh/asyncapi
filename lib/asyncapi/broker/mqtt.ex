@@ -1,4 +1,6 @@
 defmodule Asyncapi.Broker.MQTT do
+  @behaviour Asyncapi.Broker
+
   require Logger
 
   def connect(asyncapi) do

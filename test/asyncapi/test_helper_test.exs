@@ -62,16 +62,15 @@ defmodule Asyncapi.TestHelperTest do
   @moduletag capture_log: true
 
   test "runs when everything is ok", context do
-    {:ok, pid} = start_supervised(TestHelper.Internal)
+    {:ok, time_server_pid} = start_supervised(TestHelper.Internal)
 
     {:ok, additional} =
       TestHelper.start_service(
         Baking,
         Baking.TestUserSchema,
         Asyncapi.Broker.Dummy,
-        service_opts: [
-          time_server: pid
-        ]
+        service_opts: [time_server: time_server_pid],
+        internal_pids: %{time_server: time_server_pid}
       )
 
     full_context = Enum.into(additional, context)
@@ -90,16 +89,15 @@ defmodule Asyncapi.TestHelperTest do
   end
 
   test "fails on error", context do
-    {:ok, pid} = start_supervised(TestHelper.Internal)
+    {:ok, time_server_pid} = start_supervised(TestHelper.Internal)
 
     {:ok, additional} =
       TestHelper.start_service(
         Baking,
         Baking.TestUserSchema,
         Asyncapi.Broker.Dummy,
-        service_opts: [
-          time_server: pid
-        ]
+        service_opts: [time_server: time_server_pid],
+        internal_pids: %{time_server: time_server_pid}
       )
 
     full_context = Enum.into(additional, context)
