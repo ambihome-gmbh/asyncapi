@@ -61,30 +61,29 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
+  def init(service, schema, broker, opts \\ []) do
+    start_service(service, schema, broker, opts)
+  end
+
   def start_service(service, schema, broker, opts \\ []) do
     asyncapi = schema.get_asyncapi()
+    service_opts = Keyword.get(opts, :service_opts, [])
+    internal_pids = Keyword.get(opts, :internal_pids, %{})
 
     case broker do
-      Asyncapi.Broker.Dummy ->
-        start_supervised!(DummyBroker)
-
-      Asyncapi.Broker.MQTT ->
-        # TODO: maybe ensure broker is running!?
-        :ok
-
-      _ ->
-        raise("unknown broker")
+      Asyncapi.Broker.Dummy -> start_supervised!(DummyBroker)
+      Asyncapi.Broker.MQTT -> :ok
+      _ -> raise("unknown broker: #{inspect broker}")
     end
 
     {:ok, broker_state} = broker.connect(asyncapi)
-    service_opts = Keyword.get(opts, :service_opts, [])
 
     case start_supervised({service, service_opts}) do
       {:ok, service_pid} ->
         {:ok,
          state: %{asyncapi: asyncapi, broker: broker_state},
          service_pid: service_pid,
-         service_opts: Map.new(service_opts)}
+         internal_pids: internal_pids}
 
       {:error, reason} ->
         raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
@@ -129,15 +128,16 @@ defmodule Asyncapi.TestHelper do
                   {internal_message_tag, payload}
               end
 
-            pid = Map.fetch!(context.service_opts, String.to_existing_atom(internal_key))
+            internal_pid =
+              Map.fetch!(context.internal_pids, String.to_existing_atom(internal_key))
 
-            assert nil == Internal.next(pid)
+            assert nil == Internal.next(internal_pid)
 
             if arrow == :async do
-              Internal.send(pid, :async, context.service_pid, internal_message)
+              Internal.send(internal_pid, :async, context.service_pid, internal_message)
             else
               Internal.send(
-                pid,
+                internal_pid,
                 :sync,
                 {context.service_pid, acc.last_call_tag},
                 internal_message
@@ -149,9 +149,9 @@ defmodule Asyncapi.TestHelper do
           %{from: "service", to: "internal_" <> internal_key, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for intenal messages"
 
-            pid = Map.fetch!(context.service_opts, String.to_existing_atom(internal_key))
+            internal_pid = Map.fetch!(context.internal_pids, String.to_existing_atom(internal_key))
 
-            msg = Internal.next(pid)
+            msg = Internal.next(internal_pid)
 
             {internal_message, call_tag} =
               if arrow == :async do
@@ -220,7 +220,7 @@ defmodule Asyncapi.TestHelper do
       Process.sleep(1)
       Asyncapi.TestHelper.assert_no_unexpected_messages()
 
-      for {_key, pid} <- context.service_opts do
+      for {_key, pid} <- context.internal_pids do
         assert nil == Internal.next(pid)
       end
     end
