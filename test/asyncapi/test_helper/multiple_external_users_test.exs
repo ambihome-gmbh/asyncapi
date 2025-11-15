@@ -64,8 +64,7 @@ defmodule Asyncapi.TestHelper.SingleInternalTest do
   test "can handle multiple external users", context do
     {:ok, additional} =
       TestHelper.init(
-        Baking,
-        Asyncapi.Broker.Dummy,
+        Stack,
         external: %{
           producer_user: Stack.ProducerUserSchema,
           consumer_user: Stack.ConsumerUserSchema

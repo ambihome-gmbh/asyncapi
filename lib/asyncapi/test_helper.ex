@@ -71,6 +71,7 @@ defmodule Asyncapi.TestHelper do
 
     @impl true
     def init(_) do
+      {:ok, broker_state} = broker.connect(asyncapi)
       {:ok, :queue.new()}
     end
 
@@ -111,16 +112,27 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  def init(service, broker, opts \\ []) do
+  def init(service, opts \\ []) do
     service_opts = Keyword.get(opts, :service_opts, [])
     internal_pids = Keyword.get(opts, :internal_pids, %{})
     external_schemas = Keyword.get(opts, :external, %{})
 
-    case broker do
-      Asyncapi.Broker.Dummy -> start_supervised!(DummyBroker)
-      Asyncapi.Broker.MQTT -> :ok
-      _ -> raise("unknown broker: #{inspect(broker)}")
-    end
+    broker =
+      case Application.compile_env(:asyncapi, :broker) do
+        nil ->
+          raise("env(:asyncapi, :broker) not configured")
+
+        Asyncapi.Broker.Dummy ->
+          start_supervised!(DummyBroker)
+          Asyncapi.Broker.Dummy
+
+        Asyncapi.Broker.MQTT ->
+          # TODO ensure broker is running!
+          Asyncapi.Broker.MQTT
+
+        unexpected ->
+          raise("unknown broker: #{inspect(unexpected)}")
+      end
 
     {:ok, broker_state} = broker.connect(asyncapi)
 
@@ -141,6 +153,8 @@ defmodule Asyncapi.TestHelper do
     service_opts = Keyword.get(opts, :service_opts, [])
     internal_pids = Keyword.get(opts, :internal_pids, %{})
 
+    # @BM TODO warum nicht Application.compile_env(:asyncapi, :broker) ?
+    # Das funktioniert sowieso nur wenn der broker genutzt wird der in env konfiguriert ist, oder?
     case broker do
       Asyncapi.Broker.Dummy -> start_supervised!(DummyBroker)
       Asyncapi.Broker.MQTT -> :ok
@@ -374,17 +388,18 @@ defmodule Asyncapi.TestHelper do
     end)
   end
 
-  case Application.compile_env(:asyncapi, :broker) do
-    nil ->
-      raise("env(:asyncapi, :broker) not configured")
+  # TODO @BM scheint nicht gebraucht zu werden...
+  # case Application.compile_env(:asyncapi, :broker) do
+  #   nil ->
+  #     raise("env(:asyncapi, :broker) not configured")
 
-    Asyncapi.Broker.Dummy ->
-      def start_broker, do: start_supervised!(DummyBroker)
+  #   Asyncapi.Broker.Dummy ->
+  #     def start_broker, do: start_supervised!(DummyBroker)
 
-    Asyncapi.Broker.MQTT ->
-      # NOTE: ensure broker is running!
-      def start_broker, do: nil
-  end
+  #   Asyncapi.Broker.MQTT ->
+  #     # NOTE: ensure broker is running!
+  #     def start_broker, do: nil
+  # end
 end
 
 defmodule DummyBroker do
