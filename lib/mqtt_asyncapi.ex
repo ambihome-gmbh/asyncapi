@@ -14,7 +14,6 @@ defmodule MqttAsyncapi do
   @callback handle_continue(arg :: term, state :: term()) ::
               {:noreply, state :: term} | {:reply, [reply_message :: Message.t()], state :: term}
 
-  # TODO ensure broker env is set (there is just a random crash if it isn't)
   @broker Application.compile_env(:asyncapi, :broker)
 
   defmacro __using__(opts) do

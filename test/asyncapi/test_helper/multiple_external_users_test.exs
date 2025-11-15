@@ -1,4 +1,4 @@
-defmodule Asyncapi.TestHelper.SingleInternalTest do
+defmodule Asyncapi.TestHelper.MultipleExternalUsersTest do
   use ExUnit.Case, async: true
   require Asyncapi.TestHelper, as: TestHelper
 
@@ -61,20 +61,23 @@ defmodule Asyncapi.TestHelper.SingleInternalTest do
 
   @moduletag capture_log: true
 
+  @tag :wip
   test "can handle multiple external users", context do
     {:ok, additional} =
       TestHelper.init(
         Stack,
         external: %{
-          producer_user: Stack.ProducerUserSchema,
-          consumer_user: Stack.ConsumerUserSchema
+          producer: Stack.ProducerUserSchema,
+          consumer: Stack.ConsumerUserSchema
         }
       )
 
     full_context = Enum.into(additional, context)
 
     TestHelper.assert_sequence(full_context, """
-
+    external_producer->>service: push/{value: 42}
+    external_consumer->>service: pop
+    service->>external_consumer: pop_response/{value: 42}
     """)
   end
 end
