@@ -349,11 +349,8 @@ defmodule Asyncapi.TestHelper do
   def assert_no_unexpected_messages(context) do
     Process.sleep(1)
 
-    for {_key, pid} <- context.internal_pids do
-      assert nil == Internal.next(pid)
-    end
-
-    todo_for_external = :foo
+    for {_key, pid} <- context.internal_pids, do: assert nil == Internal.next(pid)
+    for {_key, pid} <- context.external_pids, do: assert nil == External.next(pid)
   end
 
   def display_step(step) do
