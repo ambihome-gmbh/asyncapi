@@ -208,6 +208,13 @@ defmodule Asyncapi.TestHelper do
           %{from: "internal_" <> internal_key, to: "service", arrow: arrow} ->
             assert step.params == %{}, "params not allowed for internal messages"
 
+            # not needed with AH-1712/asyncapi-sanity-checker
+            internal_pid =
+              case Map.get(context.internal_pids, String.to_existing_atom(internal_key)) do
+                nil -> raise("Unsupported step: #{inspect(step)} -- unknown actor: internal_#{internal_key}")
+                pid -> pid
+              end
+
             internal_message_tag = String.to_atom(step.operation)
 
             internal_message =
@@ -221,9 +228,6 @@ defmodule Asyncapi.TestHelper do
                 _ ->
                   {internal_message_tag, payload}
               end
-
-            internal_pid =
-              Map.fetch!(context.internal_pids, String.to_existing_atom(internal_key))
 
             assert nil == Internal.next(internal_pid)
 
@@ -243,8 +247,12 @@ defmodule Asyncapi.TestHelper do
           %{from: "service", to: "internal_" <> internal_key, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for intenal messages"
 
+            # not needed with AH-1712/asyncapi-sanity-checker
             internal_pid =
-              Map.fetch!(context.internal_pids, String.to_existing_atom(internal_key))
+              case Map.get(context.internal_pids, String.to_existing_atom(internal_key)) do
+                nil -> raise("Unsupported step: #{inspect(step)} -- unknown actor: internal_#{internal_key}")
+                pid -> pid
+              end
 
             msg = Internal.next(internal_pid)
 
@@ -276,8 +284,12 @@ defmodule Asyncapi.TestHelper do
           %{from: "external_" <> external_key, to: "service", arrow: :async} ->
             Asyncapi.TestHelper.assert_no_unexpected_messages(context)
 
+            # not needed with AH-1712/asyncapi-sanity-checker
             external_pid =
-              Map.fetch!(context.external_pids, String.to_existing_atom(external_key))
+              case Map.get(context.external_pids, String.to_existing_atom(external_key)) do
+                nil -> raise("Unsupported step: #{inspect(step)} -- unknown actor: external_#{external_key}")
+                pid -> pid
+              end
 
             assert Asyncapi.TestHelper.all_deref?(payload),
                    "Payload not fully dereferenced: #{inspect(payload)}"
@@ -295,8 +307,12 @@ defmodule Asyncapi.TestHelper do
           # TODO multiple external could receive this!
           # maybe add sth like "to: external_*"? - but that would imply that ALL externals receive it...
           %{from: "service", to: "external_" <> external_key, arrow: :async} ->
+            # not needed with AH-1712/asyncapi-sanity-checker
             external_pid =
-              Map.fetch!(context.external_pids, String.to_existing_atom(external_key))
+              case Map.get(context.external_pids, String.to_existing_atom(external_key)) do
+                nil -> raise("Unsupported step: #{inspect(step)} -- unknown actor: external_#{external_key}")
+                pid -> pid
+              end
 
             assert {:asyncapi_message, asyncapi_message} = External.next(external_pid)
 
@@ -314,6 +330,12 @@ defmodule Asyncapi.TestHelper do
 
           %{from: "service", to: "external_" <> _, arrow: :sync} ->
             raise("Unsupported step: #{inspect(step)} -- external sync")
+
+          %{from: "service", to: unknown} ->
+            raise("Unsupported step: #{inspect(step)} -- unknown actor: #{unknown}")
+
+          %{from: unknown, to: "service"} ->
+            raise("Unsupported step: #{inspect(step)} -- unknown actor: #{unknown}")
 
           _ ->
             raise("Unsupported step: #{inspect(step)}")
