@@ -61,7 +61,6 @@ defmodule Asyncapi.TestHelper.MultipleExternalUsersTest do
 
   @moduletag capture_log: true
 
-  @tag :wip
   test "can handle multiple external users", context do
     {:ok, additional} =
       TestHelper.init(
