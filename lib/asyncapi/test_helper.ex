@@ -54,6 +54,56 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
+  defmodule External do
+    use GenServer
+
+    def start_link(init_arg) do
+      GenServer.start_link(__MODULE__, init_arg)
+    end
+
+    def next(server) do
+      GenServer.call(server, {__MODULE__, :next}, :infinity)
+    end
+
+    def send(server, type, target, message) do
+      GenServer.call(server, {__MODULE__, :send, type, target, message}, :infinity)
+    end
+
+    @impl true
+    def init(_) do
+      {:ok, :queue.new()}
+    end
+
+    @impl true
+    def handle_call({__MODULE__, :next}, _from, state) do
+      {reply, state} =
+        case :queue.out(state) do
+          {:empty, queue} -> {nil, queue}
+          {{:value, item}, queue} -> {item, queue}
+        end
+
+      {:reply, reply, state}
+    end
+
+    def handle_call({__MODULE__, :send, type, target, message}, _from, state) do
+      case type do
+        :async -> send(target, message)
+        :sync -> GenServer.reply(target, message)
+      end
+
+      {:reply, :ok, state}
+    end
+
+    def handle_call(msg, from, state) do
+      {:noreply, :queue.in({:call, from, msg}, state)}
+    end
+
+    @impl true
+    def handle_cast(msg, state) do
+      {:noreply, :queue.in({:cast, msg}, state)}
+    end
+  end
+
   defp fetch!(map, key, error_msg) do
     case Map.fetch(map, key) do
       :error -> raise("#{error_msg}: #{inspect(key)} not in #{inspect(map)}")
@@ -61,8 +111,29 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  def init(service, schema, broker, opts \\ []) do
-    start_service(service, schema, broker, opts)
+  def init(service, broker, opts \\ []) do
+    service_opts = Keyword.get(opts, :service_opts, [])
+    internal_pids = Keyword.get(opts, :internal_pids, %{})
+    external_schemas = Keyword.get(opts, :external, %{})
+
+    case broker do
+      Asyncapi.Broker.Dummy -> start_supervised!(DummyBroker)
+      Asyncapi.Broker.MQTT -> :ok
+      _ -> raise("unknown broker: #{inspect(broker)}")
+    end
+
+    {:ok, broker_state} = broker.connect(asyncapi)
+
+    case start_supervised({service, service_opts}) do
+      {:ok, service_pid} ->
+        {:ok,
+         state: %{asyncapi: asyncapi, broker: broker_state},
+         service_pid: service_pid,
+         internal_pids: internal_pids}
+
+      {:error, reason} ->
+        raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
+    end
   end
 
   def start_service(service, schema, broker, opts \\ []) do
@@ -73,7 +144,7 @@ defmodule Asyncapi.TestHelper do
     case broker do
       Asyncapi.Broker.Dummy -> start_supervised!(DummyBroker)
       Asyncapi.Broker.MQTT -> :ok
-      _ -> raise("unknown broker: #{inspect broker}")
+      _ -> raise("unknown broker: #{inspect(broker)}")
     end
 
     {:ok, broker_state} = broker.connect(asyncapi)
@@ -149,7 +220,8 @@ defmodule Asyncapi.TestHelper do
           %{from: "service", to: "internal_" <> internal_key, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for intenal messages"
 
-            internal_pid = Map.fetch!(context.internal_pids, String.to_existing_atom(internal_key))
+            internal_pid =
+              Map.fetch!(context.internal_pids, String.to_existing_atom(internal_key))
 
             msg = Internal.next(internal_pid)
 

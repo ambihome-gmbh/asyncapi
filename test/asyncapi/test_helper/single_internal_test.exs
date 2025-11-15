@@ -1,4 +1,4 @@
-defmodule Asyncapi.TestHelperTest do
+defmodule Asyncapi.TestHelper.SingleInternalTest do
   use ExUnit.Case, async: true
   require Asyncapi.TestHelper, as: TestHelper
 
@@ -88,6 +88,10 @@ defmodule Asyncapi.TestHelperTest do
     """)
   end
 
+  # TODO not clear what the error actually is here
+  # this test-file should concentrate on internal actors
+  # while test covers a more basic case, so should be another file
+  # AH-1695/asyncapi-create-tests-for-asyncapi-lib
   test "fails on error", context do
     {:ok, time_server_pid} = start_supervised(TestHelper.Internal)
 
