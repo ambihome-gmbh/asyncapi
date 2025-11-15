@@ -1,4 +1,3 @@
-
 defmodule Asyncapi.Broker.Dummy do
   @behaviour Asyncapi.Broker
   def connect(asyncapi) do

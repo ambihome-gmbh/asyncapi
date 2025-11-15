@@ -1,0 +1,23 @@
+{
+  "asyncapi": "3.0.0",
+  "info": {
+    "title": "Stack API",
+    "version": "0.0.1",
+    "description": "API using only the pop operations of the stack"
+  },
+  "defaultContentType": "application/json",
+  "operations": {
+    "pop": {
+      "action": "send",
+      "channel": {
+        "$ref": "#/channels/pop"
+      }
+    },
+    "pop_response": {
+      "action": "receive",
+      "channel": {
+        "$ref": "#/channels/pop_response"
+      }
+    }
+  }
+}

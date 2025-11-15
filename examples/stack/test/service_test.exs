@@ -12,7 +12,7 @@ defmodule ServiceTest do
 
   test "push, pop", context do
     Asyncapi.TestHelper.assert_sequence(context, """
-     user->>service: push/{value: 42}
+    user->>service: push/{value: 42}
     user->>service: pop
     service->>user: pop_response/{value: 42}
     """)
