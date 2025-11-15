@@ -1,4 +1,4 @@
-defmodule Asyncapi.TestHelperTest do
+defmodule Asyncapi.TestHelper.SingleInternalTest do
   use ExUnit.Case, async: true
   require Asyncapi.TestHelper, as: TestHelper
 
@@ -6,7 +6,7 @@ defmodule Asyncapi.TestHelperTest do
     use Asyncapi.Schema, schema_path: "baking/service.json"
   end
 
-  defmodule Baking.TestUserSchema do
+  defmodule Baking.UserSchema do
     use Asyncapi.Schema, schema_path: "baking/user.json"
   end
 
@@ -65,52 +65,54 @@ defmodule Asyncapi.TestHelperTest do
     {:ok, time_server_pid} = start_supervised(TestHelper.Internal)
 
     {:ok, additional} =
-      TestHelper.start_service(
+      TestHelper.init(
         Baking,
-        Baking.TestUserSchema,
-        Asyncapi.Broker.Dummy,
         service_opts: [time_server: time_server_pid],
-        internal_pids: %{time_server: time_server_pid}
+        internal_pids: %{"time_server" => time_server_pid},
+        external_schemas: %{"user" => Baking.UserSchema}
       )
 
     full_context = Enum.into(additional, context)
 
     TestHelper.assert_sequence(full_context, """
-    user->>service: start_baking
+    external_user->>service: start_baking
     service->>internal_time_server: schedule_timeout
     service->>internal_time_server: schedule_cron
     internal_time_server->>service: peek
-    service->>user: baking_not_done
+    service->>external_user: baking_not_done
     internal_time_server->>service: peek
-    service->>user: baking_not_done
+    service->>external_user: baking_not_done
     internal_time_server->>service: timeout
-    service->>user: baking_done
+    service->>external_user: baking_done
     """)
   end
 
+  # TODO not clear what the error actually is here
+  # this test-file should concentrate on internal actors
+  # while test covers a more basic case, so should be another file
+  # AH-1695/asyncapi-create-tests-for-asyncapi-lib
   test "fails on error", context do
     {:ok, time_server_pid} = start_supervised(TestHelper.Internal)
 
     {:ok, additional} =
-      TestHelper.start_service(
+      TestHelper.init(
         Baking,
-        Baking.TestUserSchema,
-        Asyncapi.Broker.Dummy,
         service_opts: [time_server: time_server_pid],
-        internal_pids: %{time_server: time_server_pid}
+        internal_pids: %{"time_server" => time_server_pid},
+        external_schemas: %{"user" => Baking.UserSchema}
       )
 
     full_context = Enum.into(additional, context)
 
     try do
       TestHelper.assert_sequence(full_context, """
-      user->>service: start_baking
+      external_user->>service: start_baking
       service->>internal_time_server: schedule_timeout
       service->>internal_time_server: schedule_cron
       internal_time_server->>service: peek
-      service->>user: baking_not_done
+      service->>external_user: baking_not_done
       internal_time_server->>service: peek
-      service->>user: baking_done
+      service->>external_user: baking_done
       """)
 
       flunk("Expected exception raised")

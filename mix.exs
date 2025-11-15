@@ -28,10 +28,7 @@ defmodule Asyncapi.MixProject do
       {:nimble_csv, "~> 0.1"},
       {:abnf_parsec, "~> 2.0", runtime: false},
       {:recase, "~> 0.5"},
-      {:emqtt,
-       git: "https://github.com/emqx/emqtt.git",
-       tag: "1.13.1",
-       system_env: [{"BUILD_WITHOUT_QUIC", "1"}]}
+      {:emqtt, git: "https://github.com/emqx/emqtt.git", tag: "1.13.1", system_env: [{"BUILD_WITHOUT_QUIC", "1"}]}
     ]
   end
 end

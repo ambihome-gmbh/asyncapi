@@ -3,7 +3,6 @@ defmodule ParserTest do
 
   import Asyncapi.SequenceParser
 
-  @tag :wip
   test "multiline" do
     assert [
              %{from: "from1", to: "to1", operation: "op1"},

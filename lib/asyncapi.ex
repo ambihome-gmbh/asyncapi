@@ -100,9 +100,7 @@ defmodule Asyncapi do
     messages =
       case channel["messages"] do
         nil ->
-          raise(
-            "channel #{inspect(channel)} of #{schema_module} must have messages. TODO meta-schema."
-          )
+          raise("channel #{inspect(channel)} of #{schema_module} must have messages. TODO meta-schema.")
 
         messages ->
           to_list(messages)

@@ -54,6 +54,63 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
+  defmodule External do
+    use GenServer
+
+    def start_link(opts) do
+      GenServer.start_link(__MODULE__, opts)
+    end
+
+    def next(server) do
+      GenServer.call(server, {__MODULE__, :next}, :infinity)
+    end
+
+    def publish(server, message) do
+      GenServer.call(server, {__MODULE__, :publish, message}, :infinity)
+    end
+
+    @impl true
+    def init(opts) do
+      broker = Keyword.fetch!(opts, :broker)
+      asyncapi = Keyword.fetch!(opts, :asyncapi)
+      {:ok, broker_state} = broker.connect(asyncapi)
+      {:ok, %{broker: broker_state, asyncapi: asyncapi, queue: :queue.new()}}
+    end
+
+    @impl true
+    def handle_call({__MODULE__, :next}, _from, state) do
+      {reply, queue} =
+        case :queue.out(state.queue) do
+          {:empty, queue} -> {nil, queue}
+          {{:value, item}, queue} -> {item, queue}
+        end
+
+      {:reply, reply, %{state | queue: queue}}
+    end
+
+    @impl true
+    def handle_call({__MODULE__, :publish, message}, _from, state) do
+      MqttAsyncapi.publish_(message, state)
+      {:reply, :ok, state}
+    end
+
+    @impl true
+    def handle_info({:publish, mqtt_message}, state) do
+      assert {:ok, asyncapi_message} =
+               Asyncapi.Message.from_mqtt_message(
+                 Asyncapi.Message.decode_mqtt_message(mqtt_message),
+                 state.asyncapi
+               )
+
+      {:noreply, %{state | queue: :queue.in({:asyncapi_message, asyncapi_message}, state.queue)}}
+    end
+
+    @impl true
+    def handle_info(unexpected_message, state) do
+      {:noreply, %{state | queue: :queue.in({:unexpected_message, unexpected_message}, state.queue)}}
+    end
+  end
+
   defp fetch!(map, key, error_msg) do
     case Map.fetch(map, key) do
       :error -> raise("#{error_msg}: #{inspect(key)} not in #{inspect(map)}")
@@ -61,29 +118,43 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  def init(service, schema, broker, opts \\ []) do
-    start_service(service, schema, broker, opts)
-  end
-
-  def start_service(service, schema, broker, opts \\ []) do
-    asyncapi = schema.get_asyncapi()
+  def init(service, opts \\ []) do
     service_opts = Keyword.get(opts, :service_opts, [])
     internal_pids = Keyword.get(opts, :internal_pids, %{})
+    external_schemas = Keyword.get(opts, :external_schemas, %{})
 
-    case broker do
-      Asyncapi.Broker.Dummy -> start_supervised!(DummyBroker)
-      Asyncapi.Broker.MQTT -> :ok
-      _ -> raise("unknown broker: #{inspect broker}")
-    end
+    # @BM TODO warum uebergeben wir broker explizit (siehe unten alte start_service fn)?
+    # Das funktioniert sowieso nur wenn der broker genutzt wird der in env konfiguriert ist, oder?
+    broker =
+      case Application.get_env(:asyncapi, :broker) do
+        nil ->
+          raise("env(:asyncapi, :broker) not configured")
 
-    {:ok, broker_state} = broker.connect(asyncapi)
+        Asyncapi.Broker.Dummy ->
+          start_supervised!(DummyBroker)
+          Asyncapi.Broker.Dummy
+
+        Asyncapi.Broker.MQTT ->
+          # TODO ensure broker is running!
+          Asyncapi.Broker.MQTT
+
+        unexpected ->
+          raise("unknown broker: #{inspect(unexpected)}")
+      end
+
+    external_pids =
+      for {external_key, external_schema} <- external_schemas, into: %{} do
+        asyncapi = external_schema.get_asyncapi()
+        {:ok, pid} = Asyncapi.TestHelper.External.start_link(asyncapi: asyncapi, broker: broker)
+        {external_key, pid}
+      end
 
     case start_supervised({service, service_opts}) do
       {:ok, service_pid} ->
-        {:ok,
-         state: %{asyncapi: asyncapi, broker: broker_state},
-         service_pid: service_pid,
-         internal_pids: internal_pids}
+        {
+          :ok,
+          service_pid: service_pid, internal_pids: internal_pids, external_pids: external_pids
+        }
 
       {:error, reason} ->
         raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
@@ -100,6 +171,30 @@ defmodule Asyncapi.TestHelper do
       sequence =
         Asyncapi.SequenceParser.parse_multiline!(unquote(sequence), context.test)
 
+      get_pid = fn key, pids, type, step_index ->
+        case pids[key] do
+          nil -> raise("step #{step_index}: unknown actor: #{type}_#{key}")
+          pid -> {type, pid}
+        end
+      end
+
+      sequence =
+        for {step, step_index} <- with_index(sequence, 1) do
+          dir_resolved =
+            for {dir, actor} <- [from_: step.from, to_: step.to], into: %{} do
+              resolved =
+                case actor do
+                  "service" -> :service
+                  "internal_" <> key -> get_pid.(key, context.internal_pids, :internal, step_index)
+                  "external_" <> key -> get_pid.(key, context.external_pids, :external, step_index)
+                end
+
+              {dir, resolved}
+            end
+
+          Map.merge(step, dir_resolved)
+        end
+
       Logger.info("--> Running test case: #{context.test}")
 
       Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
@@ -111,7 +206,7 @@ defmodule Asyncapi.TestHelper do
         params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
 
         case step do
-          %{from: "internal_" <> internal_key, to: "service", arrow: arrow} ->
+          %{from_: {:internal, pid}, to_: :service, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for internal messages"
 
             internal_message_tag = String.to_atom(step.operation)
@@ -128,30 +223,20 @@ defmodule Asyncapi.TestHelper do
                   {internal_message_tag, payload}
               end
 
-            internal_pid =
-              Map.fetch!(context.internal_pids, String.to_existing_atom(internal_key))
-
-            assert nil == Internal.next(internal_pid)
+            assert nil == Internal.next(pid)
 
             if arrow == :async do
-              Internal.send(internal_pid, :async, context.service_pid, internal_message)
+              Internal.send(pid, :async, context.service_pid, internal_message)
             else
-              Internal.send(
-                internal_pid,
-                :sync,
-                {context.service_pid, acc.last_call_tag},
-                internal_message
-              )
+              Internal.send(pid, :sync, {context.service_pid, acc.last_call_tag}, internal_message)
             end
 
             %{acc | last_call_tag: nil}
 
-          %{from: "service", to: "internal_" <> internal_key, arrow: arrow} ->
+          %{from_: :service, to_: {:internal, pid}, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for intenal messages"
 
-            internal_pid = Map.fetch!(context.internal_pids, String.to_existing_atom(internal_key))
-
-            msg = Internal.next(internal_pid)
+            msg = Internal.next(pid)
 
             {internal_message, call_tag} =
               if arrow == :async do
@@ -178,8 +263,8 @@ defmodule Asyncapi.TestHelper do
             |> Map.put(:last_call_tag, call_tag)
             |> Asyncapi.TestHelper.match(internal_message_payload, payload)
 
-          %{to: "service", arrow: :async} ->
-            Asyncapi.TestHelper.assert_no_unexpected_messages()
+          %{from_: {:external, pid}, to_: service, arrow: :async} ->
+            Asyncapi.TestHelper.assert_no_unexpected_messages(context)
 
             assert Asyncapi.TestHelper.all_deref?(payload),
                    "Payload not fully dereferenced: #{inspect(payload)}"
@@ -187,21 +272,14 @@ defmodule Asyncapi.TestHelper do
             assert Asyncapi.TestHelper.all_deref?(params),
                    "Params not fully dereferenced: #{inspect(params)}"
 
-            MqttAsyncapi.publish_(
-              %Asyncapi.Message{op_id: step.operation, payload: payload, params: params},
-              context.state
-            )
+            External.publish(pid, %Asyncapi.Message{op_id: step.operation, payload: payload, params: params})
 
             acc
 
-          %{from: "service", arrow: :async} ->
-            assert_receive({:publish, mqtt_message})
-
-            assert {:ok, asyncapi_message} =
-                     Asyncapi.Message.from_mqtt_message(
-                       Asyncapi.Message.decode_mqtt_message(mqtt_message),
-                       context.state.asyncapi
-                     )
+          # TODO multiple external could receive this!
+          # maybe add sth like "to: external_*"? - but that would imply that ALL externals receive it...
+          %{from_: :service, to_: {:external, pid}, arrow: :async} ->
+            assert {:asyncapi_message, asyncapi_message} = External.next(pid)
 
             if step.operation != asyncapi_message.op_id do
               dbg(asyncapi_message)
@@ -212,22 +290,26 @@ defmodule Asyncapi.TestHelper do
             |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
             |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
 
+          %{from_: {:external, _}, to_: :service, arrow: :sync} ->
+            raise("Unsupported step: #{inspect(step)} -- external sync")
+
+          %{from_: :service, to_: {:external, _}, arrow: :sync} ->
+            raise("Unsupported step: #{inspect(step)} -- external sync")
+
           _ ->
-            raise("Unsupported step: #{inspect(step)} -- sync when only async supported??")
+            raise("Unsupported step: #{inspect(step)}")
         end
       end)
 
-      Process.sleep(1)
-      Asyncapi.TestHelper.assert_no_unexpected_messages()
-
-      for {_key, pid} <- context.internal_pids do
-        assert nil == Internal.next(pid)
-      end
+      Asyncapi.TestHelper.assert_no_unexpected_messages(context)
     end
   end
 
-  def assert_no_unexpected_messages() do
-    assert {:messages, []} == :erlang.process_info(self(), :messages)
+  def assert_no_unexpected_messages(context) do
+    Process.sleep(1)
+
+    for {_key, pid} <- context.internal_pids, do: assert(nil == Internal.next(pid))
+    for {_key, pid} <- context.external_pids, do: assert(nil == External.next(pid))
   end
 
   def display_step(step) do
@@ -302,17 +384,18 @@ defmodule Asyncapi.TestHelper do
     end)
   end
 
-  case Application.compile_env(:asyncapi, :broker) do
-    nil ->
-      raise("env(:asyncapi, :broker) not configured")
+  # TODO @BM scheint nicht gebraucht zu werden...
+  # case Application.compile_env(:asyncapi, :broker) do
+  #   nil ->
+  #     raise("env(:asyncapi, :broker) not configured")
 
-    Asyncapi.Broker.Dummy ->
-      def start_broker, do: start_supervised!(DummyBroker)
+  #   Asyncapi.Broker.Dummy ->
+  #     def start_broker, do: start_supervised!(DummyBroker)
 
-    Asyncapi.Broker.MQTT ->
-      # NOTE: ensure broker is running!
-      def start_broker, do: nil
-  end
+  #   Asyncapi.Broker.MQTT ->
+  #     # NOTE: ensure broker is running!
+  #     def start_broker, do: nil
+  # end
 end
 
 defmodule DummyBroker do
