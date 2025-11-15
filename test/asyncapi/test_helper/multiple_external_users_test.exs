@@ -65,9 +65,9 @@ defmodule Asyncapi.TestHelper.MultipleExternalUsersTest do
     {:ok, additional} =
       TestHelper.init(
         Stack,
-        external: %{
-          producer: Stack.ProducerUserSchema,
-          consumer: Stack.ConsumerUserSchema
+        external_schemas: %{
+          "producer" => Stack.ProducerUserSchema,
+          "consumer" => Stack.ConsumerUserSchema
         }
       )
 

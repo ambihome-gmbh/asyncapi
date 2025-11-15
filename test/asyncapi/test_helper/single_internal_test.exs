@@ -68,8 +68,8 @@ defmodule Asyncapi.TestHelper.SingleInternalTest do
       TestHelper.init(
         Baking,
         service_opts: [time_server: time_server_pid],
-        internal_pids: %{time_server: time_server_pid},
-        external: %{user: Baking.UserSchema}
+        internal_pids: %{"time_server" => time_server_pid},
+        external_schemas: %{"user" => Baking.UserSchema}
       )
 
     full_context = Enum.into(additional, context)
@@ -98,8 +98,8 @@ defmodule Asyncapi.TestHelper.SingleInternalTest do
       TestHelper.init(
         Baking,
         service_opts: [time_server: time_server_pid],
-        internal_pids: %{time_server: time_server_pid},
-        external: %{user: Baking.UserSchema}
+        internal_pids: %{"time_server" => time_server_pid},
+        external_schemas: %{"user" => Baking.UserSchema}
       )
 
     full_context = Enum.into(additional, context)

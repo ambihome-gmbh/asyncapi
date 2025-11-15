@@ -121,7 +121,7 @@ defmodule Asyncapi.TestHelper do
   def init(service, opts \\ []) do
     service_opts = Keyword.get(opts, :service_opts, [])
     internal_pids = Keyword.get(opts, :internal_pids, %{})
-    external_schemas = Keyword.get(opts, :external, %{})
+    external_schemas = Keyword.get(opts, :external_schemas, %{})
 
     # @BM TODO warum uebergeben wir broker explizit (siehe unten alte start_service fn)?
     # Das funktioniert sowieso nur wenn der broker genutzt wird der in env konfiguriert ist, oder?
@@ -161,29 +161,6 @@ defmodule Asyncapi.TestHelper do
     end
   end
 
-  def start_service(service, schema, broker, opts \\ []) do
-    asyncapi = schema.get_asyncapi()
-    service_opts = Keyword.get(opts, :service_opts, [])
-    internal_pids = Keyword.get(opts, :internal_pids, %{})
-
-    case broker do
-      Asyncapi.Broker.Dummy -> start_supervised!(DummyBroker)
-      Asyncapi.Broker.MQTT -> :ok
-      _ -> raise("unknown broker: #{inspect(broker)}")
-    end
-
-    {:ok, broker_state} = broker.connect(asyncapi)
-
-    case start_supervised({service, service_opts}) do
-      {:ok, service_pid} ->
-        {:ok,
-         state: %{asyncapi: asyncapi, broker: broker_state}, service_pid: service_pid, internal_pids: internal_pids}
-
-      {:error, reason} ->
-        raise("Failed to start service #{inspect(service)}: #{inspect(reason)}")
-    end
-  end
-
   defmacro assert_sequence(context, sequence) do
     quote do
       require Logger
@@ -193,6 +170,30 @@ defmodule Asyncapi.TestHelper do
       # AH-1712/asyncapi-sanity-checker
       sequence =
         Asyncapi.SequenceParser.parse_multiline!(unquote(sequence), context.test)
+
+      get_pid = fn key, pids, type, step_index ->
+        case pids[key] do
+          nil -> raise("step #{step_index}: unknown actor: #{type}_#{key}")
+          pid -> {type, pid}
+        end
+      end
+
+      sequence =
+        for {step, step_index} <- with_index(sequence, 1) do
+          dir_resolved =
+            for {dir, actor} <- [from_: step.from, to_: step.to], into: %{} do
+              resolved =
+                case actor do
+                  "service" -> :service
+                  "internal_" <> key -> get_pid.(key, context.internal_pids, :internal, step_index)
+                  "external_" <> key -> get_pid.(key, context.external_pids, :external, step_index)
+                end
+
+              {dir, resolved}
+            end
+
+          Map.merge(step, dir_resolved)
+        end
 
       Logger.info("--> Running test case: #{context.test}")
 
@@ -205,15 +206,8 @@ defmodule Asyncapi.TestHelper do
         params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
 
         case step do
-          %{from: "internal_" <> internal_key, to: "service", arrow: arrow} ->
+          %{from_: {:internal, pid}, to_: :service, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for internal messages"
-
-            # not needed with AH-1712/asyncapi-sanity-checker
-            internal_pid =
-              case Map.get(context.internal_pids, String.to_existing_atom(internal_key)) do
-                nil -> raise("Unsupported step: #{inspect(step)} -- unknown actor: internal_#{internal_key}")
-                pid -> pid
-              end
 
             internal_message_tag = String.to_atom(step.operation)
 
@@ -229,32 +223,20 @@ defmodule Asyncapi.TestHelper do
                   {internal_message_tag, payload}
               end
 
-            assert nil == Internal.next(internal_pid)
+            assert nil == Internal.next(pid)
 
             if arrow == :async do
-              Internal.send(internal_pid, :async, context.service_pid, internal_message)
+              Internal.send(pid, :async, context.service_pid, internal_message)
             else
-              Internal.send(
-                internal_pid,
-                :sync,
-                {context.service_pid, acc.last_call_tag},
-                internal_message
-              )
+              Internal.send(pid, :sync, {context.service_pid, acc.last_call_tag}, internal_message)
             end
 
             %{acc | last_call_tag: nil}
 
-          %{from: "service", to: "internal_" <> internal_key, arrow: arrow} ->
+          %{from_: :service, to_: {:internal, pid}, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for intenal messages"
 
-            # not needed with AH-1712/asyncapi-sanity-checker
-            internal_pid =
-              case Map.get(context.internal_pids, String.to_existing_atom(internal_key)) do
-                nil -> raise("Unsupported step: #{inspect(step)} -- unknown actor: internal_#{internal_key}")
-                pid -> pid
-              end
-
-            msg = Internal.next(internal_pid)
+            msg = Internal.next(pid)
 
             {internal_message, call_tag} =
               if arrow == :async do
@@ -281,15 +263,8 @@ defmodule Asyncapi.TestHelper do
             |> Map.put(:last_call_tag, call_tag)
             |> Asyncapi.TestHelper.match(internal_message_payload, payload)
 
-          %{from: "external_" <> external_key, to: "service", arrow: :async} ->
+          %{from_: {:external, pid}, to_: service, arrow: :async} ->
             Asyncapi.TestHelper.assert_no_unexpected_messages(context)
-
-            # not needed with AH-1712/asyncapi-sanity-checker
-            external_pid =
-              case Map.get(context.external_pids, String.to_existing_atom(external_key)) do
-                nil -> raise("Unsupported step: #{inspect(step)} -- unknown actor: external_#{external_key}")
-                pid -> pid
-              end
 
             assert Asyncapi.TestHelper.all_deref?(payload),
                    "Payload not fully dereferenced: #{inspect(payload)}"
@@ -297,24 +272,14 @@ defmodule Asyncapi.TestHelper do
             assert Asyncapi.TestHelper.all_deref?(params),
                    "Params not fully dereferenced: #{inspect(params)}"
 
-            External.publish(
-              external_pid,
-              %Asyncapi.Message{op_id: step.operation, payload: payload, params: params}
-            )
+            External.publish(pid, %Asyncapi.Message{op_id: step.operation, payload: payload, params: params})
 
             acc
 
           # TODO multiple external could receive this!
           # maybe add sth like "to: external_*"? - but that would imply that ALL externals receive it...
-          %{from: "service", to: "external_" <> external_key, arrow: :async} ->
-            # not needed with AH-1712/asyncapi-sanity-checker
-            external_pid =
-              case Map.get(context.external_pids, String.to_existing_atom(external_key)) do
-                nil -> raise("Unsupported step: #{inspect(step)} -- unknown actor: external_#{external_key}")
-                pid -> pid
-              end
-
-            assert {:asyncapi_message, asyncapi_message} = External.next(external_pid)
+          %{from_: :service, to_: {:external, pid}, arrow: :async} ->
+            assert {:asyncapi_message, asyncapi_message} = External.next(pid)
 
             if step.operation != asyncapi_message.op_id do
               dbg(asyncapi_message)
@@ -325,17 +290,11 @@ defmodule Asyncapi.TestHelper do
             |> Asyncapi.TestHelper.match(asyncapi_message.params, params)
             |> Asyncapi.TestHelper.match(asyncapi_message.payload, payload)
 
-          %{from: "external_" <> _, to: "service", arrow: :sync} ->
+          %{from_: {:external, _}, to_: :service, arrow: :sync} ->
             raise("Unsupported step: #{inspect(step)} -- external sync")
 
-          %{from: "service", to: "external_" <> _, arrow: :sync} ->
+          %{from_: :service, to_: {:external, _}, arrow: :sync} ->
             raise("Unsupported step: #{inspect(step)} -- external sync")
-
-          %{from: "service", to: unknown} ->
-            raise("Unsupported step: #{inspect(step)} -- unknown actor: #{unknown}")
-
-          %{from: unknown, to: "service"} ->
-            raise("Unsupported step: #{inspect(step)} -- unknown actor: #{unknown}")
 
           _ ->
             raise("Unsupported step: #{inspect(step)}")
@@ -349,8 +308,8 @@ defmodule Asyncapi.TestHelper do
   def assert_no_unexpected_messages(context) do
     Process.sleep(1)
 
-    for {_key, pid} <- context.internal_pids, do: assert nil == Internal.next(pid)
-    for {_key, pid} <- context.external_pids, do: assert nil == External.next(pid)
+    for {_key, pid} <- context.internal_pids, do: assert(nil == Internal.next(pid))
+    for {_key, pid} <- context.external_pids, do: assert(nil == External.next(pid))
   end
 
   def display_step(step) do
