@@ -26,4 +26,3 @@ asyncapi-*.tar
 /tmp/
 
 .DS_Store
-__build

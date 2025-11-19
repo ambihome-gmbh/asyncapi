@@ -90,19 +90,13 @@ defmodule Asyncapi.TestHelper do
 
     @impl true
     def handle_call({__MODULE__, :publish, message}, _from, state) do
-      MqttAsyncapi.publish_(message, state)
-      {:reply, :ok, state}
+      reply = MqttAsyncapi.publish_(message, state)
+      {:reply, reply, state}
     end
 
     @impl true
     def handle_info({:publish, mqtt_message}, state) do
-      assert {:ok, asyncapi_message} =
-               Asyncapi.Message.from_mqtt_message(
-                 Asyncapi.Message.decode_mqtt_message(mqtt_message),
-                 state.asyncapi
-               )
-
-      {:noreply, %{state | queue: :queue.in({:asyncapi_message, asyncapi_message}, state.queue)}}
+      {:noreply, %{state | queue: :queue.in({:mqtt_message, mqtt_message}, state.queue)}}
     end
 
     @impl true
@@ -142,9 +136,10 @@ defmodule Asyncapi.TestHelper do
           raise("unknown broker: #{inspect(unexpected)}")
       end
 
+    external_asyncapis = for {k, s} <- external_schemas, into: %{}, do: {k, s.get_asyncapi()}
+
     external_pids =
-      for {external_key, external_schema} <- external_schemas, into: %{} do
-        asyncapi = external_schema.get_asyncapi()
+      for {external_key, asyncapi} <- external_asyncapis, into: %{} do
         {:ok, pid} = Asyncapi.TestHelper.External.start_link(asyncapi: asyncapi, broker: broker)
         {external_key, pid}
       end
@@ -153,7 +148,10 @@ defmodule Asyncapi.TestHelper do
       {:ok, service_pid} ->
         {
           :ok,
-          service_pid: service_pid, internal_pids: internal_pids, external_pids: external_pids
+          service_pid: service_pid,
+          internal_pids: internal_pids,
+          external_pids: external_pids,
+          external_asyncapis: external_asyncapis
         }
 
       {:error, reason} ->
@@ -168,13 +166,12 @@ defmodule Asyncapi.TestHelper do
       context = unquote(context)
 
       # AH-1712/asyncapi-sanity-checker
-      sequence =
-        Asyncapi.SequenceParser.parse_multiline!(unquote(sequence), context.test)
+      sequence = Asyncapi.SequenceParser.parse_multiline!(unquote(sequence), context.test)
 
-      get_pid = fn key, pids, type, step_index ->
-        case pids[key] do
-          nil -> raise("step #{step_index}: unknown actor: #{type}_#{key}")
-          pid -> {type, pid}
+      resolve = fn name, pids, type, step_index ->
+        case pids[name] do
+          nil -> raise("step #{step_index}: unknown actor: #{type}_#{name}")
+          pid -> {type, name, pid}
         end
       end
 
@@ -185,8 +182,8 @@ defmodule Asyncapi.TestHelper do
               resolved =
                 case actor do
                   "service" -> :service
-                  "internal_" <> key -> get_pid.(key, context.internal_pids, :internal, step_index)
-                  "external_" <> key -> get_pid.(key, context.external_pids, :external, step_index)
+                  "internal_" <> name -> resolve.(name, context.internal_pids, :internal, step_index)
+                  "external_" <> name -> resolve.(name, context.external_pids, :external, step_index)
                 end
 
               {dir, resolved}
@@ -206,7 +203,7 @@ defmodule Asyncapi.TestHelper do
         params = Asyncapi.TestHelper.deref(step.params, acc.bindings)
 
         case step do
-          %{from_: {:internal, pid}, to_: :service, arrow: arrow} ->
+          %{from_: {:internal, _name, pid}, to_: :service, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for internal messages"
 
             internal_message_tag = String.to_atom(step.operation)
@@ -233,7 +230,7 @@ defmodule Asyncapi.TestHelper do
 
             %{acc | last_call_tag: nil}
 
-          %{from_: :service, to_: {:internal, pid}, arrow: arrow} ->
+          %{from_: :service, to_: {:internal, _name, pid}, arrow: arrow} ->
             assert step.params == %{}, "params not allowed for intenal messages"
 
             msg = Internal.next(pid)
@@ -263,23 +260,34 @@ defmodule Asyncapi.TestHelper do
             |> Map.put(:last_call_tag, call_tag)
             |> Asyncapi.TestHelper.match(internal_message_payload, payload)
 
-          %{from_: {:external, pid}, to_: service, arrow: :async} ->
+          %{from_: {:external, _name, pid}, to_: service, arrow: :async} ->
             Asyncapi.TestHelper.assert_no_unexpected_messages(context)
 
+            # AH-1695/asyncapi-create-tests-for-asyncapi-lib
             assert Asyncapi.TestHelper.all_deref?(payload),
                    "Payload not fully dereferenced: #{inspect(payload)}"
 
+            # AH-1695/asyncapi-create-tests-for-asyncapi-lib
             assert Asyncapi.TestHelper.all_deref?(params),
                    "Params not fully dereferenced: #{inspect(params)}"
 
-            External.publish(pid, %Asyncapi.Message{op_id: step.operation, payload: payload, params: params})
+            message = %Asyncapi.Message{op_id: step.operation, payload: payload, params: params}
+            # AH-1695/asyncapi-create-tests-for-asyncapi-lib
+            assert :ok = External.publish(pid, message)
 
             acc
 
-          # TODO multiple external could receive this!
-          # maybe add sth like "to: external_*"? - but that would imply that ALL externals receive it...
-          %{from_: :service, to_: {:external, pid}, arrow: :async} ->
-            assert {:asyncapi_message, asyncapi_message} = External.next(pid)
+          # AH-1861/asyncapi-multiple-external-receivers-for-one-message
+          %{from_: :service, to_: {:external, name, pid}, arrow: :async} ->
+            assert {:mqtt_message, mqtt_message} = External.next(pid)
+
+            # AH-1695/asyncapi-create-tests-for-asyncapi-lib - to make this assertion fail we need to have service
+            # send a valid message with different op_id than expected in the sequence (schemas do not match)
+            assert {:ok, asyncapi_message} =
+                     Asyncapi.Message.from_mqtt_message(
+                       Asyncapi.Message.decode_mqtt_message(mqtt_message),
+                       context.external_asyncapis[name]
+                     )
 
             if step.operation != asyncapi_message.op_id do
               dbg(asyncapi_message)
@@ -364,38 +372,16 @@ defmodule Asyncapi.TestHelper do
 
   def deref(map_, bindings) do
     Map.new(map_, fn {key, {type, value}} ->
+      # AH-1728/asyncapi-deref-in-lists
       case type do
-        :reference ->
-          {key, fetch!(bindings, value, "todo_err_msg_wrap_fetch_binding")}
-
-        :binding ->
-          {key, {type, value}}
-
-        :list ->
-          # AH-1728/asyncapi-deref-in-lists
-          {key, map(value, fn {:literal, v} -> v end)}
-
-        :map ->
-          {key, deref(value, bindings)}
-
-        _ ->
-          {key, value}
+        :reference -> {key, fetch!(bindings, value, "todo_err_msg_wrap_fetch_binding")}
+        :binding -> {key, {type, value}}
+        :list -> {key, map(value, fn {:literal, v} -> v end)}
+        :map -> {key, deref(value, bindings)}
+        _ -> {key, value}
       end
     end)
   end
-
-  # TODO @BM scheint nicht gebraucht zu werden...
-  # case Application.compile_env(:asyncapi, :broker) do
-  #   nil ->
-  #     raise("env(:asyncapi, :broker) not configured")
-
-  #   Asyncapi.Broker.Dummy ->
-  #     def start_broker, do: start_supervised!(DummyBroker)
-
-  #   Asyncapi.Broker.MQTT ->
-  #     # NOTE: ensure broker is running!
-  #     def start_broker, do: nil
-  # end
 end
 
 defmodule DummyBroker do
