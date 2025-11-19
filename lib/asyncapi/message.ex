@@ -30,7 +30,7 @@ defmodule Asyncapi.Message do
     end
   end
 
-  def to_mqtt_message!(%__MODULE__{} = message, asyncapi) do
+  def to_mqtt_message(%__MODULE__{} = message, asyncapi) do
     %{schema: schema, operations: operations} = asyncapi
     %{op_id: op_id, params: params, payload: payload} = message
 
@@ -43,13 +43,21 @@ defmodule Asyncapi.Message do
          :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(params, operation),
          :ok <- Asyncapi.validate_parameters(params, operation, schema),
          :ok <- Asyncapi.validate_payload(payload, operation, schema) do
-      %{
-        topic: interpolate_parameters(operation.address, params),
-        payload: payload,
-        qos: message.qos,
-        retain: message.retain
+      {
+        :ok,
+        %{
+          topic: interpolate_parameters(operation.address, params),
+          payload: payload,
+          qos: message.qos,
+          retain: message.retain
+        }
       }
-    else
+    end
+  end
+
+  def to_mqtt_message!(%__MODULE__{} = message, asyncapi) do
+    case to_mqtt_message(message, asyncapi) do
+      {:ok, mqtt_message} -> mqtt_message
       error -> raise(inspect(error))
     end
   end
@@ -72,8 +80,4 @@ defmodule Asyncapi.Message do
   defp interpolate_parameters(address, params) do
     reduce(params, address, fn {p, v}, topic -> String.replace(topic, "{#{p}}", v) end)
   end
-
-  # defp to_string_map(map_) do
-  #   Map.new(map_, fn {k, v} -> {"#{k}", v} end)
-  # end
 end

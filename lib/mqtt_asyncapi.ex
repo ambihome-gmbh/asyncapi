@@ -166,13 +166,22 @@ defmodule MqttAsyncapi do
   defp process_reply({:noreply, new_user_state}, _state), do: new_user_state
 
   defp process_reply({:reply, responses, new_user_state}, state) do
-    each(responses, &publish(&1, state))
+    each(responses, &publish!(&1, state))
     new_user_state
   end
 
   defp publish(%Message{} = message, state) do
-    mqtt_message = Message.to_mqtt_message!(message, state.asyncapi)
-    mqtt_message_encoded = Message.encode_mqtt_message(mqtt_message)
-    state.broker.module.publish(state.broker, mqtt_message_encoded)
+    with {:ok, mqtt_message} <- Message.to_mqtt_message(message, state.asyncapi),
+         mqtt_message_encoded <- Message.encode_mqtt_message(mqtt_message),
+         :ok <- state.broker.module.publish(state.broker, mqtt_message_encoded) do
+      :ok
+    end
+  end
+
+  defp publish!(%Message{} = message, state) do
+    case publish(message, state) do
+      :ok -> :ok
+      error -> raise(inspect(error))
+    end
   end
 end
