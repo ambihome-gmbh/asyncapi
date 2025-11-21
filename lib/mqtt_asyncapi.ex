@@ -130,7 +130,8 @@ defmodule MqttAsyncapi do
           |> process_reply(state)
 
         {:error, reason} ->
-          dbg(reason)
+          # AH-1702/asyncapi-logging
+          dbg({:error, reason})
           state.user_state
       end
 

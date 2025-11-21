@@ -196,7 +196,7 @@ defmodule Asyncapi.TestHelper do
 
       Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
         Asyncapi.TestHelper.display_step(step)
-        Process.sleep(1)
+        Process.sleep(5)
 
         # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
         payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
@@ -210,9 +210,6 @@ defmodule Asyncapi.TestHelper do
 
             internal_message =
               case payload do
-                %{"__bytearray__" => bytearray} ->
-                  {internal_message_tag, :erlang.list_to_binary(bytearray)}
-
                 %{} = payload when map_size(payload) == 0 ->
                   internal_message_tag
 
@@ -234,6 +231,7 @@ defmodule Asyncapi.TestHelper do
             assert step.params == %{}, "params not allowed for intenal messages"
 
             msg = Internal.next(pid)
+            assert msg, "expected: #{inspect(step.operation)}/#{inspect(payload)}, but no message received"
 
             {internal_message, call_tag} =
               if arrow == :async do
@@ -247,12 +245,10 @@ defmodule Asyncapi.TestHelper do
 
             {internal_message_tag, internal_message_payload} =
               case internal_message do
-                {operation, payload} -> {operation, payload}
-                operation -> {operation, %{}}
+                {operation, data} when is_atom(operation) -> {operation, data}
+                operation when is_atom(operation) -> {operation, %{}}
+                invalid -> raise("invalid internal msg: #{inspect(invalid)}/expected: :atom or {:atom, term}")
               end
-
-            assert is_atom(internal_message_tag),
-                   "internal_message_tag not an atom: #{inspect(internal_message_tag)}"
 
             assert step.operation == "#{internal_message_tag}"
 
@@ -279,7 +275,9 @@ defmodule Asyncapi.TestHelper do
 
           # AH-1861/asyncapi-multiple-external-receivers-for-one-message
           %{from_: :service, to_: {:external, name, pid}, arrow: :async} ->
-            assert {:mqtt_message, mqtt_message} = External.next(pid)
+            msg = External.next(pid)
+            assert msg, "expected: #{inspect(step.operation)}/#{inspect(payload)}, but no message received"
+            assert {:mqtt_message, mqtt_message} = msg
 
             # AH-1695/asyncapi-create-tests-for-asyncapi-lib - to make this assertion fail we need to have service
             # send a valid message with different op_id than expected in the sequence (schemas do not match)
@@ -314,10 +312,12 @@ defmodule Asyncapi.TestHelper do
   end
 
   def assert_no_unexpected_messages(context) do
-    Process.sleep(1)
+    Process.sleep(10)
 
     for {_key, pid} <- context.internal_pids, do: assert(nil == Internal.next(pid))
     for {_key, pid} <- context.external_pids, do: assert(nil == External.next(pid))
+
+    Process.sleep(10)
   end
 
   def display_step(step) do
@@ -355,7 +355,7 @@ defmodule Asyncapi.TestHelper do
             Map.put(acc, binding_name, fetch!(received, k, "todo_err_msg_wrap_fetch_put_binding"))
 
           _ ->
-            assert v == fetch!(received, k, "key [#{k}]not found [#{inspect(received)}]")
+            assert v == fetch!(received, k, "binding_error: key `#{k}` not found in `#{inspect(received)}`")
 
             acc
         end
@@ -368,6 +368,15 @@ defmodule Asyncapi.TestHelper do
 
   def deref({:literal, value}, _bindings) do
     value
+  end
+
+  def deref(%{"__bytearray__" => {:list, bytearray}}, _bindings) do
+    bytearray
+    |> map(fn
+      {:literal, v} -> v
+      invalid -> raise("invalid bytearray element: #{inspect(invalid)}")
+    end)
+    |> :erlang.list_to_binary()
   end
 
   def deref(map_, bindings) do

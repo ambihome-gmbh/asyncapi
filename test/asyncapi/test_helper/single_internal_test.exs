@@ -1,5 +1,5 @@
 defmodule Asyncapi.TestHelper.SingleInternalTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   require Asyncapi.TestHelper, as: TestHelper
 
   defmodule Baking.Schema do
@@ -26,7 +26,7 @@ defmodule Asyncapi.TestHelper.SingleInternalTest do
     alias Asyncapi.Message
     import Asyncapi.Helpers
 
-    def start_link(opts \\ []) do
+    def start_link(opts) do
       MqttAsyncapi.start_link(__MODULE__, opts)
     end
 

@@ -1,7 +1,9 @@
 defmodule Asyncapi.Broker.Dummy do
   @behaviour Asyncapi.Broker
   def connect(asyncapi) do
-    # dbg(asyncapi.subscriptions)
+    # AH-1702/asyncapi-logging
+    # info = Map.get(asyncapi.schema.schema, "info")
+    # dbg({:connecting, info, asyncapi.subscriptions})
     Enum.each(asyncapi.subscriptions, &DummyBroker.subscribe(&1))
     {:ok, %{module: __MODULE__}}
   end

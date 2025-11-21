@@ -1,5 +1,5 @@
 defmodule Asyncapi.TestHelper.MultipleExternalUsersTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   require Asyncapi.TestHelper, as: TestHelper
 
   # AH-1842/asyncapi-tests-inside-lib-should-not-copy-code-from-examples

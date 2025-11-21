@@ -11,9 +11,15 @@ defmodule Asyncapi do
       |> filter(&Regex.match?(&1.regex, topic))
 
     case matching_operations do
-      [] -> {:error, :no_matching_operation}
-      [operation] -> {:ok, operation}
-      [_, _ | _] -> {:error, :ambiguous_operation}
+      [] ->
+        {:error, :no_matching_operation}
+
+      [operation] ->
+        {:ok, operation}
+
+      [_, _ | _] = ambiguous_operations ->
+        operations_ids = map(ambiguous_operations, & &1.id)
+        {:error, {:ambiguous_operation, operations_ids, topic}}
     end
   end
 
