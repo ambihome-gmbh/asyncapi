@@ -143,4 +143,17 @@ defmodule AsyncApiTest do
              )
            end
   end
+
+  test "testhelper formatter" do
+    assert "1" == Asyncapi.TestHelper.Formatter.format(1)
+    assert "1.2" == Asyncapi.TestHelper.Formatter.format(1.2)
+    assert "'string'" == Asyncapi.TestHelper.Formatter.format("string")
+    assert "'atom'" == Asyncapi.TestHelper.Formatter.format(:atom)
+    assert "[1, 2, 'atom', 'string', 3.1]" == Asyncapi.TestHelper.Formatter.format([1, 2, :atom, "string", 3.1])
+    assert "[1, [2, 3]]" == Asyncapi.TestHelper.Formatter.format([1, [2, 3]])
+    assert "{a: 1}" == Asyncapi.TestHelper.Formatter.format(%{a: 1})
+    assert "{a: [1, 2, 3]}" == Asyncapi.TestHelper.Formatter.format(%{a: [1, 2, 3]})
+    assert "{a: [1, 2, {b: 'string'}]}" == Asyncapi.TestHelper.Formatter.format(%{a: [1, 2, %{b: "string"}]})
+    assert "a: [1, 2, {b: 'string'}]" == Asyncapi.TestHelper.Formatter.format(%{a: [1, 2, %{b: "string"}]}, true)
+  end
 end
