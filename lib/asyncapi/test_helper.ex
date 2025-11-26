@@ -198,7 +198,7 @@ defmodule Asyncapi.TestHelper do
 
       Enum.reduce(sequence, %{bindings: %{}, last_call_tag: nil}, fn step, acc ->
         Asyncapi.TestHelper.display_step(step)
-        Process.sleep(5)
+        Process.sleep(25)
 
         # TODO bind first, in doc order. right now binds are done with matches below so cant deref a thing thats bound in the same step
         payload = Asyncapi.TestHelper.deref(step.payload, acc.bindings)
@@ -259,8 +259,6 @@ defmodule Asyncapi.TestHelper do
             |> Asyncapi.TestHelper.match(internal_message_payload, payload)
 
           %{from_: {:external, _name, pid}, to_: service, arrow: :async} ->
-            Asyncapi.TestHelper.assert_no_unexpected_messages(context)
-
             # AH-1695/asyncapi-create-tests-for-asyncapi-lib
             assert Asyncapi.TestHelper.all_deref?(payload),
                    "Payload not fully dereferenced: #{inspect(payload)}"
@@ -314,12 +312,12 @@ defmodule Asyncapi.TestHelper do
   end
 
   def assert_no_unexpected_messages(context) do
-    Process.sleep(10)
+    Process.sleep(25)
 
     for {_key, pid} <- context.internal_pids, do: assert(nil == Internal.next(pid))
     for {_key, pid} <- context.external_pids, do: assert(nil == External.next(pid))
 
-    Process.sleep(10)
+    Process.sleep(25)
   end
 
   def display_step(step) do

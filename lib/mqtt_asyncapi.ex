@@ -6,7 +6,7 @@ defmodule MqttAsyncapi do
   use GenServer
 
   @callback init(opts :: term) ::
-              {:ok, state :: term} | {:error, term}
+              {:ok, state :: term} | {:error, term} | {:ok, state :: term, {:continue, term}}
   @callback handle_message(Message.t(), state :: term) ::
               {:noreply, state :: term} | {:reply, [reply_message :: Message.t()], state :: term}
   @callback handle_info(term, state :: term) ::
