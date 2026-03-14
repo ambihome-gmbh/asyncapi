@@ -3,13 +3,20 @@ defmodule Asyncapi.Broker.MQTT do
 
   require Logger
 
-  def connect(asyncapi) do
-    opts = [host: asyncapi.server.host, port: asyncapi.server.port]
-    # AH-1702/asyncapi-logging
-    dbg({:connect, opts})
+  def connect(asyncapi, user_module \\ "user_module_not_given") do
+    host =
+      case Application.get_env(:asyncapi, :broker_host) do
+        nil -> asyncapi.server.host
+        override when is_binary(override) -> String.to_charlist(override)
+        override when is_list(override) -> override
+      end
+
+    opts = [host: host, port: asyncapi.server.port]
     {:ok, mqtt_pid} = :emqtt.start_link(opts)
     {:ok, _props} = :emqtt.connect(mqtt_pid)
-    Enum.each(asyncapi.subscriptions, &subscribe!(mqtt_pid, &1, 0))
+    # AH-1702/asyncapi-logging
+    Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
+    Enum.each(asyncapi.subscriptions, &subscribe!(mqtt_pid, &1, 0, user_module))
     {:ok, %{pid: mqtt_pid, opts: opts, module: __MODULE__}}
   end
 
@@ -18,7 +25,7 @@ defmodule Asyncapi.Broker.MQTT do
     :ok
   end
 
-  defp subscribe!(pid, topic, qos, user_module \\ "TO-DO") do
+  defp subscribe!(pid, topic, qos, user_module) do
     case :emqtt.subscribe(pid, {topic, qos}) do
       {:ok, _props, [reason]} when reason in [0x00, 0x01, 0x02] ->
         # AH-1702/asyncapi-logging

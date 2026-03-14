@@ -1,6 +1,6 @@
 defmodule Asyncapi.Broker.Dummy do
   @behaviour Asyncapi.Broker
-  def connect(asyncapi) do
+  def connect(asyncapi, _name \\ "user_module_expected_here") do
     # AH-1702/asyncapi-logging
     # info = Map.get(asyncapi.schema.schema, "info")
     # dbg({:connecting, info, asyncapi.subscriptions})
