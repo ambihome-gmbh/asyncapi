@@ -3,10 +3,9 @@ defmodule ServiceTest do
   require Asyncapi.TestHelper
 
   setup do
-    Asyncapi.TestHelper.start_service(
+    Asyncapi.TestHelper.init(
       MultiStack,
-      MultiStack.TestUserSchema,
-      Asyncapi.Broker.Dummy
+      external_schemas: %{"user" => MultiStack.TestUserSchema}
     )
   end
 
@@ -16,11 +15,11 @@ defmodule ServiceTest do
     push_payload = "{value: 42}"
 
     Asyncapi.TestHelper.assert_sequence(context, """
-    user->>service: create/{name: 'SomeName'}
-    service->>user: create_response/#{@create_response_payload}
-    user->>service: push[stack_id: $stack_id]/#{push_payload}
-    user->>service: pop[stack_id: $stack_id]
-    service->>user: pop_response[stack_id: $stack_id]/{value: 42}
+    external_user->>service: create/{name: 'SomeName'}
+    service->>external_user: create_response/#{@create_response_payload}
+    external_user->>service: push[stack_id: $stack_id]/#{push_payload}
+    external_user->>service: pop[stack_id: $stack_id]
+    service->>external_user: pop_response[stack_id: $stack_id]/{value: 42}
     """)
   end
 end

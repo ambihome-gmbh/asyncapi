@@ -165,7 +165,7 @@ def stringify_keys(v), do: v
 
 ---
 
-### 10. `import Enum` Pollutes Namespace
+### 10. done -- `import Enum` Pollutes Namespace
 
 In [asyncapi.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L2), [message.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/message.ex#L2), [mqtt_asyncapi.ex](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L2), [test_helper.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/test_helper.ex#L4):
 
