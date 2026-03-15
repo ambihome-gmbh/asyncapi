@@ -1,4 +1,5 @@
 defmodule MqttAsyncapi do
+  @moduledoc "GenServer that wraps an AsyncAPI service over MQTT."
 
   alias Asyncapi.Message
 

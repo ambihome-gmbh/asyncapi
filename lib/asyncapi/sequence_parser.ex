@@ -1,4 +1,5 @@
 defmodule Asyncapi.SequenceParser do
+  @moduledoc false
   use AbnfParsec,
     parse: :step,
     import_core_rules: true,

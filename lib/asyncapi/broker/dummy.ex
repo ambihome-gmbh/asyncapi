@@ -1,4 +1,5 @@
 defmodule Asyncapi.Broker.Dummy do
+  @moduledoc false
   @behaviour Asyncapi.Broker
   def connect(asyncapi, _name) do
     # AH-1702/asyncapi-logging

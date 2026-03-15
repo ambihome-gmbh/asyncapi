@@ -1,4 +1,5 @@
 defmodule Asyncapi.Broker.MQTT do
+  @moduledoc "MQTT broker implementation using emqtt, with auto-reconnect."
   @behaviour Asyncapi.Broker
 
   require Logger

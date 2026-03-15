@@ -1,4 +1,5 @@
 defmodule Asyncapi do
+  @moduledoc "Loads and validates AsyncAPI schemas, resolving channels, operations, and subscriptions."
 
   alias ExJsonSchema.Validator
 

@@ -122,13 +122,13 @@ Breaking change for existing services. Deferred — see TODOS.md.
 | 🛠 Medium | 12 | Remove `Process.sleep` from tests | **open** |
 | 🧹 Low | 13 | Move `DummyBroker`/`Formatter` out of `test_helper.ex` | ✅ done |
 | 🧹 Low | 14 | Remove unused `nimble_csv` dep | ✅ done |
-| 🧹 Low | 15 | Add `@moduledoc` / `@doc` | **open** |
+| 🧹 Low | 15 | Add `@moduledoc` / `@doc` | ✅ done |
 | 🧹 Low | 16 | Improve `Message.t()` typespec | ✅ done |
 | 🧹 Low | 17 | Decide on `reply([], state)` semantics | **later** — see TODOS.md |
 | 🧹 Low | 18 | Triage all TODOs | **open** |
 | 🧹 Low | 19 | Document/default broker config for non-test envs | ✅ done |
 
-**12 of 19 items resolved.** All critical items done. Remaining: 2 high, 2 medium, 3 low.
+**13 of 19 items resolved.** All critical items done. Remaining: 2 high, 2 medium, 2 low.
 
 ---
 

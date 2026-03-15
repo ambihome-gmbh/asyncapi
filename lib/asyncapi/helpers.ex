@@ -1,4 +1,5 @@
 defmodule Asyncapi.Helpers do
+  @moduledoc "Shared helpers for message handling (reply/publish wrappers, key stringification)."
   def reply(%Asyncapi.Message{} = response, state), do: {:reply, [response], state}
   def reply([%Asyncapi.Message{} | _] = responses, state), do: {:reply, responses, state}
 

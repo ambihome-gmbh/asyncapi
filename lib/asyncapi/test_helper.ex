@@ -1,4 +1,5 @@
 defmodule Asyncapi.TestHelper do
+  @moduledoc "Testing DSL for AsyncAPI services. Parses sequence diagrams into test steps."
   use ExUnit.Case
   import ExUnit.Assertions
 

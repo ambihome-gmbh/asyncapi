@@ -1,4 +1,5 @@
 defmodule DummyBroker do
+  @moduledoc false
   def child_spec(init_arg) do
     %{
       id: __MODULE__,

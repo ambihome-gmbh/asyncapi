@@ -1,4 +1,5 @@
 defmodule Asyncapi.Message do
+  @moduledoc "Struct and encoding/decoding for AsyncAPI messages over MQTT."
   @type t :: %__MODULE__{
           op_id: String.t() | nil,
           params: map(),

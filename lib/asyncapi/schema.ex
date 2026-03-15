@@ -1,4 +1,5 @@
 defmodule Asyncapi.Schema do
+  @moduledoc "Compile-time macro that loads an AsyncAPI schema and generates accessor functions."
   defmacro __using__(opts) do
     schema_file = Keyword.fetch!(opts, :schema_path)
 
