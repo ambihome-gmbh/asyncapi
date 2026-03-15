@@ -281,9 +281,11 @@ defmodule Asyncapi.TestHelper do
 
             # AH-1695/asyncapi-create-tests-for-asyncapi-lib - to make this assertion fail we need to have service
             # send a valid message with different op_id than expected in the sequence (schemas do not match)
+            {:ok, mqtt_message_decoded} = Asyncapi.Message.decode_mqtt_message(mqtt_message)
+
             assert {:ok, asyncapi_message} =
                      Asyncapi.Message.from_mqtt_message(
-                       Asyncapi.Message.decode_mqtt_message(mqtt_message),
+                       mqtt_message_decoded,
                        context.external_asyncapis[name]
                      )
 

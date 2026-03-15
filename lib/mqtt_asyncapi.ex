@@ -118,20 +118,15 @@ defmodule MqttAsyncapi do
 
   @impl GenServer
   def handle_info({:publish, mqtt_message}, state) do
-    mqtt_message_decoded = Message.decode_mqtt_message(mqtt_message)
-    # AH-1702/asyncapi-logging
-    # Logger.debug("[#{inspect(state.user_module)}] recv #{inspect(mqtt_message_decoded)}")
-
     new_user_state =
-      case Message.from_mqtt_message(mqtt_message_decoded, state.asyncapi) do
-        {:ok, message} ->
-          message
-          |> state.user_module.handle_message(state.user_state)
-          |> process_reply(state)
-
-        {:error, reason} ->
-          # AH-1702/asyncapi-logging
-          dbg({:error, reason})
+      with {:ok, mqtt_message_decoded} <- Message.decode_mqtt_message(mqtt_message),
+           {:ok, message} <- Message.from_mqtt_message(mqtt_message_decoded, state.asyncapi) do
+        message
+        |> state.user_module.handle_message(state.user_state)
+        |> process_reply(state)
+      else
+        error ->
+          Logger.warning("[#{inspect(state.user_module)}] incoming message error: #{inspect(error)}")
           state.user_state
       end
 

@@ -61,7 +61,10 @@ defmodule Asyncapi.Message do
   end
 
   def decode_mqtt_message(mqtt_message) do
-    %{mqtt_message | payload: Jason.decode!(mqtt_message.payload)}
+    case Jason.decode(mqtt_message.payload) do
+      {:ok, decoded} -> {:ok, %{mqtt_message | payload: decoded}}
+      {:error, reason} -> {:error, :json_decode_error, reason}
+    end
   end
 
   def encode_mqtt_message(mqtt_message) do
