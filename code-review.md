@@ -29,7 +29,7 @@ When the broker connection drops, the GenServer logs a warning but **stays alive
 
 ### 5. Compile-Time Broker Configuration
 
-NOTE: We have to tackle that together with TODO: how can we make the application start with tests (right now test avoid starting app)
+NOTE: We have to tackle that together with TODO [1701]: how can we make the application start with tests (right now test avoid starting app)
 
 [mqtt_asyncapi.ex:17](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L17)
 
@@ -46,9 +46,9 @@ The broker module is baked in at compile time. If a host app uses this as a depe
 ### 8. No Supervisor / Application Module
 
 asyncapi is a library, not an application. It does not need a supervisor or an application module.
-that is handle by the using application.
+that is handled by the using application.
 
-NOTE: We have to tackle that together with TODO: how can we make the application start with tests (right now test avoid starting app)
+NOTE: We have to tackle that together with TODO [1701]: how can we make the application start with tests (right now test avoid starting app)
 
 ---
 
@@ -80,59 +80,9 @@ Fixed sleeps cause flaky tests (too short on slow CI, too long elsewhere). Use `
 
 ## 🧹 Low — Tidiness
 
-### 13. `DummyBroker` and `Formatter` Ship in Production
-
-[test_helper.ex:397-493](file:///Users/sf/ws/asyncapi/lib/asyncapi/test_helper.ex#L397-L493)
-
-`DummyBroker` and `Asyncapi.TestHelper.Formatter` are defined in `lib/asyncapi/test_helper.ex`. Since `lib/` is always compiled, these modules are included in production releases.
-
-**Fix:** Move to `test/helpers/` (already on `elixirc_paths` for `:test`).
-
----
-
-### 14. Unused `nimble_csv` Dependency
-
-[mix.exs:28](file:///Users/sf/ws/asyncapi/mix.exs#L28): `{:nimble_csv, "~> 0.1"}` — not used anywhere in the codebase.
-
-**Fix:** Remove it.
-
----
-
 ### 15. No `@moduledoc` / `@doc` on Any Module
 
 No module in the library has documentation. For a production library, at minimum document: `Asyncapi`, `MqttAsyncapi`, `Asyncapi.Message`, `Asyncapi.Schema`, `Asyncapi.Helpers`.
-
----
-
-### 16. `Asyncapi.Message.t()` Typespec Too Loose
-
-```elixir
-@type t :: %__MODULE__{}
-```
-
-Tells Dialyzer nothing. Should be:
-
-```elixir
-@type t :: %__MODULE__{
-  op_id: String.t() | nil,
-  params: map(),
-  payload: map(),
-  retain: boolean(),
-  qos: 0 | 1 | 2
-}
-```
-
----
-
-### 17. `Asyncapi.Helpers.reply([], state)` Silently Becomes `{:noreply, ...}`
-
-[helpers.ex:19](file:///Users/sf/ws/asyncapi/lib/asyncapi/helpers.ex#L19)
-
-```elixir
-def reply([], state), do: {:noreply, state}
-```
-
-The commented-out `raise` alternative and the German comment on L17 confirm this has already caused confusion. Decide and document one way or the other.
 
 ---
 
@@ -165,22 +115,39 @@ No broker is configured for `:dev` or `:prod`. The host app must always provide 
 
 ---
 
+## ⏳ Later — See TODOS.md
+
+### 17. `Asyncapi.Helpers.reply([], state)` Silently Becomes `{:noreply, ...}`
+
+Breaking change for existing services. Deferred — see TODOS.md.
+
+---
+
 ## Summary
 
 | Priority | # | Item | Status |
 |---|---|---|---|
+| 🚨 Critical | 1 | Remove `runtime: false` on `ex_json_schema` | ✅ done |
 | 🚨 Critical | 2 | Add reconnection / crash on disconnect | **open** |
-| ⚠️ High | 5 | Runtime broker config instead of compile-time | **open** — linked to app-start TODO |
-| ⚠️ High | 8 | Document supervision requirements | **open** — linked to app-start TODO |
+| 🚨 Critical | 3 | Handle malformed JSON gracefully | ✅ done |
+| 🚨 Critical | 4 | Remove `dbg` calls | ✅ done |
+| ⚠️ High | 5 | Runtime broker config instead of compile-time | **open** — linked to TODO [1701] |
+| ⚠️ High | 6 | Fix broker behaviour to match implementations | ✅ done |
+| ⚠️ High | 7 | Don't swallow publish errors | ✅ done |
+| ⚠️ High | 8 | Document supervision requirements | **open** — linked to TODO [1701] |
+| 🛠 Medium | 9 | Replace JSON round-trip with `stringify_keys` | ✅ done |
+| 🛠 Medium | 10 | Replace `import Enum` with explicit calls | ✅ done |
 | 🛠 Medium | 11 | Return `{:error, reason}` instead of `raise` | **open** — compile-time raises acceptable |
 | 🛠 Medium | 12 | Remove `Process.sleep` from tests | **open** |
-| 🧹 Low | 13 | Move `DummyBroker`/`Formatter` to `test/` | **open** |
-| 🧹 Low | 14 | Remove unused `nimble_csv` dep | **open** |
+| 🧹 Low | 13 | Move `DummyBroker`/`Formatter` out of `test_helper.ex` | ✅ done |
+| 🧹 Low | 14 | Remove unused `nimble_csv` dep | ✅ done |
 | 🧹 Low | 15 | Add `@moduledoc` / `@doc` | **open** |
-| 🧹 Low | 16 | Improve `Message.t()` typespec | **open** |
-| 🧹 Low | 17 | Decide on `reply([], state)` semantics | **open** |
+| 🧹 Low | 16 | Improve `Message.t()` typespec | ✅ done |
+| 🧹 Low | 17 | Decide on `reply([], state)` semantics | **later** — see TODOS.md |
 | 🧹 Low | 18 | Triage all TODOs | **open** |
 | 🧹 Low | 19 | Document/default broker config for non-test envs | **open** |
+
+**10 of 19 items resolved.** Remaining: 2 critical, 4 medium, 3 low.
 
 ---
 
@@ -225,3 +192,21 @@ Replaced the `Jason.encode!() |> Jason.decode!()` hack with `Asyncapi.Helpers.st
 ### 10. `import Enum` Pollutes Namespace
 
 Removed all 5 `import Enum` statements across `asyncapi.ex`, `mqtt_asyncapi.ex`, `message.ex`, `test_helper.ex`, and `DummyBroker`. All bare calls now use explicit `Enum.` prefix.
+
+---
+
+### 13. `DummyBroker` and `Formatter` Extracted from `test_helper.ex`
+
+`DummyBroker` extracted to its own file `lib/asyncapi/broker/dummy_broker.ex`. `Formatter` moved to `test/helpers/formatter.ex`. `Asyncapi.Broker.Dummy` stays in `lib/` as it's needed by consumers at compile time via `Application.compile_env`.
+
+---
+
+### 14. Unused `nimble_csv` Dependency
+
+Removed `{:nimble_csv, "~> 0.1"}` from `mix.exs`.
+
+---
+
+### 16. `Asyncapi.Message.t()` Typespec Too Loose
+
+Added explicit field types: `op_id: String.t() | nil`, `params: map()`, `payload: map()`, `retain: boolean()`, `qos: 0 | 1 | 2`.

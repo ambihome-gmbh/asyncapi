@@ -13,7 +13,10 @@ defmodule Baking.MixProject do
   end
 
   def application do
-    []
+    [
+      extra_applications: [:logger],
+      mod: {Baking.Application, []}
+    ]
   end
 
   defp deps do

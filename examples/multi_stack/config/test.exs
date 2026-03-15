@@ -1,4 +1,4 @@
 import Config
 
 config :asyncapi, broker: Asyncapi.Broker.Dummy
-config :baking, start_service: false
+config :multi_stack, start_service: false
