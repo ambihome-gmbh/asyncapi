@@ -6,23 +6,9 @@ Consolidated from three independent reviews plus fresh source analysis.
 
 ## 🚨 Critical — Will Break in Production
 
-### 1. done -- `ex_json_schema` marked `runtime: false`
-
-[mix.exs:27](file:///Users/sf/ws/asyncapi/mix.exs#L27)
-
-```elixir
-{:ex_json_schema, "~> 0.10.2", runtime: false}
-```
-
-`ExJsonSchema.Validator.validate_fragment/3` is called at **runtime** for every incoming and outgoing message (`validate_payload/3`, `validate_parameter/4`). With `runtime: false`, a production release (`mix release`) will omit the dependency entirely → instant `UndefinedFunctionError` crash on the first MQTT message.
-
-**Fix:** Remove `runtime: false`.
-
----
-
 ### 2. No MQTT Reconnection Logic
 
-[mqtt_asyncapi.ex:141-143](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L141-L143)
+[mqtt_asyncapi.ex:136-138](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L136-L138)
 
 ```elixir
 def handle_info({:disconnected, :shutdown, :ssl_closed}, state) do
@@ -39,41 +25,11 @@ When the broker connection drops, the GenServer logs a warning but **stays alive
 
 ---
 
-### 3. done -- Malformed JSON Crashes the GenServer
-
-[message.ex:65-67](file:///Users/sf/ws/asyncapi/lib/asyncapi/message.ex#L65-L67)
-
-```elixir
-def decode_mqtt_message(mqtt_message) do
-  %{mqtt_message | payload: Jason.decode!(mqtt_message.payload)}
-end
-```
-
-Any malformed JSON on a subscribed topic crashes the GenServer via `Jason.decode!`. If the message is retained, this becomes a crash loop on every restart → **denial of service**.
-
-**Fix:** Use `Jason.decode/1`, return `{:error, :invalid_json}`, log and discard.
-
----
-
-### 4. done -- `dbg/1` Left in Production Code
-
-[mqtt_asyncapi.ex:134](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L134)
-
-```elixir
-dbg({:error, reason})
-```
-
-`dbg/1` prints debug output to stdout in production. Also present in [test_helper.ex:291](file:///Users/sf/ws/asyncapi/lib/asyncapi/test_helper.ex#L291) (less critical since it's a test helper, but the file ships in production — see §9).
-
-**Fix:** Replace with `Logger.warning("message validation failed: #{inspect(reason)}")`.
-
-*See also TODOS.md [1702]*
-
----
-
 ## ⚠️ High — Architecture & Reliability
 
-### 5. later -- Compile-Time Broker Configuration
+### 5. Compile-Time Broker Configuration
+
+NOTE: We have to tackle that together with TODO: how can we make the application start with tests (right now test avoid starting app)
 
 [mqtt_asyncapi.ex:17](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L17)
 
@@ -87,108 +43,26 @@ The broker module is baked in at compile time. If a host app uses this as a depe
 
 ---
 
-### 6. done -- Broker Behaviour Doesn't Match Implementations
-
-[broker.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/broker.ex)
-
-```elixir
-@callback connect(asyncapi) :: {:ok, state}
-@callback publish(state, Asyncapi.Message.t()) :: :ok
-```
-
-| | `connect` | `publish` |
-|---|---|---|
-| **Behaviour** | 1 arg | `Message.t()` |
-| **MQTT impl** | 2 args (`asyncapi, user_module`) | raw map `%{topic, payload, qos}` |
-| **Dummy impl** | 2 args (`asyncapi, _name`) | raw map |
-
-The behaviour provides **zero compile-time safety**. Dialyzer won't catch mismatches.
-
-**Fix:** Update behaviour to `connect(asyncapi, module()) :: {:ok, state}` and `publish(state, map()) :: :ok | {:error, term()}`.
-
----
-
-### 7. done -- Silent Failures on MQTT Publish
-
-[broker/mqtt.ex:23-26](file:///Users/sf/ws/asyncapi/lib/asyncapi/broker/mqtt.ex#L23-L26)
-
-```elixir
-def publish(broker_state, mqtt_message) do
-  :emqtt.publish(broker_state.pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
-  :ok
-end
-```
-
-The return value of `:emqtt.publish/4` is discarded. For QoS 1/2, failures (e.g. dead connection) are silently swallowed.
-
-**Fix:** Return the actual result: `:ok | {:error, reason}`.
-
----
-
 ### 8. No Supervisor / Application Module
 
 asyncapi is a library, not an application. It does not need a supervisor or an application module.
 that is handle by the using application.
-We have to tackle that together with TODO: how can we make the application start with tests (right now test avoid starting app)
+
+NOTE: We have to tackle that together with TODO: how can we make the application start with tests (right now test avoid starting app)
 
 ---
 
 ## 🛠 Medium — Performance & Code Quality
 
-### 9. done -- JSON Round-Trip Hack for Atom Keys
-
-[message.ex:39-40](file:///Users/sf/ws/asyncapi/lib/asyncapi/message.ex#L39-L40), [asyncapi.ex:61](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L61)
-
-```elixir
-# HACK - so that I can send atom keys and values!
-params = params |> Jason.encode!() |> Jason.decode!()
-payload = payload |> Jason.encode!() |> Jason.decode!()
-```
-
-Full JSON serialization round-trip on **every message** just to coerce atom keys to strings. Expensive and fragile (drops non-JSON-serializable values).
-
-**Fix:** Write a simple recursive `stringify_keys/1`:
-
-```elixir
-def stringify_keys(%{} = map) do
-  Map.new(map, fn
-    {k, v} when is_atom(k) -> {Atom.to_string(k), stringify_keys(v)}
-    {k, v} -> {k, stringify_keys(v)}
-  end)
-end
-def stringify_keys(list) when is_list(list), do: Enum.map(list, &stringify_keys/1)
-def stringify_keys(v) when is_atom(v), do: Atom.to_string(v)
-def stringify_keys(v), do: v
-```
-
-*See also TODOS.md [1698]*
-
----
-
-### 10. done -- `import Enum` Pollutes Namespace
-
-In [asyncapi.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L2), [message.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/message.ex#L2), [mqtt_asyncapi.ex](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L2), [test_helper.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/test_helper.ex#L4):
-
-```elixir
-import Enum
-```
-
-Imports 100+ functions. Makes code harder to read (`filter(...)` vs `Enum.filter(...)`), can shadow local functions. This is an Elixir anti-pattern flagged by `mix credo`.
-
-**Fix:** Use `Enum.` prefix explicitly.
-
----
-
 ### 11. `raise` Used for Flow Control
 
 Multiple places use `raise/1` where `{:error, reason}` would be idiomatic:
 
-- [asyncapi.ex:90](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L90): `raise("need a server/production")`
-- [asyncapi.ex:93](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L93): `"mqtt" = server["protocol"]` — pattern match crash
-- [asyncapi.ex:109](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L109): `raise("channel must have messages")`
-- [mqtt_asyncapi.ex:185](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L185): `raise(inspect(error))` — `inspect` as error message
+- [asyncapi.ex:87](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L87): `raise("need a server/production")`
+- [asyncapi.ex:90](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L90): `"mqtt" = server["protocol"]` — pattern match crash
+- [asyncapi.ex:106](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L106): `raise("channel must have messages")`
 
-The raises in `load/2` are acceptable since loading happens at compile time. The runtime raises in `publish!` are concerning.
+The raises in `load/2` are acceptable since loading happens at compile time via `Asyncapi.Schema`. The runtime `publish!` raise was removed with item 7.
 
 ---
 
@@ -293,24 +167,61 @@ No broker is configured for `:dev` or `:prod`. The host app must always provide 
 
 ## Summary
 
-| Priority | # | Item | Effort |
+| Priority | # | Item | Status |
 |---|---|---|---|
-| 🚨 Critical | 1 | Remove `runtime: false` on `ex_json_schema` | 1 min |
-| 🚨 Critical | 2 | Add reconnection / crash on disconnect | 2-4 hrs |
-| 🚨 Critical | 3 | Handle malformed JSON gracefully | 15 min |
-| 🚨 Critical | 4 | Remove `dbg` calls | 2 min |
-| ⚠️ High | 5 | Runtime broker config instead of compile-time | 30 min |
-| ⚠️ High | 6 | Fix broker behaviour to match implementations | 15 min |
-| ⚠️ High | 7 | Don't swallow publish errors | 10 min |
-| ⚠️ High | 8 | Document supervision requirements | 15 min |
-| 🛠 Medium | 9 | Replace JSON round-trip with `stringify_keys` | 30 min |
-| 🛠 Medium | 10 | Replace `import Enum` with explicit calls | 20 min |
-| 🛠 Medium | 11 | Return `{:error, reason}` instead of `raise` | 30 min |
-| 🛠 Medium | 12 | Remove `Process.sleep` from tests | 30 min |
-| 🧹 Low | 13 | Move `DummyBroker`/`Formatter` to `test/` | 15 min |
-| 🧹 Low | 14 | Remove unused `nimble_csv` dep | 1 min |
-| 🧹 Low | 15 | Add `@moduledoc` / `@doc` | 1 hr |
-| 🧹 Low | 16 | Improve `Message.t()` typespec | 5 min |
-| 🧹 Low | 17 | Decide on `reply([], state)` semantics | 10 min |
-| 🧹 Low | 18 | Triage all TODOs | 30 min |
-| 🧹 Low | 19 | Document/default broker config for non-test envs | 10 min |
+| 🚨 Critical | 2 | Add reconnection / crash on disconnect | **open** |
+| ⚠️ High | 5 | Runtime broker config instead of compile-time | **open** — linked to app-start TODO |
+| ⚠️ High | 8 | Document supervision requirements | **open** — linked to app-start TODO |
+| 🛠 Medium | 11 | Return `{:error, reason}` instead of `raise` | **open** — compile-time raises acceptable |
+| 🛠 Medium | 12 | Remove `Process.sleep` from tests | **open** |
+| 🧹 Low | 13 | Move `DummyBroker`/`Formatter` to `test/` | **open** |
+| 🧹 Low | 14 | Remove unused `nimble_csv` dep | **open** |
+| 🧹 Low | 15 | Add `@moduledoc` / `@doc` | **open** |
+| 🧹 Low | 16 | Improve `Message.t()` typespec | **open** |
+| 🧹 Low | 17 | Decide on `reply([], state)` semantics | **open** |
+| 🧹 Low | 18 | Triage all TODOs | **open** |
+| 🧹 Low | 19 | Document/default broker config for non-test envs | **open** |
+
+---
+
+## ✅ Done
+
+### 1. `ex_json_schema` marked `runtime: false`
+
+Removed `runtime: false` from `ex_json_schema` dependency in `mix.exs`. Without this fix, `mix release` would omit the dependency, causing `UndefinedFunctionError` on the first MQTT message.
+
+---
+
+### 3. Malformed JSON Crashes the GenServer
+
+Changed `decode_mqtt_message` to return `{:ok, decoded}` / `{:error, :json_decode_error, reason}` instead of crashing via `Jason.decode!`. The `handle_info` in `mqtt_asyncapi.ex` now uses a `with` chain to gracefully handle both JSON decode errors and message validation errors, logging and discarding invalid messages.
+
+---
+
+### 4. `dbg/1` Left in Production Code
+
+The `dbg({:error, reason})` in `mqtt_asyncapi.ex` was removed as part of the item 3 fix (replaced by `Logger.warning` in the `with` error handler). The `dbg` in `test_helper.ex:293` remains (acceptable — only fires during test assertion failures).
+
+---
+
+### 6. Broker Behaviour Doesn't Match Implementations
+
+Updated `Asyncapi.Broker` callbacks to match reality: `connect(asyncapi, module())` and `publish(state, mqtt_message) :: :ok | {:error, term()}`. Removed default arguments from both `MQTT` and `Dummy` implementations. Fixed the single call site in `test_helper.ex`.
+
+---
+
+### 7. Silent Failures on MQTT Publish
+
+`Asyncapi.Broker.MQTT.publish/2` now returns the actual result from `:emqtt.publish`. Removed `publish!` (which raised on error). `publish/2` now logs errors via `Logger.warning` and returns the error tuple — one failed publish no longer crashes the GenServer or blocks other publishes.
+
+---
+
+### 9. JSON Round-Trip Hack for Atom Keys
+
+Replaced the `Jason.encode!() |> Jason.decode!()` hack with `Asyncapi.Helpers.stringify_keys/1` — a recursive function that converts atom keys and atom values to strings while preserving `true`, `false`, and `nil`.
+
+---
+
+### 10. `import Enum` Pollutes Namespace
+
+Removed all 5 `import Enum` statements across `asyncapi.ex`, `mqtt_asyncapi.ex`, `message.ex`, `test_helper.ex`, and `DummyBroker`. All bare calls now use explicit `Enum.` prefix.

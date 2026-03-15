@@ -2,3 +2,4 @@
 - [1698] how can we handle atom keys in messages? (hacky json roundtrip)
 - [1701] how can we make the application start with tests (right now test avoid starting app)
 - [1702] better logging
+- bump `emqtt` from 1.13.1 — latest is 1.14.7 (or 1.13.8 for same branch)
