@@ -1,7 +1,11 @@
 defmodule Asyncapi.Message do
-
-
-  @type t :: %__MODULE__{}
+  @type t :: %__MODULE__{
+          op_id: String.t() | nil,
+          params: map(),
+          payload: map(),
+          retain: boolean(),
+          qos: 0 | 1 | 2
+        }
   defstruct op_id: nil,
             params: %{},
             payload: %{},
