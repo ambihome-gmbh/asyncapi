@@ -6,7 +6,7 @@ Consolidated from three independent reviews plus fresh source analysis.
 
 ## 🚨 Critical — Will Break in Production
 
-### 1. `ex_json_schema` marked `runtime: false`
+### 1. done -- `ex_json_schema` marked `runtime: false`
 
 [mix.exs:27](file:///Users/sf/ws/asyncapi/mix.exs#L27)
 
@@ -87,7 +87,7 @@ The broker module is baked in at compile time. If a host app uses this as a depe
 
 ---
 
-### 6. Broker Behaviour Doesn't Match Implementations
+### 6. done -- Broker Behaviour Doesn't Match Implementations
 
 [broker.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/broker.ex)
 
@@ -135,7 +135,7 @@ This is acceptable for a library, but should be documented. Consider providing a
 
 ## 🛠 Medium — Performance & Code Quality
 
-### 9. JSON Round-Trip Hack for Atom Keys
+### 9. done -- JSON Round-Trip Hack for Atom Keys
 
 [message.ex:39-40](file:///Users/sf/ws/asyncapi/lib/asyncapi/message.ex#L39-L40), [asyncapi.ex:61](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L61)
 
@@ -165,7 +165,7 @@ def stringify_keys(v), do: v
 
 ---
 
-### 10. `import Enum` Pollutes Namespace
+### 10. wontfix -- `import Enum` Pollutes Namespace
 
 In [asyncapi.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L2), [message.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/message.ex#L2), [mqtt_asyncapi.ex](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L2), [test_helper.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/test_helper.ex#L4):
 

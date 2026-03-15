@@ -56,9 +56,7 @@ defmodule Asyncapi do
   end
 
   def validate_payload(payload, operation, schema) do
-    # AH-1698/asyncapi-struct-generator
-    # HACK
-    payload = payload |> Jason.encode!() |> Jason.decode!()
+    payload = Asyncapi.Helpers.stringify_keys(payload)
 
     case Validator.validate_fragment(schema, operation.payload_schema, payload) do
       :ok ->

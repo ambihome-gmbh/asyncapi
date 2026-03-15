@@ -34,10 +34,8 @@ defmodule Asyncapi.Message do
     %{schema: schema, operations: operations} = asyncapi
     %{op_id: op_id, params: params, payload: payload} = message
 
-    # AH-1698/asyncapi-struct-generator
-    # HACK - so that I can send atom keys and values!
-    params = params |> Jason.encode!() |> Jason.decode!()
-    payload = payload |> Jason.encode!() |> Jason.decode!()
+    params = Asyncapi.Helpers.stringify_keys(params)
+    payload = Asyncapi.Helpers.stringify_keys(payload)
 
     with {:ok, operation} <- fetch_operation(operations, op_id),
          :ok <- Asyncapi.check_for_missing_or_unexpected_parameters(params, operation),
