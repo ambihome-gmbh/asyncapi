@@ -3,7 +3,7 @@ defmodule Asyncapi.Broker.MQTT do
 
   require Logger
 
-  def connect(asyncapi, user_module \\ "user_module_not_given") do
+  def connect(asyncapi, user_module) do
     host =
       case Application.get_env(:asyncapi, :broker_host) do
         nil -> asyncapi.server.host

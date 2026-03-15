@@ -75,7 +75,7 @@ defmodule Asyncapi.TestHelper do
     def init(opts) do
       broker = Keyword.fetch!(opts, :broker)
       asyncapi = Keyword.fetch!(opts, :asyncapi)
-      {:ok, broker_state} = broker.connect(asyncapi)
+      {:ok, broker_state} = broker.connect(asyncapi, __MODULE__)
       {:ok, %{broker: broker_state, asyncapi: asyncapi, queue: :queue.new()}}
     end
 

@@ -1,7 +1,8 @@
 defmodule Asyncapi.Broker do
   @type asyncapi :: term
   @type state :: term
+  @type mqtt_message :: %{topic: String.t(), payload: binary(), qos: non_neg_integer()}
 
-  @callback connect(asyncapi) :: {:ok, state}
-  @callback publish(state, Asyncapi.Message.t()) :: :ok
+  @callback connect(asyncapi, module()) :: {:ok, state}
+  @callback publish(state, mqtt_message) :: :ok | {:error, term()}
 end
