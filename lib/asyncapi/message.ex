@@ -1,5 +1,5 @@
 defmodule Asyncapi.Message do
-  import Enum
+
 
   @type t :: %__MODULE__{}
   defstruct op_id: nil,
@@ -79,6 +79,6 @@ defmodule Asyncapi.Message do
   end
 
   defp interpolate_parameters(address, params) do
-    reduce(params, address, fn {p, v}, topic -> String.replace(topic, "{#{p}}", v) end)
+    Enum.reduce(params, address, fn {p, v}, topic -> String.replace(topic, "{#{p}}", v) end)
   end
 end

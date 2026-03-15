@@ -1,5 +1,5 @@
 defmodule MqttAsyncapi do
-  import Enum
+
   alias Asyncapi.Message
 
   require Logger
@@ -162,7 +162,7 @@ defmodule MqttAsyncapi do
   defp process_reply({:noreply, new_user_state}, _state), do: new_user_state
 
   defp process_reply({:reply, responses, new_user_state}, state) do
-    each(responses, &publish(&1, state))
+    Enum.each(responses, &publish(&1, state))
     new_user_state
   end
 

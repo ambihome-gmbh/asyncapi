@@ -108,7 +108,7 @@ The behaviour provides **zero compile-time safety**. Dialyzer won't catch mismat
 
 ---
 
-### 7. Silent Failures on MQTT Publish
+### 7. done -- Silent Failures on MQTT Publish
 
 [broker/mqtt.ex:23-26](file:///Users/sf/ws/asyncapi/lib/asyncapi/broker/mqtt.ex#L23-L26)
 
@@ -127,9 +127,9 @@ The return value of `:emqtt.publish/4` is discarded. For QoS 1/2, failures (e.g.
 
 ### 8. No Supervisor / Application Module
 
-`mix.exs` defines no `mod:` key — no supervision tree. Each service is a bare GenServer. Users must manually wire supervision, health checks, and graceful shutdown.
-
-This is acceptable for a library, but should be documented. Consider providing a `child_spec/1` example in README.
+asyncapi is a library, not an application. It does not need a supervisor or an application module.
+that is handle by the using application.
+We have to tackle that together with TODO: how can we make the application start with tests (right now test avoid starting app)
 
 ---
 
@@ -165,7 +165,7 @@ def stringify_keys(v), do: v
 
 ---
 
-### 10. wontfix -- `import Enum` Pollutes Namespace
+### 10. `import Enum` Pollutes Namespace
 
 In [asyncapi.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi.ex#L2), [message.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/message.ex#L2), [mqtt_asyncapi.ex](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L2), [test_helper.ex](file:///Users/sf/ws/asyncapi/lib/asyncapi/test_helper.ex#L4):
 

@@ -1,5 +1,5 @@
 defmodule Asyncapi do
-  import Enum
+
   alias ExJsonSchema.Validator
 
   defstruct [:schema, :subscriptions, :operations, :server]
@@ -8,7 +8,7 @@ defmodule Asyncapi do
     matching_operations =
       operations
       |> Map.values()
-      |> filter(&Regex.match?(&1.regex, topic))
+      |> Enum.filter(&Regex.match?(&1.regex, topic))
 
     case matching_operations do
       [] ->
@@ -18,7 +18,7 @@ defmodule Asyncapi do
         {:ok, operation}
 
       [_, _ | _] = ambiguous_operations ->
-        operations_ids = map(ambiguous_operations, & &1.id)
+        operations_ids = Enum.map(ambiguous_operations, & &1.id)
         {:error, {:ambiguous_operation, operations_ids, topic}}
     end
   end
@@ -81,15 +81,15 @@ defmodule Asyncapi do
     subscriptions =
       operations
       |> Map.values()
-      |> filter(&(&1.action == "receive"))
-      |> map(&Regex.replace(~r/\{([^}]*)\}/, &1.address, "+"))
+      |> Enum.filter(&(&1.action == "receive"))
+      |> Enum.map(&Regex.replace(~r/\{([^}]*)\}/, &1.address, "+"))
 
     if not (!!schema.schema["servers"]["production"]),
       do: raise("need a server/production. TODO meta-schema.")
 
     server = resolve_schema(schema.schema["servers"]["production"], schema)
     "mqtt" = server["protocol"]
-    host = to_charlist(server["host"])
+    host = String.to_charlist(server["host"])
     port = server |> get_in(["variables", "port", "default"]) |> String.to_integer()
 
     %__MODULE__{
@@ -107,7 +107,7 @@ defmodule Asyncapi do
           raise("channel #{inspect(channel)} of #{schema_module} must have messages. TODO meta-schema.")
 
         messages ->
-          to_list(messages)
+          Enum.to_list(messages)
       end
 
     if length(messages) != 1,

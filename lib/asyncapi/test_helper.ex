@@ -1,7 +1,7 @@
 defmodule Asyncapi.TestHelper do
   use ExUnit.Case
   import ExUnit.Assertions
-  import Enum
+
   require Logger
 
   # TODO move to separate file?
@@ -178,7 +178,7 @@ defmodule Asyncapi.TestHelper do
       end
 
       sequence =
-        for {step, step_index} <- with_index(sequence, 1) do
+        for {step, step_index} <- Enum.with_index(sequence, 1) do
           dir_resolved =
             for {dir, actor} <- [from_: step.from, to_: step.to], into: %{} do
               resolved =
@@ -348,7 +348,7 @@ defmodule Asyncapi.TestHelper do
     bindings = acc.bindings
 
     new_bindings =
-      reduce(step, bindings, fn {k, v}, acc ->
+      Enum.reduce(step, bindings, fn {k, v}, acc ->
         case v do
           {:binding, binding_name} ->
             assert Map.has_key?(received, k),
@@ -374,7 +374,7 @@ defmodule Asyncapi.TestHelper do
 
   def deref(%{"__bytearray__" => {:list, bytearray}}, _bindings) do
     bytearray
-    |> map(fn
+    |> Enum.map(fn
       {:literal, v} -> v
       invalid -> raise("invalid bytearray element: #{inspect(invalid)}")
     end)
@@ -387,7 +387,7 @@ defmodule Asyncapi.TestHelper do
       case type do
         :reference -> {key, fetch!(bindings, value, "todo_err_msg_wrap_fetch_binding")}
         :binding -> {key, {type, value}}
-        :list -> {key, map(value, fn {:literal, v} -> v end)}
+        :list -> {key, Enum.map(value, fn {:literal, v} -> v end)}
         :map -> {key, deref(value, bindings)}
         _ -> {key, value}
       end
@@ -397,7 +397,7 @@ end
 
 # TODO move to separate file, naming.
 defmodule DummyBroker do
-  import Enum
+
 
   def child_spec(init_arg) do
     %{
@@ -422,8 +422,8 @@ defmodule DummyBroker do
     recipients = Registry.select(DummyBroker.Registry, build_match_spec(topic))
 
     recipients
-    |> uniq
-    |> each(&send(&1, {:publish, %{topic: topic, payload: payload}}))
+    |> Enum.uniq()
+    |> Enum.each(&send(&1, {:publish, %{topic: topic, payload: payload}}))
   end
 
   @pid_var_id 1
@@ -433,13 +433,13 @@ defmodule DummyBroker do
 
     head =
       {
-        (@pid_var_id + 1)..(arity + @pid_var_id) |> map(&var/1) |> List.to_tuple(),
+        (@pid_var_id + 1)..(arity + @pid_var_id) |> Enum.map(&var/1) |> List.to_tuple(),
         var(@pid_var_id),
         :_
       }
 
     guards =
-      for {seg, i} <- with_index(topic_segments, @pid_var_id + 1) do
+      for {seg, i} <- Enum.with_index(topic_segments, @pid_var_id + 1) do
         {:orelse, {:==, var(i), seg}, {:==, var(i), :any}}
       end
 
@@ -449,7 +449,7 @@ defmodule DummyBroker do
   defp topic_to_tuple(topic) do
     topic
     |> String.split("/")
-    |> map(fn
+    |> Enum.map(fn
       "+" -> :any
       seg -> seg
     end)
