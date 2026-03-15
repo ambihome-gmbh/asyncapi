@@ -82,6 +82,18 @@ docker start nanomq
 docker stop nanomq
 ```
 
+### Broker Configuration
+
+The host application must configure the broker module. No default is provided — this is intentional so the library doesn't assume a transport.
+
+```elixir
+# config/config.exs
+config :asyncapi, broker: Asyncapi.Broker.MQTT
+
+# config/test.exs
+config :asyncapi, broker: Asyncapi.Broker.Dummy
+```
+
 
 
 ## Module Generator / Structs

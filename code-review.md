@@ -4,25 +4,6 @@ Consolidated from three independent reviews plus fresh source analysis.
 
 ---
 
-## 🚨 Critical — Will Break in Production
-
-### 2. No MQTT Reconnection Logic
-
-[mqtt_asyncapi.ex:136-138](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L136-L138)
-
-```elixir
-def handle_info({:disconnected, :shutdown, :ssl_closed}, state) do
-  Logger.warning("[#{inspect(state.user_module)}] disconnected: ssl_closed")
-  {:noreply, state}
-end
-```
-
-When the broker connection drops, the GenServer logs a warning but **stays alive disconnected**. It will never receive messages again and all publishes will fail silently. Network blips are guaranteed in production.
-
-**Fix:** Either crash the GenServer (let supervisor restart it), or implement a reconnect with exponential backoff via `Process.send_after`.
-
-*See also TODOS.md [1754]*
-
 ---
 
 ## ⚠️ High — Architecture & Reliability
@@ -128,7 +109,7 @@ Breaking change for existing services. Deferred — see TODOS.md.
 | Priority | # | Item | Status |
 |---|---|---|---|
 | 🚨 Critical | 1 | Remove `runtime: false` on `ex_json_schema` | ✅ done |
-| 🚨 Critical | 2 | Add reconnection / crash on disconnect | **open** |
+| 🚨 Critical | 2 | MQTT reconnection + graceful connect failure | ✅ done |
 | 🚨 Critical | 3 | Handle malformed JSON gracefully | ✅ done |
 | 🚨 Critical | 4 | Remove `dbg` calls | ✅ done |
 | ⚠️ High | 5 | Runtime broker config instead of compile-time | **open** — linked to TODO [1701] |
@@ -145,9 +126,9 @@ Breaking change for existing services. Deferred — see TODOS.md.
 | 🧹 Low | 16 | Improve `Message.t()` typespec | ✅ done |
 | 🧹 Low | 17 | Decide on `reply([], state)` semantics | **later** — see TODOS.md |
 | 🧹 Low | 18 | Triage all TODOs | **open** |
-| 🧹 Low | 19 | Document/default broker config for non-test envs | **open** |
+| 🧹 Low | 19 | Document/default broker config for non-test envs | ✅ done |
 
-**10 of 19 items resolved.** Remaining: 2 critical, 4 medium, 3 low.
+**12 of 19 items resolved.** All critical items done. Remaining: 2 high, 2 medium, 3 low.
 
 ---
 
@@ -210,3 +191,13 @@ Removed `{:nimble_csv, "~> 0.1"}` from `mix.exs`.
 ### 16. `Asyncapi.Message.t()` Typespec Too Loose
 
 Added explicit field types: `op_id: String.t() | nil`, `params: map()`, `payload: map()`, `retain: boolean()`, `qos: 0 | 1 | 2`.
+
+---
+
+### 2. MQTT Reconnection + Graceful Connect Failure
+
+Leveraged emqtt's built-in reconnection (`reconnect: :infinity, reconnect_timeout: 5`). On runtime disconnect, emqtt automatically retries and reconnects. On reconnect, our `{:connected, _}` handler re-subscribes to all topics via `subscribe_all/3` (added to `Asyncapi.Broker` behaviour).
+
+For initial connect failure (broker not running at startup): `mqtt.ex` traps exits temporarily around `:emqtt.start_link` / `:emqtt.connect` to prevent the linked emqtt process death from crashing the GenServer. Logs `Logger.error` with a clear message and exits with `{:shutdown, reason}`.
+
+**Limitation:** emqtt does not notify the owner on TCP-level disconnects when `reconnect` is enabled — it silently enters its internal `reconnect` state. MQTT-level disconnect packets (with integer reason codes) do trigger `{:disconnected, reason_code, properties}`.
