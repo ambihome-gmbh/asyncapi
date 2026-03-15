@@ -24,7 +24,7 @@ defmodule Asyncapi.MixProject do
   defp deps do
     [
       {:jason, "~> 1.4"},
-      {:ex_json_schema, "~> 0.10.2", runtime: false},
+      {:ex_json_schema, "~> 0.10.2"},
       {:nimble_csv, "~> 0.1"},
       {:abnf_parsec, "~> 2.0", runtime: false},
       {:recase, "~> 0.5"},
