@@ -1,0 +1,4 @@
+- [1754] how to handle invalid incoming messages, how to inform sender?
+- [1698] how can we handle atom keys in messages? (hacky json roundtrip)
+- [1701] how can we make the application start with tests (right now test avoid starting app)
+- [1702] better logging
