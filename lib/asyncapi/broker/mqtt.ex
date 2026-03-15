@@ -21,8 +21,11 @@ defmodule Asyncapi.Broker.MQTT do
   end
 
   def publish(broker_state, mqtt_message) do
-    :emqtt.publish(broker_state.pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos)
-    :ok
+    case :emqtt.publish(broker_state.pid, mqtt_message.topic, mqtt_message.payload, mqtt_message.qos) do
+      :ok -> :ok
+      {:ok, _packet_id} -> :ok
+      {:error, reason} -> {:error, :publish_failed, reason}
+    end
   end
 
   defp subscribe!(pid, topic, qos, user_module) do

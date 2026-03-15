@@ -162,7 +162,7 @@ defmodule MqttAsyncapi do
   defp process_reply({:noreply, new_user_state}, _state), do: new_user_state
 
   defp process_reply({:reply, responses, new_user_state}, state) do
-    each(responses, &publish!(&1, state))
+    each(responses, &publish(&1, state))
     new_user_state
   end
 
@@ -171,13 +171,10 @@ defmodule MqttAsyncapi do
          mqtt_message_encoded <- Message.encode_mqtt_message(mqtt_message),
          :ok <- state.broker.module.publish(state.broker, mqtt_message_encoded) do
       :ok
-    end
-  end
-
-  defp publish!(%Message{} = message, state) do
-    case publish(message, state) do
-      :ok -> :ok
-      error -> raise(inspect(error))
+    else
+      error ->
+        Logger.warning("[#{inspect(state.user_module)}] publish error: #{inspect(error)}")
+        error
     end
   end
 end

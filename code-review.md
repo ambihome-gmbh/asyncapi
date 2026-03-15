@@ -39,7 +39,7 @@ When the broker connection drops, the GenServer logs a warning but **stays alive
 
 ---
 
-### 3. Malformed JSON Crashes the GenServer
+### 3. done -- Malformed JSON Crashes the GenServer
 
 [message.ex:65-67](file:///Users/sf/ws/asyncapi/lib/asyncapi/message.ex#L65-L67)
 
@@ -55,7 +55,7 @@ Any malformed JSON on a subscribed topic crashes the GenServer via `Jason.decode
 
 ---
 
-### 4. `dbg/1` Left in Production Code
+### 4. done -- `dbg/1` Left in Production Code
 
 [mqtt_asyncapi.ex:134](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L134)
 
@@ -73,7 +73,7 @@ dbg({:error, reason})
 
 ## ⚠️ High — Architecture & Reliability
 
-### 5. Compile-Time Broker Configuration
+### 5. later -- Compile-Time Broker Configuration
 
 [mqtt_asyncapi.ex:17](file:///Users/sf/ws/asyncapi/lib/mqtt_asyncapi.ex#L17)
 
