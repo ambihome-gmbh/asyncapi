@@ -82,13 +82,7 @@ defmodule MqttAsyncapi do
 
     asyncapi = schema_module.get_asyncapi()
 
-    # AH-1702/asyncapi-logging -> broker wrapper?
-    # Logger.debug("[#{inspect(user_module)}] connecting to #{opts[:host]}:#{opts[:port]}")
-
     {:ok, broker_state} = @broker.connect(asyncapi, user_module)
-
-    # AH-1702/asyncapi-logging -> broker wrapper?
-    # Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
 
     {:ok, user_state, continue} =
       case user_module.init(opts) do
@@ -133,8 +127,14 @@ defmodule MqttAsyncapi do
     {:noreply, %{state | user_state: new_user_state}}
   end
 
-  def handle_info({:disconnected, :shutdown, :ssl_closed}, state) do
-    Logger.warning("[#{inspect(state.user_module)}] disconnected: ssl_closed")
+  def handle_info({:disconnected, reason_code, _properties}, state) do
+    Logger.warning("[#{inspect(state.user_module)}] disconnected: #{inspect(reason_code)}")
+    {:noreply, state}
+  end
+
+  def handle_info({:connected, _properties}, state) do
+    Logger.info("[#{inspect(state.user_module)}] reconnected, subscribing...")
+    subscribe_all(state)
     {:noreply, state}
   end
 
@@ -164,6 +164,10 @@ defmodule MqttAsyncapi do
   defp process_reply({:reply, responses, new_user_state}, state) do
     Enum.each(responses, &publish(&1, state))
     new_user_state
+  end
+
+  defp subscribe_all(state) do
+    state.broker.module.subscribe_all(state.broker, state.asyncapi, state.user_module)
   end
 
   defp publish(%Message{} = message, state) do

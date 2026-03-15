@@ -11,13 +11,39 @@ defmodule Asyncapi.Broker.MQTT do
         override when is_list(override) -> override
       end
 
-    opts = [host: host, port: asyncapi.server.port]
+    opts = [
+      host: host,
+      port: asyncapi.server.port,
+      reconnect: :infinity,
+      reconnect_timeout: 5
+    ]
+
+    # emqtt is linked via start_link. If connect fails, emqtt stops and
+    # sends an EXIT that would kill us before we can return {:error, reason}.
+    # Trap exits temporarily so we can handle the failure gracefully.
+    Process.flag(:trap_exit, true)
     {:ok, mqtt_pid} = :emqtt.start_link(opts)
-    {:ok, _props} = :emqtt.connect(mqtt_pid)
-    # AH-1702/asyncapi-logging
-    Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
-    Enum.each(asyncapi.subscriptions, &subscribe!(mqtt_pid, &1, 0, user_module))
-    {:ok, %{pid: mqtt_pid, opts: opts, module: __MODULE__}}
+
+    case :emqtt.connect(mqtt_pid) do
+      {:ok, _props} ->
+        Process.flag(:trap_exit, false)
+        broker_state = %{pid: mqtt_pid, opts: opts, module: __MODULE__}
+        Logger.info("[#{inspect(user_module)}] connected to #{opts[:host]}:#{opts[:port]}")
+        subscribe_all(broker_state, asyncapi, user_module)
+        {:ok, broker_state}
+
+      {:error, reason} ->
+        # Flush the EXIT message from the dead emqtt process
+        receive do
+          {:EXIT, ^mqtt_pid, _} -> :ok
+        after
+          0 -> :ok
+        end
+
+        Process.flag(:trap_exit, false)
+        Logger.error("[#{inspect(user_module)}] could not connect to #{opts[:host]}:#{opts[:port]}: #{inspect(reason)}")
+        exit({:shutdown, reason})
+    end
   end
 
   def publish(broker_state, mqtt_message) do
@@ -26,6 +52,12 @@ defmodule Asyncapi.Broker.MQTT do
       {:ok, _packet_id} -> :ok
       {:error, reason} -> {:error, :publish_failed, reason}
     end
+  end
+
+  def subscribe_all(broker_state, asyncapi, user_module) do
+    Logger.info("[#{inspect(user_module)}] subscribing to #{length(asyncapi.subscriptions)} topics")
+    Enum.each(asyncapi.subscriptions, &subscribe!(broker_state.pid, &1, 0, user_module))
+    :ok
   end
 
   defp subscribe!(pid, topic, qos, user_module) do

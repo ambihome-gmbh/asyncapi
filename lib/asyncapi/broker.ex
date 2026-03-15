@@ -5,4 +5,5 @@ defmodule Asyncapi.Broker do
 
   @callback connect(asyncapi, module()) :: {:ok, state}
   @callback publish(state, mqtt_message) :: :ok | {:error, term()}
+  @callback subscribe_all(state, asyncapi, module()) :: :ok
 end
