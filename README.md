@@ -94,6 +94,13 @@ config :asyncapi, broker: Asyncapi.Broker.MQTT
 config :asyncapi, broker: Asyncapi.Broker.Dummy
 ```
 
+### Known Limitations
+
+- **Publish errors are logged, not propagated.** When `MqttAsyncapi` publishes a reply, failures are logged as warnings but silently discarded. The user callback's state update still takes effect. This is acceptable for fire-and-forget messaging but means publish failures won't trigger retries or error handling in the service.
+- **Broker is resolved at compile time** via `Application.compile_env`. Switching between `Broker.MQTT` and `Broker.Dummy` requires recompilation (`mix compile --force`).
+- **Server name `"production"` is hardcoded** in `Asyncapi.load/2`. Schemas must define `servers.production`. Support for other server names (e.g. `"development"`) would require a code change.
+- **`schema_root` is a single global config.** All schema modules share the same root path via `Application.compile_env!(:asyncapi, :schema_root)`.
+
 
 
 ## Module Generator / Structs

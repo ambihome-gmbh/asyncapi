@@ -65,6 +65,7 @@ defmodule AsyncApiTest do
     assert {:ok, @m_4} = Message.from_mqtt_message(@mqtt_4, asyncapi)
   end
 
+  # NOTE: uses match (not ==) because qos/retain are not relevant for these assertions
   test "to_mqtt_message, valid", %{asyncapi: asyncapi} do
     assert @mqtt_1 = Message.to_mqtt_message!(@m_1, asyncapi)
     assert @mqtt_2 = Message.to_mqtt_message!(@m_2, asyncapi)

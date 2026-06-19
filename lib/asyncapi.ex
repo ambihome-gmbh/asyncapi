@@ -51,9 +51,7 @@ defmodule Asyncapi do
   end
 
   defp validate_parameter(name, value, operation, schema) do
-    parameter_schema = operation.parameter_schemas[name]
-    result = Validator.validate_fragment(schema, parameter_schema, value)
-    result
+    Validator.validate_fragment(schema, operation.parameter_schemas[name], value)
   end
 
   def validate_payload(payload, operation, schema) do
@@ -85,11 +83,11 @@ defmodule Asyncapi do
       |> Enum.filter(&(&1.action == "receive"))
       |> Enum.map(&Regex.replace(~r/\{([^}]*)\}/, &1.address, "+"))
 
-    if not (!!schema.schema["servers"]["production"]),
-      do: raise("need a server/production. TODO meta-schema.")
+    require!(schema.schema["servers"]["production"], "schema must define servers/production")
 
     server = resolve_schema(schema.schema["servers"]["production"], schema)
-    "mqtt" = server["protocol"]
+    require!("mqtt" == server["protocol"], "protocol must be mqtt")
+
     host = String.to_charlist(server["host"])
     port = server |> get_in(["variables", "port", "default"]) |> String.to_integer()
 
@@ -102,18 +100,10 @@ defmodule Asyncapi do
   end
 
   defp load_channel(channel, schema, schema_module) do
-    messages =
-      case channel["messages"] do
-        nil ->
-          raise("channel #{inspect(channel)} of #{schema_module} must have messages. TODO meta-schema.")
+    require!(channel["messages"], "channel #{inspect(channel)} of #{schema_module} must have messages")
+    messages = Enum.to_list(channel["messages"])
 
-        messages ->
-          Enum.to_list(messages)
-      end
-
-    if length(messages) != 1,
-      do: raise("only exactly one message per channel is supported for now. TODO meta-schema.")
-
+    require!(length(messages) == 1, "only exactly one message per channel is supported")
     [{message_key, message}] = messages
 
     message_name =
@@ -156,4 +146,9 @@ defmodule Asyncapi do
       fragment -> fragment
     end
   end
+
+  # Compile-time schema requirement. Will be replaced by meta-schema validation.
+  defp require!(nil, message), do: raise(message)
+  defp require!(false, message), do: raise(message)
+  defp require!(_, _message), do: :ok
 end

@@ -173,7 +173,7 @@ defmodule MqttAsyncapi do
 
   defp publish(%Message{} = message, state) do
     with {:ok, mqtt_message} <- Message.to_mqtt_message(message, state.asyncapi),
-         mqtt_message_encoded <- Message.encode_mqtt_message(mqtt_message),
+         mqtt_message_encoded = Message.encode_mqtt_message(mqtt_message),
          :ok <- state.broker.module.publish(state.broker, mqtt_message_encoded) do
       :ok
     else
